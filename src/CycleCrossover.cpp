@@ -89,10 +89,8 @@ namespace ea
 		child1 = new Individual(a->get_fitness_func(), a->size());
 		child2 = new Individual(a->get_fitness_func(), a->size());
 
-		for(uint32_t i = 0; i < cycles.size(); i++)
+		for(vector<vector<Gene*>*>::iterator iter = cycles.begin(); iter != cycles.end(); iter++)
 		{
-			cycle = cycles.at(i);
-
 			if(flag)
 			{
 				p1 = child1;
@@ -106,18 +104,19 @@ namespace ea
 
 			for(uint32_t m = 0; m < a->size(); m++)
 			{
-				if(IEquatable<Gene>::find(*cycle, a->gene_at(m)) != -1)
+				if(IEquatable<Gene>::find(**iter, a->gene_at(m)) != -1)
 				{
 					p1->set_gene(m, a->gene_at(m)->clone());
 				}
 
-				if(IEquatable<Gene>::find(*cycle, b->gene_at(m)) != -1)
+				if(IEquatable<Gene>::find(**iter, b->gene_at(m)) != -1)
 				{
 					p2->set_gene(m, b->gene_at(m)->clone());
 				}
 			}
 
 			flag = !flag;
+
 		}
 
 		children.push_back(child1);

@@ -49,14 +49,10 @@ namespace ea
 
 			inline bool gene_assigned(std::vector<std::vector<ea::Gene*>*> cycles, const ea::Gene *gene)
 			{
-				std::vector<Gene*> *cycle;
-
 				// search for given gene in all cycles:
-				for(int32_t i = 0; i < (int32_t)cycles.size(); i++)
+				for(std::vector<std::vector<Gene*>*>::iterator iter = cycles.begin(); iter != cycles.end(); iter++)
 				{
-					cycle = cycles.at(i);
-
-					if(IEquatable<Gene>::find(*cycle, gene) != -1)
+					if(IEquatable<Gene>::find(**iter, gene) != -1)
 					{
 						return true;
 					}
