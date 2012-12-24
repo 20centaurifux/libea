@@ -24,7 +24,6 @@
 #include <cassert>
 #include "CutAndSpliceCrossover.h"
 
-#include <iostream>
 using namespace std;
 
 namespace ea
@@ -44,9 +43,6 @@ namespace ea
 
 		m = separator1 = (uint32_t)generator->get_number(1, a->size() - 2);
 		separator2 = (uint32_t)generator->get_number(1, a->size() - 2);
-
-		cout << separator1 << endl;
-		cout << separator2 << endl;
 
 		// create first individual:
 		individual = new Individual(a->get_fitness_func(), separator1 + b->size() - separator2);

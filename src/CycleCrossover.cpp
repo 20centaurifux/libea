@@ -26,7 +26,6 @@
 #include "foreach.h"
 
 using namespace std;
-using namespace ea;
 
 namespace ea
 {
