@@ -74,7 +74,7 @@ namespace ea
 			throw std::out_of_range("index is out of range");
 		}
 
-		_genes->at(index) = gene;
+		(*_genes)[index] = gene;
 	}
 
 	Gene& Genome::operator[] (const uint32_t index)
@@ -89,7 +89,7 @@ namespace ea
 			throw std::out_of_range("index is out of range");
 		}
 
-		return _genes->at(index);
+		return (*_genes)[index];
 	}
 
 	void Genome::remove_gene(const uint32_t index)
@@ -101,7 +101,7 @@ namespace ea
 	{
 		for(int32_t i = 0; i < (int32_t)_genes->size(); i++)
 		{
-			if(_genes->at(i)->equals(gene))
+			if((*_genes)[i]->equals(gene))
 			{
 				return i;
 			}
