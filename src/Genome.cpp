@@ -59,8 +59,6 @@ namespace ea
 	{
 		Gene *gene;
 
-		assert(gene != NULL);
-
 		gene = new Gene(length);
 		_genes->push_back(gene);
 
