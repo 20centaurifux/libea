@@ -63,17 +63,4 @@ namespace ea
 
 		return 1;
 	}
-
-	inline bool OrderedCrossover::gene_exists(Gene* gene, Individual* individual, const uint32_t len)
-	{
-		for(uint32_t i = 0; i < len; i++)
-		{
-			if(gene->equals(individual->gene_at(i)))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
 }

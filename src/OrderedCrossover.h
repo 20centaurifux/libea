@@ -37,7 +37,18 @@ namespace ea
 			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
 
 		private:
-			bool gene_exists(Gene* gene, Individual* individual, const uint32_t len);
+			inline bool gene_exists(Gene* gene, Individual* individual, const uint32_t len)
+			{
+				for(uint32_t i = 0; i < len; i++)
+				{
+					if(gene->equals(individual->gene_at(i)))
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
 	};
 }
 #endif
