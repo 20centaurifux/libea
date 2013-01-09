@@ -107,4 +107,34 @@ namespace ea
 
 		return -1;
 	}
+
+	size_t Genome::hash() const
+	{
+		byte* buffer = NULL;
+		uint32_t buffer_size = 0;
+		uint32_t i;
+		size_t hash = 0;
+
+		// read memory of each individual:
+		for(vector<Gene*>::iterator it = _genes->begin() ; it != _genes->end(); ++it)
+		{
+			if((i = (*it)->size()) > buffer_size)
+			{
+				buffer_size = i;
+				buffer = (byte*)realloc(buffer, buffer_size);
+			}
+
+			(*it)->read(0, buffer, buffer_size);
+
+			// update hash:
+			for(i = 0; i < buffer_size; ++i)
+			{
+				hash = buffer[i] + (hash << 6) + (hash << 16) - hash;
+			}
+		}
+
+		free(buffer);
+
+		return hash;
+	}
 }

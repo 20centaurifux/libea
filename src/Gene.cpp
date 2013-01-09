@@ -28,8 +28,6 @@
 #include <assert.h>
 #include "Gene.h"
 
-#define GENE_ARRAY_SIZE(bits) (uint32_t)ceil((float)bits / 8)
-
 namespace ea
 {
 	Gene::Gene(const uint32_t length)
@@ -39,7 +37,7 @@ namespace ea
 		assert(length > 0);
 
 		_length = length;
-		count = GENE_ARRAY_SIZE(length);
+		count = size();
 		_memory = new byte[count];
 		memset(_memory, 0, count);
 	}
@@ -137,6 +135,11 @@ namespace ea
 	{
 		int count = GENE_ARRAY_SIZE(length());
 
+		if(!gene)
+		{
+			return false;
+		}
+
 		if(gene->length() != _length)
 		{
 			return false;
@@ -179,5 +182,17 @@ namespace ea
 		}
 
 		throw std::out_of_range("index is out of range");
+	}
+
+	size_t Gene::hash() const
+	{
+		size_t hash = 0;
+
+		for(uint32_t i = 0; i < size(); ++i)
+		{
+			hash = _memory[i] + (hash << 6) + (hash << 16) - hash;
+		}
+
+		return hash;
 	}
 }

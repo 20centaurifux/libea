@@ -24,18 +24,24 @@
 #ifndef GENE_H
 #define GENE_H
 
+#include <math.h>
 #include "ISerializable.h"
 #include "IEquatable.h"
 #include "ICloneable.h"
+#include "IHashfunction.h"
+
+
+#define GENE_ARRAY_SIZE(bits) (uint32_t)ceil((float)bits / 8)
 
 namespace ea
 {
-	class Gene : public ISerializable, public IEquatable<Gene>, public ICloneable<Gene>
+	class Gene : public ISerializable, public IEquatable<Gene>, public ICloneable<Gene>, public IHashfunction
 	{
 		public:
 			Gene(const uint32_t length);
 			virtual ~Gene();
 			inline uint32_t length() const { return _length; }
+			inline uint32_t size() const { return GENE_ARRAY_SIZE(_length); }
 			bool operator[] (const uint32_t index);
 			bool at(const uint32_t index);
 			void set(const uint32_t index, const bool value);
@@ -47,6 +53,7 @@ namespace ea
 			void clear();
 			bool equals(const Gene* gene);
 			virtual Gene* clone();
+			size_t hash() const;
 
 		private:
 			uint32_t _length;

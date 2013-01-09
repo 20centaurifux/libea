@@ -15,39 +15,22 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file Genome.h
- * \brief A genome holds multiple genes.
+ * \file IHashfunction.h
+ * \brief Interface for hash functions.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
-#ifndef GENOME_H
-#define GENOME_H
-
-#include <vector>
-#include "Gene.h"
-#include "IHashfunction.h"
+#ifndef IHASHFUNCTION_H
+#define IHASHFUNCTION_H
 
 namespace ea
 {
-	class Genome
+	class IHashfunction
 	{
 		public:
-			Genome();
-			Genome(const uint32_t size);
-			virtual ~Genome();
-			Gene* append_gene(Gene* gene);
-			Gene* append_new_gene(const int32_t length);
-			void set_gene(const uint32_t index, Gene* gene);
-			Gene& operator[] (const uint32_t index);
-			Gene* gene_at(const uint32_t index) const;
-			void remove_gene(const uint32_t index);
-			inline uint32_t size() const { return _genes->size(); }
-			int32_t find_gene(const Gene* gene) const;
-			size_t hash() const;
-
-		private:
-			std::vector<Gene*>* _genes;
+			virtual ~IHashfunction() {};
+			virtual size_t hash() const = 0;
 	};
 }
 #endif
