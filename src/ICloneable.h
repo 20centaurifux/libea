@@ -29,7 +29,9 @@ namespace ea
 	template<class T>
 	class ICloneable
 	{
-		virtual T* clone() = 0;
+		public:
+			virtual ~ICloneable() {};
+			virtual T* clone() = 0;
 	};
 }
 #endif
