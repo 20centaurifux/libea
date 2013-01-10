@@ -30,7 +30,7 @@ namespace ea
 	{
 		public:
 			virtual ~IHashfunction() {};
-			virtual size_t hash() const = 0;
+			virtual std::size_t hash() const = 0;
 	};
 }
 #endif
