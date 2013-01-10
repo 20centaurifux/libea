@@ -44,6 +44,8 @@ namespace ea
 			inline void created(const Genome* sender, const GenomeEventArg* arg) { _fitness_set = false; }
 			inline void modified(const Genome* sender, const GenomeEventArg* arg) { _fitness_set = false; }
 			inline void deleted(const Genome* sender, const GenomeEventArg* arg) { _fitness_set = false; }
+			inline void modified(const Gene* sender, const GeneEventArg* arg) { _fitness_set = false; }
+			inline void cleared(const Gene* sender) { _fitness_set = false; }
 
 		private:
 			FitnessFunc _fitness_func;

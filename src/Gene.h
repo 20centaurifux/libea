@@ -29,13 +29,31 @@
 #include "IEquatable.h"
 #include "ICloneable.h"
 #include "IHashfunction.h"
-
+#include "IListener.h"
+#include "IObservable.h"
 
 #define GENE_ARRAY_SIZE(bits) (uint32_t)ceil((float)bits / 8)
 
 namespace ea
 {
-	class Gene : public ISerializable, public IEquatable<Gene>, public ICloneable<Gene>, public IHashfunction
+	class Gene;
+
+	class GeneEventArg : public IListener
+	{
+		public:
+			uint32_t offset;
+			bool set;
+	};
+
+	class GeneListener : public IListener
+	{
+		public:
+			virtual ~GeneListener() {};
+			virtual void modified(const Gene* sender, const GeneEventArg* arg) = 0;
+			virtual void cleared(const Gene* sender) {};
+	};
+
+	class Gene : public ISerializable, public IEquatable<Gene>, public ICloneable<Gene>, public IHashfunction, public IObservable<GeneListener>
 	{
 		public:
 			Gene(const uint32_t length);
@@ -54,14 +72,26 @@ namespace ea
 			virtual Gene* clone();
 			size_t hash() const;
 
+			void attach_listener(GeneListener* l)
+			{
+				listener.push_back(l);
+			}
+
+			void detach_listener(GeneListener* l)
+			{
+				detach_helper(listener, l);
+			}
+
 		private:
 			uint32_t _length;
 			byte *_memory;
 			mutable size_t _hash;
 			mutable bool _hash_set;
+			std::vector<GeneListener*> listener;
 
 			static void get_offset(const uint32_t index, uint32_t& offset, uint32_t &bit);
 			void test_offset(const uint32_t index, const uint32_t offset, const uint32_t bit);
+			void invoke_listener(const uint32_t offset);
 	};
 }
 #endif

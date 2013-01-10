@@ -28,29 +28,31 @@
 #include "Gene.h"
 #include "IHashfunction.h"
 #include "IListener.h"
-#include "Observable.h"
+#include "IObservable.h"
 
 namespace ea
 {
 	class Genome;
 
-	class GenomeEventArg : public IListener<Genome, GenomeEventArg>::EventArg
+	class GenomeEventArg : public IListener
 	{
 		public:
 			uint32_t offset;
 			Gene* gene;
 	};
 
-	class GenomeListener : public IListener<Genome, GenomeEventArg>
+	class GenomeListener : public IListener
 	{
 		public:
 			virtual ~GenomeListener() {};
 			virtual void created(const Genome* sender, const GenomeEventArg* arg) {}
 			virtual void modified(const Genome* sender, const GenomeEventArg* arg) {}
 			virtual void deleted(const Genome* sender, const GenomeEventArg* arg) {}
+			virtual void gene_set(const Genome* sender, const GeneEventArg* arg) {}
+			virtual void gene_cleared(const Genome* sender) {}
 	};
 
-	class Genome : public IHashfunction, public Observable<GenomeListener>
+	class Genome : public IHashfunction, public IObservable<GenomeListener>, public GeneListener
 	{
 		public:
 			Genome();
@@ -65,9 +67,20 @@ namespace ea
 			int32_t find_gene(const Gene* gene) const;
 			size_t hash() const;
 
+			void attach_listener(GenomeListener* l)
+			{
+				listener.push_back(l);
+			}
+
+			void detach_listener(GenomeListener* l)
+			{
+				detach_helper(listener, l);
+			}
+
+			void modified(const Gene* sender, const GeneEventArg* arg);
+			void cleared(const Gene* sender);
+
 		private:
-
-
 			typedef enum
 			{
 				GENOME_EVENT_SET,
@@ -78,6 +91,7 @@ namespace ea
 			std::vector<Gene*>* _genes;
 			mutable size_t _hash;
 			mutable bool _hash_set;
+			std::vector<GenomeListener*> listener;
 
 			void invoke_listener(GENOME_EVENT event, const uint32_t offset);
 	};

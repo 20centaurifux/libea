@@ -26,7 +26,10 @@
 #include <cstring>
 #include <stdexcept>
 #include <assert.h>
+#include <vector>
 #include "Gene.h"
+
+using namespace std;
 
 namespace ea
 {
@@ -77,6 +80,7 @@ namespace ea
 		}
 
 		_hash_set = false;
+		invoke_listener(index);
 	}
 
 	void Gene::fill(const byte* bytes, const uint32_t offset, const uint32_t count)
@@ -87,6 +91,7 @@ namespace ea
 		for(uint32_t i = 0; i < count; ++i)
 		{
 			_memory[i] = bytes[offset + i];
+			invoke_listener(offset);
 		}
 
 		_hash_set = false;
@@ -130,6 +135,11 @@ namespace ea
 	{
 		memset(_memory, 0, GENE_ARRAY_SIZE(_length));
 		_hash_set = false;
+
+		for(vector<GeneListener*>::iterator it = listener.begin(); it != listener.end(); ++it)
+		{
+			(*it)->cleared(this);
+		}
 	}
 
 	bool Gene::equals(const Gene* gene)
@@ -191,14 +201,23 @@ namespace ea
 
 	void Gene::test_offset(const uint32_t index, const uint32_t offset, const uint32_t bit)
 	{
-		if(index > 0)
+		if(index < length())
 		{
-			if(index < length())
-			{
-				return;
-			}
+			return;
 		}
 
 		throw std::out_of_range("index is out of range");
+	}
+
+	void Gene::invoke_listener(const uint32_t index)
+	{
+		GeneEventArg arg;
+
+		for(vector<GeneListener*>::iterator it = listener.begin(); it != listener.end(); ++it)
+		{
+			arg.offset = index;
+			arg.set = at(index);
+			(*it)->modified(this, &arg);
+		}
 	}
 }
