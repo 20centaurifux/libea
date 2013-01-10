@@ -32,7 +32,7 @@ namespace ea
 
 	typedef float (*FitnessFunc)(Individual* individual);
 
-	class Individual : public Genome
+	class Individual : public Genome, public GenomeListener
 	{
 		public:
 			Individual(const FitnessFunc fitness);
@@ -40,6 +40,10 @@ namespace ea
 			virtual ~Individual() {}
 			float fitness();
 			inline FitnessFunc get_fitness_func() const { return _fitness_func; }
+
+			inline void created(const Genome* sender, const GenomeEventArg* arg) { _fitness_set = false; }
+			inline void modified(const Genome* sender, const GenomeEventArg* arg) { _fitness_set = false; }
+			inline void deleted(const Genome* sender, const GenomeEventArg* arg) { _fitness_set = false; }
 
 		private:
 			FitnessFunc _fitness_func;

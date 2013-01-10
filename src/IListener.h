@@ -15,49 +15,30 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file Individual.cpp
- * \brief An individual holds a genome and a fitness function.
+ * \file IListener.h
+ * \brief Interface for observers.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
-#include <stddef.h>
-#include <assert.h>
-#include "Individual.h"
-
-using namespace std;
+#include <vector>
+#include <algorithm>
 
 namespace ea
 {
-	Individual::Individual(const FitnessFunc fitness) : Genome()
-	{
-		init(fitness);
-	}
-	
-	Individual::Individual(const FitnessFunc fitness, uint32_t size) : Genome(size)
-	{
-		init(fitness);
-	}
+	 template<class T, class E>
+	 class IListener
+	 {
+		 public:
+		 	class EventArg
+			{
+				public:
+					virtual ~EventArg() {}
+			};
 
-	float Individual::fitness()
-	{
-		if(!_fitness_set)
-		{
-			_fitness = _fitness_func(this);
-			_fitness_set = true;
-		}
-
-		return _fitness;
-	}
-
-	void Individual::init(const FitnessFunc fitness)
-	{
-		assert(fitness != NULL);
-
-		_fitness_func = fitness;
-		_fitness_set = false;
-		_fitness = 0;
-
-		attach_listener(this);
-	}
-}
+		 	virtual ~IListener() {}
+			virtual void created(const T* sender, const E* arg) = 0;
+			virtual void modified(const T* sender, const E* arg) = 0 ;
+			virtual void deleted(const T* sender, const E* arg) = 0;
+	 };
+ }

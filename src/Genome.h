@@ -27,10 +27,30 @@
 #include <vector>
 #include "Gene.h"
 #include "IHashfunction.h"
+#include "IListener.h"
+#include "Observable.h"
 
 namespace ea
 {
-	class Genome : public IHashfunction
+	class Genome;
+
+	class GenomeEventArg : public IListener<Genome, GenomeEventArg>::EventArg
+	{
+		public:
+			uint32_t offset;
+			Gene* gene;
+	};
+
+	class GenomeListener : public IListener<Genome, GenomeEventArg>
+	{
+		public:
+			virtual ~GenomeListener() {};
+			virtual void created(const Genome* sender, const GenomeEventArg* arg) {}
+			virtual void modified(const Genome* sender, const GenomeEventArg* arg) {}
+			virtual void deleted(const Genome* sender, const GenomeEventArg* arg) {}
+	};
+
+	class Genome : public IHashfunction, public Observable<GenomeListener>
 	{
 		public:
 			Genome();
@@ -46,9 +66,20 @@ namespace ea
 			size_t hash() const;
 
 		private:
+
+
+			typedef enum
+			{
+				GENOME_EVENT_SET,
+				GENOME_EVENT_ADDED,
+				GENOME_EVENT_REMOVED
+			} GENOME_EVENT;
+
 			std::vector<Gene*>* _genes;
 			mutable size_t _hash;
 			mutable bool _hash_set;
+
+			void invoke_listener(GENOME_EVENT event, const uint32_t offset);
 	};
 }
 #endif

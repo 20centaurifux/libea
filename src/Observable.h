@@ -15,49 +15,38 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file Individual.cpp
- * \brief An individual holds a genome and a fitness function.
+ * \file Observer.h
+ * \brief Base class for observable classes.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
-#include <stddef.h>
-#include <assert.h>
-#include "Individual.h"
-
-using namespace std;
-
 namespace ea
 {
-	Individual::Individual(const FitnessFunc fitness) : Genome()
+	template<class T>
+	class Observable
 	{
-		init(fitness);
-	}
-	
-	Individual::Individual(const FitnessFunc fitness, uint32_t size) : Genome(size)
-	{
-		init(fitness);
-	}
+		 public:
+			virtual ~Observable() {}
 
-	float Individual::fitness()
-	{
-		if(!_fitness_set)
-		{
-			_fitness = _fitness_func(this);
-			_fitness_set = true;
-		}
+			void attach_listener(T* l)
+			{
+				listener.push_back(l);
+			}
 
-		return _fitness;
-	}
+			void detach_listener(T* l)
+			{
+				typename std::vector<T*>::iterator pos;
+		
+				pos = std::find(listener.begin(), listener.end(), l);
 
-	void Individual::init(const FitnessFunc fitness)
-	{
-		assert(fitness != NULL);
-
-		_fitness_func = fitness;
-		_fitness_set = false;
-		_fitness = 0;
-
-		attach_listener(this);
-	}
+				if(pos != listener.end())
+				{
+					listener.erase(pos);
+				}
+			}
+		
+		protected:
+			std::vector<T*> listener;
+	};
 }

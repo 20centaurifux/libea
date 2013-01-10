@@ -23,6 +23,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <algorithm>
 #include "Genome.h"
 #include "foreach.h"
 
@@ -54,6 +55,7 @@ namespace ea
 
 		_genes->push_back(gene);
 		_hash_set = false;
+		invoke_listener(GENOME_EVENT_ADDED, _genes->size() - 1);
 
 		return gene;
 	}
@@ -65,6 +67,7 @@ namespace ea
 		gene = new Gene(length);
 		_genes->push_back(gene);
 		_hash_set = false;
+		invoke_listener(GENOME_EVENT_ADDED, _genes->size() - 1);
 
 		return gene;
 	}
@@ -78,6 +81,7 @@ namespace ea
 
 		(*_genes)[index] = gene;
 		_hash_set = false;
+		invoke_listener(GENOME_EVENT_SET, index);
 	}
 
 	Gene* Genome::gene_at(const uint32_t index) const
@@ -92,6 +96,7 @@ namespace ea
 
 	void Genome::remove_gene(const uint32_t index)
 	{
+		invoke_listener(GENOME_EVENT_REMOVED, index);
 		_genes->erase(_genes->begin() + index);
 		_hash_set = false;
 	}
@@ -144,5 +149,29 @@ namespace ea
 		free(buffer);
 
 		return _hash;
+	}
+
+	void Genome::invoke_listener(GENOME_EVENT event, const uint32_t offset)
+	{
+		GenomeEventArg arg;
+
+		for(vector<GenomeListener*>::iterator it = listener.begin(); it != listener.end(); ++it)
+		{
+			arg.offset = offset;
+			arg.gene = gene_at(offset);
+
+			if(event == GENOME_EVENT_SET)
+			{
+				(*it)->modified(this, &arg);
+			}
+			else if(event == GENOME_EVENT_ADDED)
+			{
+				(*it)->created(this, &arg);
+			}
+			else
+			{
+				(*it)->deleted(this, &arg);
+			}
+		}
 	}
 }
