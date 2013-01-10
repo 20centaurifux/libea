@@ -33,11 +33,13 @@ namespace ea
 	Genome::Genome()
 	{
 		_genes = new vector<Gene*>();
+		_hash_set = false;
 	}
 
 	Genome::Genome(const uint32_t size)
 	{
 		_genes = new vector<Gene*>(size);
+		_hash_set = false;
 	}
 
 	Genome::~Genome()
@@ -51,6 +53,7 @@ namespace ea
 		assert(gene != NULL);
 
 		_genes->push_back(gene);
+		_hash_set = false;
 
 		return gene;
 	}
@@ -61,6 +64,7 @@ namespace ea
 
 		gene = new Gene(length);
 		_genes->push_back(gene);
+		_hash_set = false;
 
 		return gene;
 	}
@@ -73,11 +77,7 @@ namespace ea
 		}
 
 		(*_genes)[index] = gene;
-	}
-
-	Gene& Genome::operator[] (const uint32_t index)
-	{
-		return (*gene_at(index));
+		_hash_set = false;
 	}
 
 	Gene* Genome::gene_at(const uint32_t index) const
@@ -93,6 +93,7 @@ namespace ea
 	void Genome::remove_gene(const uint32_t index)
 	{
 		_genes->erase(_genes->begin() + index);
+		_hash_set = false;
 	}
 
 	int32_t Genome::find_gene(const Gene* gene) const
@@ -113,7 +114,14 @@ namespace ea
 		byte* buffer = NULL;
 		uint32_t buffer_size = 0;
 		uint32_t i;
-		size_t hash = 0;
+
+		if(_hash_set)
+		{
+			return _hash;
+		}
+
+		_hash = 0;
+		_hash_set = true;
 
 		// read memory of each individual:
 		for(vector<Gene*>::iterator it = _genes->begin() ; it != _genes->end(); ++it)
@@ -129,12 +137,12 @@ namespace ea
 			// update hash:
 			for(i = 0; i < buffer_size; ++i)
 			{
-				hash = buffer[i] + (hash << 6) + (hash << 16) - hash;
+				_hash = buffer[i] + (_hash << 6) + (_hash << 16) - _hash;
 			}
 		}
 
 		free(buffer);
 
-		return hash;
+		return _hash;
 	}
 }

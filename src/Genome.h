@@ -39,7 +39,6 @@ namespace ea
 			Gene* append_gene(Gene* gene);
 			Gene* append_new_gene(const int32_t length);
 			void set_gene(const uint32_t index, Gene* gene);
-			Gene& operator[] (const uint32_t index);
 			Gene* gene_at(const uint32_t index) const;
 			void remove_gene(const uint32_t index);
 			inline uint32_t size() const { return _genes->size(); }
@@ -48,6 +47,8 @@ namespace ea
 
 		private:
 			std::vector<Gene*>* _genes;
+			mutable size_t _hash;
+			mutable bool _hash_set;
 	};
 }
 #endif
