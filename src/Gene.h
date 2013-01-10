@@ -58,6 +58,8 @@ namespace ea
 		private:
 			uint32_t _length;
 			byte *_memory;
+			mutable size_t _hash;
+			mutable bool _hash_set;
 
 			static void get_offset(const uint32_t index, uint32_t& offset, uint32_t &bit);
 			void test_offset(const uint32_t index, const uint32_t offset, const uint32_t bit);

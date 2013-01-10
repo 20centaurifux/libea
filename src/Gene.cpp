@@ -40,6 +40,7 @@ namespace ea
 		count = size();
 		_memory = new byte[count];
 		memset(_memory, 0, count);
+		_hash_set = false;
 	}
 
 	Gene::~Gene()
@@ -79,6 +80,8 @@ namespace ea
 		{
 			 _memory[offset] &= ~(1 << bit);
 		}
+
+		_hash_set = false;
 	}
 
 	void Gene::fill(const byte* bytes, const uint32_t offset, const uint32_t count)
@@ -90,6 +93,8 @@ namespace ea
 		{
 			_memory[i] = bytes[offset + i];
 		}
+
+		_hash_set = false;
 	}
 
 	void Gene::read(const uint32_t offset, byte* memory, const uint32_t count) const
@@ -129,6 +134,7 @@ namespace ea
 	void Gene::clear()
 	{
 		memset(_memory, 0, GENE_ARRAY_SIZE(_length));
+		_hash_set = false;
 	}
 
 	bool Gene::equals(const Gene* gene)
@@ -165,6 +171,23 @@ namespace ea
 		return gene;
 	}
 
+	size_t Gene::hash() const
+	{
+		if(_hash_set)
+		{
+			return _hash;
+		}
+
+		_hash = 0;
+
+		for(uint32_t i = 0; i < size(); ++i)
+		{
+			_hash = _memory[i] + (_hash << 6) + (_hash << 16) - _hash;
+		}
+
+		return _hash;
+	}
+
 	void Gene::get_offset(const uint32_t index, uint32_t& offset, uint32_t& bit)
 	{
 		offset = index / 8;
@@ -182,17 +205,5 @@ namespace ea
 		}
 
 		throw std::out_of_range("index is out of range");
-	}
-
-	size_t Gene::hash() const
-	{
-		size_t hash = 0;
-
-		for(uint32_t i = 0; i < size(); ++i)
-		{
-			hash = _memory[i] + (hash << 6) + (hash << 16) - hash;
-		}
-
-		return hash;
 	}
 }
