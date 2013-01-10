@@ -48,11 +48,6 @@ namespace ea
 		delete [] _memory;
 	}
 
-	bool Gene::operator[] (const uint32_t index)
-	{
-		return at(index);
-	}
-
 	bool Gene::at(const uint32_t index)
 	{
 		uint32_t offset;

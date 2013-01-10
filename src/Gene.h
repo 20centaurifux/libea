@@ -42,7 +42,6 @@ namespace ea
 			virtual ~Gene();
 			inline uint32_t length() const { return _length; }
 			inline uint32_t size() const { return GENE_ARRAY_SIZE(_length); }
-			bool operator[] (const uint32_t index);
 			bool at(const uint32_t index);
 			void set(const uint32_t index, const bool value);
 			void fill(const byte* bytes, const uint32_t offset, const uint32_t count);
