@@ -30,7 +30,7 @@
 
 namespace ea
 {
-	class Genome
+	class Genome : public IHashfunction
 	{
 		public:
 			Genome();
