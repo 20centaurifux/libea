@@ -34,6 +34,7 @@
 #include "CutAndSpliceCrossover.h"
 #include "OrderedCrossover.h"
 #include "CycleCrossover.h"
+#include "EdgeRecombinationCrossover.h"
 
 using namespace ea;
 using namespace std;
@@ -48,7 +49,7 @@ float fitness(Individual *individual)
 	{
 		city = (City*)individual->gene_at(i);
 
-		if(i)
+		if(!i)
 		{
 			x0 = city->get_x();
 			y0 = city->get_y();
@@ -116,7 +117,7 @@ int main()
 	*/
 
 	// recombinate:
-	CycleCrossover r(g);
+	EdgeRecombinationCrossover r(g);
 
 	print_cities(p0[0]);
 	print_cities(p0[1]);
@@ -125,7 +126,13 @@ int main()
 	r.crossover(p0[0], p0[1], children);
 
 	print_cities(children[0]);
-	print_cities(children[1]);
+	//print_cities(children[1]);
+
+	/*
+	cout << p0[0]->fitness() << endl;
+	p0[0]->gene_at(0)->set(0, true);
+	cout << p0[0]->fitness() << endl;
+	*/
 
 	// cleanup:
 	for(uint32_t i = 0; i < p0.size(); i++)

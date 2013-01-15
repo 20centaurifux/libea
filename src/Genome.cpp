@@ -100,7 +100,7 @@ namespace ea
 	void Genome::remove_gene(const uint32_t index)
 	{
 		invoke_listener(GENOME_EVENT_REMOVED, index);
-		_genes->erase(_genes->begin() + index);
+		_genes->erase(_genes->begin() + index); // TODO
 		_hash_set = false;
 	}
 
