@@ -49,6 +49,7 @@ namespace ea
 		}
 
 		// allocate memory required for buffer, initialize buffer pointer & copy filename:
+		_stream = NULL;
 		_buffer = new int32_t[_buffer_size / 4];
 		_buffer_ptr = -1;
 		_filename = strdup(filename);
@@ -64,7 +65,7 @@ namespace ea
 		}
 
 		// free allocated memory:
-		delete _filename;
+		free(_filename);
 		delete[] _buffer;
 	}
 
@@ -88,10 +89,14 @@ namespace ea
 		// (re)open file stream:
 		if(_stream)
 		{
-			if(!_stream->good())
+			if(_stream->good())
+			{
+				new_stream = false;
+			}
+			else
 			{
 				_stream->close();
-				new_stream = false;
+				delete _stream;
 			}
 		}
 
@@ -99,6 +104,7 @@ namespace ea
 		{
 			_stream = new ifstream(_filename, ios::in|ios::binary);
 		}
+
 		return _stream;
 	}
 }
