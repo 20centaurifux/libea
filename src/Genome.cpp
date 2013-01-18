@@ -108,7 +108,7 @@ namespace ea
 	{
 		for(int32_t i = 0; i < (int32_t)_genes->size(); i++)
 		{
-			if((*_genes)[i]->equals(gene))
+			if((*_genes)[i] && (*_genes)[i]->equals(gene))
 			{
 				return i;
 			}
