@@ -81,6 +81,11 @@ namespace ea
 			throw std::out_of_range("index is out of range");
 		}
 
+		if((*_genes)[index])
+		{
+			delete (*_genes)[index];
+		}
+
 		(*_genes)[index] = gene;
 		_hash_set = false;
 		invoke_listener(GENOME_EVENT_SET, index);
@@ -99,8 +104,14 @@ namespace ea
 
 	void Genome::remove_gene(const uint32_t index)
 	{
+		vector<Gene*>::iterator it;
+
 		invoke_listener(GENOME_EVENT_REMOVED, index);
-		_genes->erase(_genes->begin() + index); // TODO
+
+		it= _genes->begin() + index;
+		delete *it;
+		_genes->erase(it);
+
 		_hash_set = false;
 	}
 
