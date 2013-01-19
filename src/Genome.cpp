@@ -164,8 +164,25 @@ namespace ea
 		}
 
 		gene = (*_genes)[pos1];
+
 		(*_genes)[pos1] = (*_genes)[pos2];
 		(*_genes)[pos2] = gene;
+	}
+
+	void Genome::swap(const uint32_t pos1, const uint32_t pos2, const uint32_t pos3)
+	{
+		Gene* gene;
+
+		if(pos1 >= _genes->size() || pos2 >= _genes->size() || pos3 >= _genes->size())
+		{
+			throw std::out_of_range("index out of range");
+		}
+
+		gene = (*_genes)[pos1];
+
+		(*_genes)[pos1] = (*_genes)[pos2];
+		(*_genes)[pos2] = (*_genes)[pos3];
+		(*_genes)[pos3] = gene;
 	}
 
 	size_t Genome::hash() const

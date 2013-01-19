@@ -37,6 +37,8 @@
 #include "EdgeRecombinationCrossover.h"
 #include "PMXCrossover.h"
 #include "UniformCrossover.h"
+#include "SingleSwapMutation.h"
+#include "DoubleSwapMutation.h"
 
 using namespace ea;
 using namespace std;
@@ -119,7 +121,7 @@ int main()
 	*/
 
 	// recombinate:
-	UniformCrossover r(g);
+	PMXCrossover r(g);
 
 	print_cities(p0[0]);
 	print_cities(p0[1]);
@@ -128,6 +130,12 @@ int main()
 	r.crossover(p0[0], p0[1], children);
 
 	print_cities(children[0]);
+	print_cities(children[1]);
+
+	DoubleSwapMutation m(g);
+
+	m.mutate(children[1]);
+
 	print_cities(children[1]);
 
 	/*
