@@ -128,7 +128,7 @@ int main()
 	r.crossover(p0[0], p0[1], children);
 
 	print_cities(children[0]);
-	//print_cities(children[1]);
+	print_cities(children[1]);
 
 	/*
 	cout << p0[0]->fitness() << endl;

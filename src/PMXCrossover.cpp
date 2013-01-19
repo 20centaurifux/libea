@@ -36,8 +36,8 @@ namespace ea
 
 		ACROSSOVER_DEFAULT_ASSERT(a, b);
 
-		offset1 = 0;
-		offset2 = 10;
+		offset1 = generator->get_number(0, a->size() - 2);
+		offset2 = generator->get_number(offset1 + 1, a->size() - 1);
 
 		child = crossover(a, b, offset1, offset2);
 		children.push_back(child);
