@@ -141,6 +141,33 @@ namespace ea
 		return false;
 	}
 
+	bool Genome::contains_gene(const ea::Gene* gene) const
+	{
+		for(int32_t i = 0; i < (int32_t)_genes->size(); i++)
+		{
+			if((*_genes)[i] && (*_genes)[i]->equals(gene))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void Genome::swap(const uint32_t pos1, const uint32_t pos2)
+	{
+		Gene* gene;
+
+		if(pos1 >= _genes->size() || pos2 >= _genes->size())
+		{
+			throw std::out_of_range("index out of range");
+		}
+
+		gene = (*_genes)[pos1];
+		(*_genes)[pos1] = (*_genes)[pos2];
+		(*_genes)[pos2] = gene;
+	}
+
 	size_t Genome::hash() const
 	{
 		byte* buffer = NULL;
