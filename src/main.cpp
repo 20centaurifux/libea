@@ -119,7 +119,7 @@ int main()
 	*/
 
 	// recombinate:
-	PMXCrossover r(g);
+	UniformCrossover r(g);
 
 	print_cities(p0[0]);
 	print_cities(p0[1]);
