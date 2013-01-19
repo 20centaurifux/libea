@@ -51,7 +51,7 @@ namespace ea
 			count = 0;
 
 			add_neighbors(a, i, nblist[i].genes, count);
-			add_neighbors(b, b->find_gene(a->gene_at(i)), nblist[i].genes, count);
+			add_neighbors(b, b->index_of(a->gene_at(i)), nblist[i].genes, count);
 
 			nblist[i].count = count;
 			nbs[a->gene_at(i)->hash()] = nblist + i;

@@ -37,9 +37,9 @@ namespace ea
 			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
 
 		private:
-			inline Gene* next_gene(const ea::Individual *a, const ea::Individual *b, int32_t& index)
+			inline Gene* next_gene(const ea::Individual *a, const ea::Individual *b, uint32_t& index)
 			{
-				if((index = a->find_gene(b->gene_at(index))) != -1)
+				if(a->find_gene(b->gene_at(index), index))
 				{
 					return a->gene_at(index);
 				}

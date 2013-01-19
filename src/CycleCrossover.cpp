@@ -31,7 +31,7 @@ namespace ea
 {
 	uint32_t CycleCrossover::crossover(const Individual* a, const Individual* b, vector<Individual*>& children)
 	{
-		int32_t index = 0;
+		uint32_t index = 0;
 		uint32_t offset = 1;
 		Gene* gene;
 		vector<Gene*> *cycle;

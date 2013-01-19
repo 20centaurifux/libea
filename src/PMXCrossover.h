@@ -39,7 +39,7 @@ namespace ea
 		private:
 			ea::Individual* crossover(const ea::Individual* parent1, const ea::Individual* parent2, const uint32_t offset1, const uint32_t offset2) const;
 
-			void next_index(const ea::Individual* individual, int32_t& index) const
+			void next_index(const ea::Individual* individual, uint32_t& index) const
 			{
 				while(individual->gene_at(index))
 				{

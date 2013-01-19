@@ -35,6 +35,8 @@
 #include "OrderedCrossover.h"
 #include "CycleCrossover.h"
 #include "EdgeRecombinationCrossover.h"
+#include "PMXCrossover.h"
+#include "UniformCrossover.h"
 
 using namespace ea;
 using namespace std;
@@ -117,7 +119,7 @@ int main()
 	*/
 
 	// recombinate:
-	EdgeRecombinationCrossover r(g);
+	PMXCrossover r(g);
 
 	print_cities(p0[0]);
 	print_cities(p0[1]);

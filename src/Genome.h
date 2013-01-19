@@ -64,7 +64,22 @@ namespace ea
 			Gene* gene_at(const uint32_t index) const;
 			void remove_gene(const uint32_t index);
 			inline uint32_t size() const { return _genes->size(); }
-			int32_t find_gene(const Gene* gene) const;
+			uint32_t index_of(const Gene* gene) const;
+			bool find_gene(const Gene* gene, uint32_t& index) const;
+
+			inline bool contains_gene(const ea::Gene* gene) const
+			{
+				for(int32_t i = 0; i < (int32_t)_genes->size(); i++)
+				{
+					if((*_genes)[i] && (*_genes)[i]->equals(gene))
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+
 			size_t hash() const;
 
 			void attach_listener(GenomeListener* l)

@@ -52,7 +52,7 @@ namespace ea
 	{
 		Individual* child;
 		uint32_t i;
-		int32_t index;
+		uint32_t index;
 		Gene* gene;
 		Gene* gene_p1;
 		Gene* gene_p2;
@@ -68,15 +68,15 @@ namespace ea
 		{
 			gene = parent2->gene_at(i);
 
-			if(child->find_gene(gene) == -1)
+			if(!child->contains_gene(gene))
 			{
 				gene_p2 = gene;
 
 				while(1)
 				{
-					index = parent2->find_gene(gene_p2);
+					index = parent2->index_of(gene_p2);
 					gene_p1 = parent1->gene_at(index);
-					index = parent2->find_gene(gene_p1);
+					index = parent2->index_of(gene_p1);
 
 					if(index >= offset1 && index <= offset2)
 					{
@@ -95,7 +95,7 @@ namespace ea
 
 		for(i = 0; i < offset1; ++i)
 		{
-			if(child->find_gene((gene = parent1->gene_at(i))) == -1)
+			if(!child->contains_gene((gene = parent1->gene_at(i))))
 			{
 				next_index(child, index);
 				child->set_gene(index, gene->clone());
@@ -105,7 +105,7 @@ namespace ea
 
 		for(i = offset2 + 1; i < child->size(); ++i)
 		{
-			if(child->find_gene((gene = parent1->gene_at(i))) == -1)
+			if(!child->contains_gene((gene = parent1->gene_at(i))))
 			{
 				next_index(child, index);
 				child->set_gene(index, gene->clone());

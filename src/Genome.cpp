@@ -96,7 +96,7 @@ namespace ea
 	{
 		if(index >= _genes->size())
 		{
-			throw std::out_of_range("index is out of range");
+			throw out_of_range("index is out of range");
 		}
 
 		return (*_genes)[index];
@@ -115,17 +115,30 @@ namespace ea
 		_hash_set = false;
 	}
 
-	int32_t Genome::find_gene(const Gene* gene) const
+	uint32_t Genome::index_of(const Gene* gene) const
+	{
+		uint32_t index;
+
+		if(find_gene(gene, index))
+		{
+			return index;
+		}
+
+		throw out_of_range("index is out of range");
+	}
+
+	bool Genome::find_gene(const Gene* gene, uint32_t& index) const
 	{
 		for(int32_t i = 0; i < (int32_t)_genes->size(); i++)
 		{
 			if((*_genes)[i] && (*_genes)[i]->equals(gene))
 			{
-				return i;
+				index = i;
+				return true;
 			}
 		}
 
-		return -1;
+		return false;
 	}
 
 	size_t Genome::hash() const
