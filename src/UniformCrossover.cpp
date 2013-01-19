@@ -16,7 +16,7 @@
  ***************************************************************************/
 /*!
  * \file UniformCrossover.h
- * \brief Implementation of one-point crossover operator.
+ * \brief Implementation of uniform crossover operator.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
