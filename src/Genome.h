@@ -68,6 +68,7 @@ namespace ea
 			bool find_gene(const Gene* gene, uint32_t& index) const;
 			bool contains_gene(const ea::Gene* gene) const;
 			void swap(const uint32_t pos1, const uint32_t pos2);
+			void swap(const uint32_t pos1, const uint32_t pos2, const uint32_t pos3);
 			size_t hash() const;
 
 			void attach_listener(GenomeListener* l)
