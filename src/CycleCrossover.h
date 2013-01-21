@@ -39,9 +39,9 @@ namespace ea
 		private:
 			inline Gene* next_gene(const ea::Individual *a, const ea::Individual *b, uint32_t& index)
 			{
-				if(a->find_gene(b->gene_at(index), index))
+				if(a->find(b->at(index), index))
 				{
-					return a->gene_at(index);
+					return a->at(index);
 				}
 
 				return NULL;

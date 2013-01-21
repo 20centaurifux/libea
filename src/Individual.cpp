@@ -29,11 +29,6 @@ using namespace std;
 
 namespace ea
 {
-	Individual::Individual(const FitnessFunc fitness) : Genome()
-	{
-		init(fitness);
-	}
-	
 	Individual::Individual(const FitnessFunc fitness, uint32_t size) : Genome(size)
 	{
 		init(fitness);

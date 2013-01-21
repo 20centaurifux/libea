@@ -52,12 +52,12 @@ namespace ea
 
 		for(i = 0; i < separator; i++)
 		{
-			individual->set_gene(i, a->gene_at(i)->clone());
+			individual->copy_to(i, a->at(i));
 		}
 
 		for(i = separator; i < a->size(); i++)
 		{
-			individual->set_gene(i, b->gene_at(i)->clone());
+			individual->copy_to(i, b->at(i));
 		}
 
 		return individual;

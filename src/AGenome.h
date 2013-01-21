@@ -15,41 +15,48 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file DoubleSwapMutation.h
- * \brief Mutation operator to swap 2 genes.
+ * \file AGenome.h
+ * \brief Genome base class.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
-#ifndef DOUBLESWAPMUTATION_H
-#define DOUBLESWAPMUTATION_H
-
-#include "AMutation.h"
-#include "ARandomNumberGenerator.h"
-#include <cstring>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdexcept>
+#include "IHashfunction.h"
 
 namespace ea
 {
-	class DoubleSwapMutation : public AMutation
-	{
+	 template<class T>
+	 class AGenome : public IHashfunction
+	 {
 		public:
-			DoubleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation(rnd_generator) {}
-			~DoubleSwapMutation() {};
+			AGenome(const uint32_t size) : _size(size) {} 
+			virtual ~AGenome() {}
+			inline uint32_t size() const { return _size; }
+			virtual void set(const uint32_t index, T gene) = 0;
+			virtual void copy_to(const uint32_t index, const T gene) = 0;
+			virtual T at(const uint32_t index) const = 0;
 
-			void mutate(ea::Genome* genome)
+			virtual uint32_t index_of(T gene) const
 			{
-				int32_t offsets[3];
+				uint32_t index;
 
-				if(genome->size() <= 2)
+				if(find(gene, index))
 				{
-					return;
+					return index;
 				}
 
-				generator->get_unique_numbers(0, genome->size() - 1, offsets, 3);
-
-				genome->swap(offsets[0], offsets[1]);
-				genome->swap(offsets[1], offsets[2]);
+				throw std::out_of_range("index is out of range");
 			}
-	};
+
+			virtual bool find(T gene, uint32_t& index) const = 0;
+			virtual bool contains(T gene) const = 0;
+			virtual void swap(const uint32_t pos1, const uint32_t pos2) const = 0;
+			virtual size_t hash() const = 0;
+
+		private:
+			uint32_t _size;
+	 };
 }
-#endif

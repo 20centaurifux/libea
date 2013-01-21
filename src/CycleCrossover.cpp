@@ -49,7 +49,7 @@ namespace ea
 		cycles.push_back((cycle = new vector<Gene*>()));
 
 		// insert first gene of individual "a" into initial cycle:
-		cycle->push_back(a->gene_at(0));
+		cycle->push_back(a->at(0));
 
 		// find next gene:
 		gene = next_gene(a, b, index);
@@ -72,12 +72,12 @@ namespace ea
 			if(count != (int32_t)a->size())
 			{
 				// find next unassigned gene:
-				while(offset < a->size() - 1 && gene_assigned(cycles, a->gene_at(offset)))
+				while(offset < a->size() - 1 && gene_assigned(cycles, a->at(offset)))
 				{
 					offset++;
 				}
 	
-				gene = a->gene_at((index = offset++));
+				gene = a->at((index = offset++));
 
 				// create new cycle:
 				cycles.push_back((cycle = new vector<Gene*>()));
@@ -103,14 +103,14 @@ namespace ea
 
 			for(uint32_t m = 0; m < a->size(); m++)
 			{
-				if(IEquatable<Gene>::find(**iter, a->gene_at(m)) != -1)
+				if(IEquatable<Gene>::find(**iter, a->at(m)) != -1)
 				{
-					p1->set_gene(m, a->gene_at(m)->clone());
+					p1->copy_to(m, a->at(m));
 				}
 
-				if(IEquatable<Gene>::find(**iter, b->gene_at(m)) != -1)
+				if(IEquatable<Gene>::find(**iter, b->at(m)) != -1)
 				{
-					p2->set_gene(m, b->gene_at(m)->clone());
+					p2->copy_to(m, b->at(m));
 				}
 			}
 

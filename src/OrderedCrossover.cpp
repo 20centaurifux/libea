@@ -44,19 +44,19 @@ namespace ea
 
 		for(i = 0; i < separator; i++)
 		{
-			individual->set_gene(i, a->gene_at(i)->clone());
+			individual->copy_to(i, a->at(i));
 		}
 
 		for(i = separator; i < individual->size(); i++)
 		{
-			while(gene_exists(b->gene_at(m), individual, i))
+			while(gene_exists(b->at(m), individual, i))
 			{
 				m++;
 			}
 
 			assert(m < b->size());
 
-			individual->set_gene(i, b->gene_at(m)->clone());
+			individual->copy_to(i, b->at(m));
 		}
 
 		children.push_back(individual);

@@ -51,22 +51,22 @@ namespace ea
 			count = 0;
 
 			add_neighbors(a, i, nblist[i].genes, count);
-			add_neighbors(b, b->index_of(a->gene_at(i)), nblist[i].genes, count);
+			add_neighbors(b, b->index_of(a->at(i)), nblist[i].genes, count);
 
 			nblist[i].count = count;
-			nbs[a->gene_at(i)->hash()] = nblist + i;
+			nbs[a->at(i)->hash()] = nblist + i;
 		}
 
 		// create child individual:
 		child = new Individual(a->get_fitness_func(), a->size());
 
 		// get initial gene:
-		x = generator->get_number(0, 1) ? a->gene_at(0) : b->gene_at(0);
+		x = generator->get_number(0, 1) ? a->at(0) : b->at(0);
 
 		while(1)
 		{
 			// insert gene into child individual:
-			child->set_gene(child_i, x->clone());
+			child->copy_to(child_i, x);
 
 			// check if child is completed:
 			if(++child_i == a->size())
@@ -106,7 +106,7 @@ namespace ea
 			{
 				do
 				{
-					x = a->gene_at(generator->get_number(0, a->size() - 1));
+					x = a->at(generator->get_number(0, a->size() - 1));
 				} while(gene_exists(child, child_i, x));
 			}
 		}
@@ -121,21 +121,21 @@ namespace ea
 	{
 		if(index)
 		{
-			add_neighbor(neighbors, count, individual->gene_at(index - 1));
+			add_neighbor(neighbors, count, individual->at(index - 1));
 		}
 		else
 		{
-			add_neighbor(neighbors, count, individual->gene_at(individual->size() - 1));
+			add_neighbor(neighbors, count, individual->at(individual->size() - 1));
 
 		}
 
 		if(index == individual->size() - 1)
 		{
-			add_neighbor(neighbors, count, individual->gene_at(0));
+			add_neighbor(neighbors, count, individual->at(0));
 		}
 		else
 		{
-			add_neighbor(neighbors, count, individual->gene_at(index + 1));
+			add_neighbor(neighbors, count, individual->at(index + 1));
 
 		}
 	}
@@ -188,7 +188,7 @@ namespace ea
 	{
 		for(uint32_t i = 0; i < size; ++i)
 		{
-			if(genome->gene_at(i)->equals(gene))
+			if(genome->at(i)->equals(gene))
 			{
 				return true;
 			}

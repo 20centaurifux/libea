@@ -41,7 +41,7 @@ namespace ea
 
 			void next_index(const ea::Individual* individual, uint32_t& index) const
 			{
-				while(individual->gene_at(index))
+				while(individual->at(index))
 				{
 					++index;
 				}

@@ -31,13 +31,7 @@ using namespace std;
 
 namespace ea
 {
-	Genome::Genome()
-	{
-		_genes = new vector<Gene*>();
-		_hash_set = false;
-	}
-
-	Genome::Genome(const uint32_t size)
+	Genome::Genome(const uint32_t size) : AGenome(size)
 	{
 		_genes = new vector<Gene*>(size);
 		_hash_set = false;
@@ -49,32 +43,7 @@ namespace ea
 		delete _genes;
 	}
 
-	Gene* Genome::append_gene(Gene* gene)
-	{
-		assert(gene != NULL);
-
-		_genes->push_back(gene);
-		_hash_set = false;
-		invoke_listener(GENOME_EVENT_ADDED, _genes->size() - 1);
-		gene->attach_listener(this);
-
-		return gene;
-	}
-
-	Gene* Genome::append_new_gene(const int32_t length)
-	{
-		Gene *gene;
-
-		gene = new Gene(length);
-		_genes->push_back(gene);
-		_hash_set = false;
-		invoke_listener(GENOME_EVENT_ADDED, _genes->size() - 1);
-		gene->attach_listener(this);
-
-		return gene;
-	}
-
-	void Genome::set_gene(const uint32_t index, Gene* gene)
+	void Genome::set(const uint32_t index, Gene* gene)
 	{
 		if(index >= _genes->size())
 		{
@@ -92,7 +61,12 @@ namespace ea
 		gene->attach_listener(this);
 	}
 
-	Gene* Genome::gene_at(const uint32_t index) const
+	void Genome::copy_to(const uint32_t index, Gene* gene)
+	{
+		set(index, gene->clone());
+	}
+
+	Gene* Genome::at(const uint32_t index) const
 	{
 		if(index >= _genes->size())
 		{
@@ -102,32 +76,7 @@ namespace ea
 		return (*_genes)[index];
 	}
 
-	void Genome::remove_gene(const uint32_t index)
-	{
-		vector<Gene*>::iterator it;
-
-		invoke_listener(GENOME_EVENT_REMOVED, index);
-
-		it= _genes->begin() + index;
-		delete *it;
-		_genes->erase(it);
-
-		_hash_set = false;
-	}
-
-	uint32_t Genome::index_of(const Gene* gene) const
-	{
-		uint32_t index;
-
-		if(find_gene(gene, index))
-		{
-			return index;
-		}
-
-		throw out_of_range("index is out of range");
-	}
-
-	bool Genome::find_gene(const Gene* gene, uint32_t& index) const
+	bool Genome::find(Gene* gene, uint32_t& index) const
 	{
 		for(int32_t i = 0; i < (int32_t)_genes->size(); i++)
 		{
@@ -141,7 +90,7 @@ namespace ea
 		return false;
 	}
 
-	bool Genome::contains_gene(const ea::Gene* gene) const
+	bool Genome::contains(Gene* gene) const
 	{
 		for(int32_t i = 0; i < (int32_t)_genes->size(); i++)
 		{
@@ -154,7 +103,7 @@ namespace ea
 		return false;
 	}
 
-	void Genome::swap(const uint32_t pos1, const uint32_t pos2)
+	void Genome::swap(const uint32_t pos1, const uint32_t pos2) const
 	{
 		Gene* gene;
 
@@ -167,22 +116,6 @@ namespace ea
 
 		(*_genes)[pos1] = (*_genes)[pos2];
 		(*_genes)[pos2] = gene;
-	}
-
-	void Genome::swap(const uint32_t pos1, const uint32_t pos2, const uint32_t pos3)
-	{
-		Gene* gene;
-
-		if(pos1 >= _genes->size() || pos2 >= _genes->size() || pos3 >= _genes->size())
-		{
-			throw std::out_of_range("index out of range");
-		}
-
-		gene = (*_genes)[pos1];
-
-		(*_genes)[pos1] = (*_genes)[pos2];
-		(*_genes)[pos2] = (*_genes)[pos3];
-		(*_genes)[pos3] = gene;
 	}
 
 	size_t Genome::hash() const
@@ -245,7 +178,7 @@ namespace ea
 		for(vector<GenomeListener*>::iterator it = listener.begin(); it != listener.end(); ++it)
 		{
 			arg.offset = offset;
-			arg.gene = gene_at(offset);
+			arg.gene = at(offset);
 
 			if(event == GENOME_EVENT_SET)
 			{

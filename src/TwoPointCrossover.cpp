@@ -54,17 +54,17 @@ namespace ea
 
 		for(i = 0; i < offset1; i++)
 		{
-			individual->set_gene(i, a->gene_at(i)->clone());
+			individual->copy_to(i, a->at(i));
 		}
 
 		for(i = offset1; i < offset2; i++)
 		{
-			individual->set_gene(i, b->gene_at(i)->clone());
+			individual->copy_to(i, b->at(i));
 		}
 
 		for(i = offset2; i < a->size(); i++)
 		{
-			individual->set_gene(i, a->gene_at(i)->clone());
+			individual->copy_to(i, a->at(i));
 		}
 
 		return individual;

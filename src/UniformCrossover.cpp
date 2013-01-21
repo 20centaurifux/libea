@@ -49,13 +49,13 @@ namespace ea
 
 			if(rnd % 2)
 			{
-				child1->set_gene(i, a->gene_at(i)->clone());
-				child2->set_gene(i, b->gene_at(i)->clone());
+				child1->copy_to(i, a->at(i));
+				child2->copy_to(i, b->at(i));
 			}
 			else
 			{
-				child1->set_gene(i, b->gene_at(i)->clone());
-				child2->set_gene(i, a->gene_at(i)->clone());
+				child1->copy_to(i, b->at(i));
+				child2->copy_to(i, a->at(i));
 			}
 		}
 

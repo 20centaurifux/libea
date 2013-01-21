@@ -36,12 +36,12 @@ vector<Individual*> RouteFactory::random(const uint32_t count)
 
 	for(uint32_t i = 0; i < count; i++)
 	{
-		individual = new Individual(_fitness_func);
+		individual = new Individual(_fitness_func, N_CITIES);
 		generator->get_unique_numbers(0, N_CITIES - 1, numbers, N_CITIES);
 
 		for(int32_t j = 0; j < N_CITIES; j++)
 		{
-			individual->append_gene(create_new_city(numbers[j]));
+			individual->set(j, create_new_city(numbers[j]));
 		}
 
 		population.push_back(individual);

@@ -39,6 +39,7 @@
 #include "UniformCrossover.h"
 #include "SingleSwapMutation.h"
 #include "DoubleSwapMutation.h"
+#include "ICloneable.h"
 
 using namespace ea;
 using namespace std;
@@ -51,7 +52,7 @@ float fitness(Individual *individual)
 
 	for(uint32_t i = 0; i < individual->size(); i++)
 	{
-		city = (City*)individual->gene_at(i);
+		city = (City*)individual->at(i);
 
 		if(!i)
 		{
@@ -79,7 +80,7 @@ void print_cities(Individual* individual)
 
 	for(uint32_t i = 0; i < individual->size(); i++)
 	{
-		city = (City*)individual->gene_at(i);
+		city = (City*)individual->at(i);
 		cout << city->get_name();
 
 		if(i <= individual->size() - 2)
@@ -106,7 +107,7 @@ int main()
 	/*
 	for(uint32_t i = 0; i < idv->size(); i++)
 	{
-		City* city = (City*)idv->gene_at(i);
+		City* city = (City*)idv->at(i);
 		cout << city->get_name() << ": x=" << city->get_x() << ", y=" << city->get_y() << endl;
 	}
 	*/
@@ -121,7 +122,7 @@ int main()
 	*/
 
 	// recombinate:
-	PMXCrossover r(g);
+	OrderedCrossover r(g);
 
 	print_cities(p0[0]);
 	print_cities(p0[1]);
@@ -130,17 +131,17 @@ int main()
 	r.crossover(p0[0], p0[1], children);
 
 	print_cities(children[0]);
-	print_cities(children[1]);
+	//print_cities(children[1]);
 
 	DoubleSwapMutation m(g);
 
-	m.mutate(children[1]);
+	m.mutate(children[0]);
 
-	print_cities(children[1]);
+	print_cities(children[0]);
 
 	/*
 	cout << p0[0]->fitness() << endl;
-	p0[0]->gene_at(0)->set(0, true);
+	p0[0]->at(0)->set(0, true);
 	cout << p0[0]->fitness() << endl;
 	*/
 

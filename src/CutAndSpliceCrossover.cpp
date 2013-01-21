@@ -49,12 +49,12 @@ namespace ea
 
 		for(i = 0; i < separator1; i++)
 		{
-			individual->set_gene(i, a->gene_at(i)->clone());
+			individual->copy_to(i, a->at(i));
 		}
 
 		for(i = separator2; i < b->size(); i++)
 		{
-			individual->set_gene(m++, b->gene_at(i)->clone());
+			individual->copy_to(m++, b->at(i));
 		}
 
 		children.push_back(individual);
@@ -64,14 +64,14 @@ namespace ea
 
 		for(i = 0; i < separator2; i++)
 		{
-			individual->set_gene(i, b->gene_at(i)->clone());
+			individual->copy_to(i, b->at(i));
 		}
 
 		m = separator2;
 
 		for(i = separator1; i < a->size(); i++)
 		{
-			individual->set_gene(m++, a->gene_at(i)->clone());
+			individual->copy_to(m++, a->at(i));
 		}
 
 		children.push_back(individual);

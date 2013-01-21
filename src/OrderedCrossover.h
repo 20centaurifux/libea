@@ -41,7 +41,7 @@ namespace ea
 			{
 				for(uint32_t i = 0; i < len; i++)
 				{
-					if(gene->equals(individual->gene_at(i)))
+					if(gene->equals(individual->at(i)))
 					{
 						return true;
 					}
@@ -52,4 +52,3 @@ namespace ea
 	};
 }
 #endif
-

@@ -25,6 +25,7 @@
 #define GENOME_H
 
 #include <vector>
+#include "AGenome.h"
 #include "Gene.h"
 #include "IHashfunction.h"
 #include "IListener.h"
@@ -52,23 +53,19 @@ namespace ea
 			virtual void gene_cleared(const Genome* sender) {}
 	};
 
-	class Genome : public IHashfunction, public IObservable<GenomeListener>, public GeneListener
+	class Genome : public AGenome<Gene*>, public IObservable<GenomeListener>, public GeneListener
 	{
 		public:
-			Genome();
 			Genome(const uint32_t size);
 			virtual ~Genome();
-			Gene* append_gene(Gene* gene);
-			Gene* append_new_gene(const int32_t length);
-			void set_gene(const uint32_t index, Gene* gene);
-			Gene* gene_at(const uint32_t index) const;
-			void remove_gene(const uint32_t index);
 			inline uint32_t size() const { return _genes->size(); }
-			uint32_t index_of(const Gene* gene) const;
-			bool find_gene(const Gene* gene, uint32_t& index) const;
-			bool contains_gene(const ea::Gene* gene) const;
-			void swap(const uint32_t pos1, const uint32_t pos2);
-			void swap(const uint32_t pos1, const uint32_t pos2, const uint32_t pos3);
+
+			void set(const uint32_t index, Gene* gene);
+			void copy_to(const uint32_t index, Gene* gene);
+			Gene* at(const uint32_t index) const;
+			bool find(Gene* gene, uint32_t& index) const;
+			bool contains(Gene* gene) const;
+			void swap(const uint32_t pos1, const uint32_t pos2) const;
 			size_t hash() const;
 
 			void attach_listener(GenomeListener* l)

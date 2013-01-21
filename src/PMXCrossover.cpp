@@ -61,21 +61,21 @@ namespace ea
 
 		for(i = offset1; i <= offset2; ++i)
 		{
-			child->set_gene(i, parent1->gene_at(i)->clone());
+			child->copy_to(i, parent1->at(i));
 		}
 
 		for(i = offset1; i <= offset2; ++i)
 		{
-			gene = parent2->gene_at(i);
+			gene = parent2->at(i);
 
-			if(!child->contains_gene(gene))
+			if(!child->contains(gene))
 			{
 				gene_p2 = gene;
 
 				while(1)
 				{
 					index = parent2->index_of(gene_p2);
-					gene_p1 = parent1->gene_at(index);
+					gene_p1 = parent1->at(index);
 					index = parent2->index_of(gene_p1);
 
 					if(index >= offset1 && index <= offset2)
@@ -84,7 +84,7 @@ namespace ea
 					}
 					else
 					{
-						child->set_gene(index, gene->clone());
+						child->copy_to(index, gene);
 						break;
 					}
 				}
@@ -95,20 +95,20 @@ namespace ea
 
 		for(i = 0; i < offset1; ++i)
 		{
-			if(!child->contains_gene((gene = parent1->gene_at(i))))
+			if(!child->contains((gene = parent1->at(i))))
 			{
 				next_index(child, index);
-				child->set_gene(index, gene->clone());
+				child->copy_to(index, gene);
 			}
 
 		}
 
 		for(i = offset2 + 1; i < child->size(); ++i)
 		{
-			if(!child->contains_gene((gene = parent1->gene_at(i))))
+			if(!child->contains((gene = parent1->at(i))))
 			{
 				next_index(child, index);
-				child->set_gene(index, gene->clone());
+				child->copy_to(index, gene);
 			}
 		}
 

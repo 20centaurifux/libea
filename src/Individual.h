@@ -35,7 +35,6 @@ namespace ea
 	class Individual : public Genome, public GenomeListener
 	{
 		public:
-			Individual(const FitnessFunc fitness);
 			Individual(const FitnessFunc fitness, uint32_t size);
 			virtual ~Individual() {}
 			float fitness();
