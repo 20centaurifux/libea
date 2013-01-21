@@ -122,7 +122,7 @@ int main()
 	*/
 
 	// recombinate:
-	OrderedCrossover r(g);
+	OrderedCrossover<Gene*, Gene::equal_to> r(g);
 
 	print_cities(p0[0]);
 	print_cities(p0[1]);

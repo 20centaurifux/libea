@@ -56,6 +56,14 @@ namespace ea
 	class Gene : public ISerializable, public IEquatable<Gene>, public ICloneable<Gene>, public IHashfunction, public IObservable<GeneListener>
 	{
 		public:
+			struct equal_to
+			{
+				bool operator()(Gene* a, Gene* b)
+				{
+					return a->equals(b);
+				}
+			};
+
 			Gene(const uint32_t length);
 			virtual ~Gene();
 			inline uint32_t length() const { return _length; }

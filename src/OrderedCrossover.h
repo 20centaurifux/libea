@@ -24,24 +24,62 @@
 #ifndef ORDEREDCROSSOVER_H
 #define ORDEREDCROSSOVER_H
 
+#include <functional>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
 
 namespace ea
 {
+	template<class T, class Equals = std::equal_to<T> >
 	class OrderedCrossover : public ACrossover
 	{
 		public:
 			OrderedCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover(rnd_generator) {}
-			virtual ~OrderedCrossover() {};
-			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
+			~OrderedCrossover() {};
+
+			uint32_t crossover(const Individual* a, const Individual* b, std::vector<Individual*>& children)
+			{
+				uint32_t separator;
+				uint32_t i;
+				uint32_t m = 0;
+				Individual *individual;
+
+				ACROSSOVER_DEFAULT_ASSERT(a, b);
+
+				separator = (uint32_t)generator->get_number(1, a->size() - 2);
+
+				individual = new Individual(a->get_fitness_func(), a->size());
+
+				for(i = 0; i < separator; i++)
+				{
+					individual->copy_to(i, a->at(i));
+				}
+
+				for(i = separator; i < individual->size(); i++)
+				{
+					while(gene_exists(b->at(m), individual, i))
+					{
+						m++;
+					}
+
+					assert(m < b->size());
+
+					individual->copy_to(i, b->at(m));
+				}
+
+				children.push_back(individual);
+
+				return 1;
+			}
 
 		private:
-			inline bool gene_exists(Gene* gene, Individual* individual, const uint32_t len)
+			Equals equals;
+
+			inline bool gene_exists(T gene, Individual* individual, const uint32_t len)
 			{
 				for(uint32_t i = 0; i < len; i++)
 				{
-					if(gene->equals(individual->at(i)))
+					if(equals(gene, individual->at(i)))
 					{
 						return true;
 					}
