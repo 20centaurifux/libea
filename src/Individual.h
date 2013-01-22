@@ -24,6 +24,7 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
 
+#include "IIndividual.h"
 #include "Genome.h"
 
 namespace ea

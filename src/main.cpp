@@ -93,11 +93,34 @@ void print_cities(Individual* individual)
 	cout << endl;
 }
 
+#include "PrimitiveGenome.h"
+
+struct _test
+{
+	size_t operator()(int value)
+	{
+		return value;
+	}
+};
+
 int main()
 {
 	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
 	RouteFactory f(g, fitness);
 	vector<Individual*> p0;
+
+	PrimitiveGenome<int, _test> bar(16);
+
+	cout << bar.size() << endl;
+
+	bar.set(0, 100);
+	bar.set(5, 20);
+
+	cout << bar.at(0) << " - " << bar.at(5) << endl;	
+
+	bar.swap(0, 5);	
+
+	cout << bar.at(0) << " - " << bar.at(5) << endl;	
 
 	p0 = f.random(15);
 

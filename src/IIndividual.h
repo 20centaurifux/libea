@@ -15,51 +15,27 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file AGenome.h
- * \brief Genome base class.
+ * \file IIndividual.h
+ * \brief Interface for individual.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
-#ifndef AGENOME_H
-#define AGENOME_H
+#ifndef IINDIVIDUAL_H
+#define IINDIVIDUAL_H
 
 #include <stdint.h>
-#include <stddef.h>
-#include <stdexcept>
-#include "IHashfunction.h"
+#include "AGenome.h"
 
 namespace ea
 {
-	 template<class T>
-	 class AGenome
-	 {
+	template<class T>
+	class IIndividual : public AGenome<T>
+	{
 		public:
-			AGenome(const uint32_t size) : _size(size) {} 
-			virtual ~AGenome() {}
-			inline uint32_t size() const { return _size; }
-			virtual void set(const uint32_t index, T gene) = 0;
-			virtual void copy_to(const uint32_t index, const T gene) = 0;
-			virtual T at(const uint32_t index) const = 0;
-
-			virtual uint32_t index_of(T gene) const
-			{
-				uint32_t index;
-
-				if(find(gene, index))
-				{
-					return index;
-				}
-
-				throw std::out_of_range("index is out of range");
-			}
-
-			virtual bool find(T gene, uint32_t& index) const = 0;
-			virtual bool contains(T gene) const = 0;
-			virtual void swap(const uint32_t pos1, const uint32_t pos2) const = 0;
-
-		private:
-			uint32_t _size;
-	 };
+			IIndividual(uint32_t size) : AGenome<T>(size) {}
+			virtual ~IIndividual() {}
+			virtual float fitness();
+	};
 }
 #endif

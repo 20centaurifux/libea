@@ -58,6 +58,7 @@ namespace ea
 		public:
 			Genome(const uint32_t size);
 			virtual ~Genome();
+
 			inline uint32_t size() const { return _genes->size(); }
 
 			void set(const uint32_t index, Gene* gene);
