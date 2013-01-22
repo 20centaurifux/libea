@@ -64,6 +64,14 @@ namespace ea
 				}
 			};
 
+			struct hash_func
+			{
+				size_t operator()(Gene* gene)
+				{
+					return gene->hash();
+				}
+			};
+
 			Gene(const uint32_t length);
 			virtual ~Gene();
 			inline uint32_t length() const { return _length; }
