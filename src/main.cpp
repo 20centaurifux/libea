@@ -21,6 +21,7 @@
  * \version 0.1.0
  */
 
+#include <functional>
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -122,7 +123,9 @@ int main()
 	*/
 
 	// recombinate:
-	OrderedCrossover<Gene*, Gene::equal_to> r(g);
+	EdgeRecombinationCrossover<Gene*, Gene::hash_func, Gene::equal_to> r(g);
+
+	//EdgeRecombinationCrossover<int> foo(g);
 
 	print_cities(p0[0]);
 	print_cities(p0[1]);
