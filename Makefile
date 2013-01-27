@@ -1,5 +1,5 @@
 all:
-	g++ -c ./src/*.cpp -Wall -g
+	g++ -c ./src/*.cpp -Wall -g -std=c++11
 	g++ *.o -o ea
 
 clean:

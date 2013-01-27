@@ -25,16 +25,49 @@
 #define UNIFORMCROSSOVER_H
 
 #include "ACrossover.h"
-#include "ARandomNumberGenerator.h"
 
 namespace ea
 {
-	class UniformCrossover : public ACrossover
+	template<class T, int N = 2>
+	class UniformCrossover : public ACrossover<T>
 	{
 		public:
-			UniformCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover(rnd_generator) {}
+			UniformCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
 			virtual ~UniformCrossover() {};
-			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
+
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			{
+				AGenome<T>* child1;
+				AGenome<T>* child2;
+				int32_t rnd;
+
+				child1 = a->instance();
+				child2 = a->instance();
+
+				for(uint32_t i = 0; i < a->size(); ++i)
+				{
+					do
+					{
+						rnd = ACrossover<T>::generator->random();
+					} while(!rnd);
+
+					if(rnd % N)
+					{
+						child1->copy_to(i, a->at(i));
+						child2->copy_to(i, b->at(i));
+					}
+					else
+					{
+						child1->copy_to(i, b->at(i));
+						child2->copy_to(i, a->at(i));
+					}
+				}
+
+				children.push_back(child1);
+				children.push_back(child2);
+
+				return 2;
+			}
 	};
 }
 #endif

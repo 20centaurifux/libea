@@ -16,7 +16,7 @@
  ***************************************************************************/
 /*!
  * \file AGenome.h
- * \brief Genome base class.
+ * \brief Base class for genomes.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
@@ -31,16 +31,33 @@
 
 namespace ea
 {
+	template<class T>
+	class AGenome;
+
+	template<typename T>
+	struct FitnessFunc
+	{
+		typedef float (*fitness)(const AGenome<T>& obj);
+	};
+
 	 template<class T>
 	 class AGenome
 	 {
 		public:
-			AGenome(const uint32_t size) : _size(size) {} 
+			AGenome(const uint32_t size, const typename FitnessFunc<T>::fitness fitness_func)
+				: fitness_func(fitness_func), _size(size), _fitness_set(false) {} 
 			virtual ~AGenome() {}
 			inline uint32_t size() const { return _size; }
 			virtual void set(const uint32_t index, T gene) = 0;
-			virtual void copy_to(const uint32_t index, const T gene) = 0;
+			virtual void copy_to(const uint32_t index, T gene) = 0;
 			virtual T at(const uint32_t index) const = 0;
+			virtual AGenome<T>* instance(const uint32_t size) const = 0;
+			inline AGenome<T>* instance() const { return instance(_size); }
+
+			virtual float fitness()
+			{
+				return fitness_func(*this);
+			}
 
 			virtual uint32_t index_of(T gene) const
 			{
@@ -58,8 +75,13 @@ namespace ea
 			virtual bool contains(T gene) const = 0;
 			virtual void swap(const uint32_t pos1, const uint32_t pos2) const = 0;
 
+		protected:
+			typename FitnessFunc<T>::fitness fitness_func;
+
 		private:
 			uint32_t _size;
+			bool _fitness_set;
+			float _fitness;
 	 };
 }
 #endif

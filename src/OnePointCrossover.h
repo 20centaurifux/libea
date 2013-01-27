@@ -25,19 +25,48 @@
 #define ONEPOINTCROSSOVER_H
 
 #include "ACrossover.h"
-#include "ARandomNumberGenerator.h"
 
 namespace ea
 {
-	class OnePointCrossover : public ACrossover
+	template<class T>
+	class OnePointCrossover : public ACrossover<T>
 	{
 		public:
-			OnePointCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover(rnd_generator) {}
+			OnePointCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
 			virtual ~OnePointCrossover() {};
-			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
+
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			{
+				uint32_t separator;
+
+				separator = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 2);
+
+				children.push_back(crossover(b, a, separator));
+				children.push_back(crossover(a, b, separator));
+
+				return 2;
+			}
 
 		private:
-			Individual* crossover(const Individual* a, const Individual* b, const uint32_t separator) const;
+			AGenome<T>* crossover(const AGenome<T>* a, const AGenome<T>* b, const uint32_t separator) const
+			{
+				uint32_t i;
+				AGenome<T>* individual;
+			
+				individual = a->instance();
+
+				for(i = 0; i < separator; i++)
+				{
+					individual->copy_to(i, a->at(i));
+				}
+
+				for(i = separator; i < a->size(); i++)
+				{
+					individual->copy_to(i, b->at(i));
+				}
+
+				return individual;
+			}
 	};
 }
 #endif

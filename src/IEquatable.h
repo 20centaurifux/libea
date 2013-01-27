@@ -34,18 +34,6 @@ namespace ea
 		public:
 			virtual bool equals(const T* object) = 0;
 
-			static int32_t find(std::vector<T*> collection, const T* equatable)
-			{
-				for(int32_t i = 0; i < (int32_t)collection.size(); i++)
-				{
-					if(collection.at(i)->equals(equatable))
-					{
-						return i;
-					}
-				}
-				return -1;
-			}
-
 		protected:
 			virtual ~IEquatable() {}
 	};

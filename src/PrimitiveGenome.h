@@ -6,7 +6,7 @@
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-T   it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License as published by
     the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -15,8 +15,8 @@ T   it under the terms of the GNU General Public License as published by
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file main.cpp
- * \brief Genome holding primitive datatypes as genes.
+ * \file PrimitiveGenome.h
+ * \brief A genome holding primitive datatypes.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
@@ -30,32 +30,49 @@ T   it under the terms of the GNU General Public License as published by
 
 namespace ea
 {
-	template<class T, class Hash>
+	template<class T>
 	class PrimitiveGenome : public AGenome<T>
 	{
 		public:
-			PrimitiveGenome(const uint32_t size) : AGenome<T>(size),  _genes(new vector<T>(size)) {}
+			PrimitiveGenome(const uint32_t size, const typename FitnessFunc<T>::fitness fitness_func)
+				: AGenome<T>(size, fitness_func), _genes(new std::vector<T>(size)), _modified(true), _fitness(0) {}
 
 			virtual ~PrimitiveGenome()
 			{
 				delete _genes;
 			}
 
-			inline uint32_t size() const { return _genes->size(); }
+			float fitness()
+			{
+				if(_modified)
+				{
+					_fitness =  fitness_func(*this);
+					_modified = false;
+				}
+
+				return _fitness;
+			}
 
 			void set(const uint32_t index, T gene)
 			{
 				(*_genes)[index] = gene;
+				_modified = true;
 			}
 
 			void copy_to(const uint32_t index, T gene)
 			{
 				set(index, gene);
+				_modified = true;
 			}
 
 			T at(const uint32_t index) const
 			{
 				return (*_genes)[index];
+			}
+
+			PrimitiveGenome* instance(const uint32_t size) const
+			{
+				return new PrimitiveGenome<T>(size, AGenome<T>::fitness_func);
 			}
 
 			bool find(T gene, uint32_t& index) const
@@ -94,7 +111,8 @@ namespace ea
 
 		private:
 			std::vector<T>* _genes;
-			Hash _hash;
+			bool _modified;
+			float _fitness;
 
 	};
 }

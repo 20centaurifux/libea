@@ -15,37 +15,45 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file Observer.h
- * \brief Base class for observable classes.
+ * \file SDBMHash.h
+ * \brief SDBM hash algorithm.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
-#ifndef OBSERVER_H
-#define OBSERVER_H
+#ifndef SDBMHASH_H
+#define SDBMHASH_H
+
+#include "AHash.h"
+
 namespace ea
 {
-	template<class T>
-	class IObservable
+	class SDBMHash : public AHash
 	{
 		public:
-			virtual ~IObservable() {}
+			SDBMHash() : _hash(0) {}
 
-			virtual void attach_listener(T* l) = 0;
-			virtual void detach_listener(T* l) = 0;
-		
-		protected:
-			void detach_helper(typename std::vector<T*> listener, T* l)
-			{	
-				typename std::vector<T*>::iterator pos;
-		
-				pos = std::find(listener.begin(), listener.end(), l);
+			inline void reset()
+			{
+				_hash = 0;
+			}
 
-				if(pos != listener.end())
+			inline void append(const char* buffer, const size_t size)
+			{
+				for(uint32_t i = 0; i < size; ++i)
 				{
-					listener.erase(pos);
+					_hash = buffer[i] + (_hash << 6) + (_hash << 16) - _hash;
 				}
 			}
+
+			inline size_t hash()
+			{
+			
+				return _hash;
+			}
+
+		private:
+			size_t _hash;
 	};
 }
 #endif

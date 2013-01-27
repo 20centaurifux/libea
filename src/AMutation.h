@@ -24,17 +24,18 @@
 #ifndef AMUTATION_H
 #define AMUTATION_H
 
-#include "Genome.h"
+#include "AGenome.h"
 #include "ARandomNumberGenerator.h"
 
 namespace ea
 {
+	template<class T>
 	class AMutation
 	{
 		public:
-			AMutation(ARandomNumberGenerator* rnd_generator) { generator = rnd_generator; }
+			AMutation(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
 			virtual ~AMutation() {};
-			virtual void mutate(Genome* genome) = 0;
+			virtual void mutate(AGenome<T>* genome) = 0;
 
 		protected:
 			ARandomNumberGenerator* generator;

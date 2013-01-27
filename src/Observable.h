@@ -15,29 +15,51 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file IListener.h
- * \brief Interface for observers.
+ * \file Observable.h
+ * \brief Base class for observable classes.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
+#ifndef OBSERVER_H
+#define OBSERVER_H
+
 #include <vector>
 #include <algorithm>
 
-#ifndef ILISTENER_H
-#define ILISTENER_H
 namespace ea
 {
-	 class IListener
-	 {
-		 public:
-		 	class EventArg
-			{
-				public:
-					virtual ~EventArg() {}
-			};
+	template<class T>
+	class Observable
+	{
+		public:
+			virtual ~Observable() {}
 
-		 	virtual ~IListener() {}
-	 };
- }
+			template<class F>
+			F for_each(F f)
+			{
+				std::for_each(begin(listener), end(listener), f);
+
+				return f;
+			}
+
+			void attach_listener(const T l)
+			{
+				listener.push_back(l);
+			}
+
+			void detach_listener(const T l)
+			{
+				auto pos = std::find(begin(listener), end(listener), l);
+
+				if(pos != listener.end())
+				{
+					listener.erase(pos);
+				}
+			}
+		
+		protected:
+			std::vector<T> listener;
+		};
+}
 #endif

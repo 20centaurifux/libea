@@ -30,7 +30,7 @@
 namespace ea
 {
 	template<class T>
-	void delete_object(T*& obj)
+	void delete_object(T& obj)
 	{
 		delete obj;
 		obj = NULL;

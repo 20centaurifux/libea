@@ -25,19 +25,55 @@
 #define TWOPOINTCROSSOVER_H
 
 #include "ACrossover.h"
-#include "ARandomNumberGenerator.h"
 
 namespace ea
 {
-	class TwoPointCrossover : public ACrossover
+	template<class T>
+	class TwoPointCrossover : public ACrossover<T>
 	{
 		public:
-			TwoPointCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover(rnd_generator) {}
+			TwoPointCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
 			virtual ~TwoPointCrossover() {};
-			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
+
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			{
+				uint32_t offset1;
+				uint32_t offset2;
+
+				offset1 = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 3);
+				offset2 = (uint32_t)ACrossover<T>::generator->get_number(offset1 + 1, a->size() - 1);
+
+				children.push_back(crossover(b, a, offset1, offset2));
+				children.push_back(crossover(a, b, offset1, offset2));
+
+				return 2;
+			}
 
 		private:
-			Individual* crossover(const Individual* a, const Individual* b, const uint32_t offset1, const uint32_t offset2) const;
+			AGenome<T>* crossover(const AGenome<T>* a, const AGenome<T>* b, const uint32_t offset1, const uint32_t offset2) const
+			{
+				uint32_t i;
+				AGenome<T> *individual;
+			
+				individual = a->instance();
+
+				for(i = 0; i < offset1; i++)
+				{
+					individual->copy_to(i, a->at(i));
+				}
+
+				for(i = offset1; i < offset2; i++)
+				{
+					individual->copy_to(i, b->at(i));
+				}
+
+				for(i = offset2; i < a->size(); i++)
+				{
+					individual->copy_to(i, a->at(i));
+				}
+
+				return individual;
+			}
 	};
 }
 #endif

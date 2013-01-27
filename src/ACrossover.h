@@ -26,27 +26,21 @@
 
 #include <vector>
 #include <cassert>
-#include "Individual.h"
+#include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
-
-#ifdef NDEBUG
-#define ACROSSOVER_ASSERT(a, b)
-#else
-#define ACROSSOVER_DEFAULT_ASSERT(a, b) assert(a != NULL); assert(b != NULL); assert(a->size() == b->size()); assert(a->size() > 1);
-#endif
 
 namespace ea
 {
+	template<class T>
 	class ACrossover
 	{
 		public:
-			ACrossover(ARandomNumberGenerator* rnd_generator) { generator = rnd_generator; }
+			ACrossover(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
 			virtual ~ACrossover() {};
-			virtual uint32_t crossover(const Individual* a, const Individual* b, std::vector<Individual*>& children) = 0;
-			uint32_t crossover(const std::vector<Individual*> a, const std::vector<Individual*> b, std::vector<Individual*>& children);
+			virtual uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children) = 0;
 
 		protected:
-			ea::ARandomNumberGenerator* generator;
+			ARandomNumberGenerator* generator;
 	};
 }
 #endif

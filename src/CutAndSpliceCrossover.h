@@ -29,12 +29,63 @@
 
 namespace ea
 {
-	class CutAndSpliceCrossover : public ACrossover
+	template<class T>
+	class CutAndSpliceCrossover : public ACrossover<T>
 	{
 		public:
-			CutAndSpliceCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover(rnd_generator) {}
+			CutAndSpliceCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
 			virtual ~CutAndSpliceCrossover() {};
-			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
+
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			{
+				uint32_t separator1;
+				uint32_t separator2;
+				AGenome<T> *individual;
+				uint32_t i;
+				uint32_t m;
+
+				assert(a != NULL);
+				assert(a->size() > 1);
+				assert(b != NULL);
+				assert(b->size() > 1);
+
+				m = separator1 = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 2);
+				separator2 = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 2);
+
+				// create first individual:
+				individual = a->instance(separator1 + b->size() - separator2);
+
+				for(i = 0; i < separator1; i++)
+				{
+					individual->copy_to(i, a->at(i));
+				}
+
+				for(i = separator2; i < b->size(); i++)
+				{
+					individual->copy_to(m++, b->at(i));
+				}
+
+				children.push_back(individual);
+
+				// create second individual:
+				individual = a->instance(separator2 + a->size() - separator1);
+
+				for(i = 0; i < separator2; i++)
+				{
+					individual->copy_to(i, b->at(i));
+				}
+
+				m = separator2;
+
+				for(i = separator1; i < a->size(); i++)
+				{
+					individual->copy_to(m++, a->at(i));
+				}
+
+				children.push_back(individual);
+
+				return 2;
+			}
 	};
 }
 #endif

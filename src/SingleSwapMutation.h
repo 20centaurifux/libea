@@ -25,17 +25,17 @@
 #define SINGLESWAPMUTATION_H
 
 #include "AMutation.h"
-#include "ARandomNumberGenerator.h"
 
 namespace ea
 {
-	class SingleSwapMutation : public AMutation
+	template<class T>
+	class SingleSwapMutation : public AMutation<T>
 	{
 		public:
-			SingleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation(rnd_generator) {}
+			SingleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation<T>(rnd_generator) {}
 			~SingleSwapMutation() {};
 
-			void mutate(ea::Genome* genome)
+			void mutate(AGenome<T>* genome)
 			{
 				int32_t offsets[2];
 
@@ -44,7 +44,7 @@ namespace ea
 					return;
 				}
 
-				generator->get_unique_numbers(0, genome->size() - 1, offsets, 2);
+				AMutation<T>::generator->get_unique_numbers(0, genome->size() - 1, offsets, 2);
 				genome->swap(offsets[0], offsets[1]);
 			}
 	};

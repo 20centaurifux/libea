@@ -34,9 +34,9 @@ namespace ea
 		public:
 			ARandomNumberGenerator() {}
 			virtual ~ARandomNumberGenerator() {}
-			int32_t get_number(const int32_t min, const int32_t max);
-			void get_numbers(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length);
-			void get_unique_numbers(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length);
+			virtual int32_t get_number(const int32_t min, const int32_t max);
+			virtual void get_numbers(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length);
+			virtual void get_unique_numbers(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length);
 			virtual int32_t random() = 0;
 			virtual int32_t get_max() const = 0;
 	};

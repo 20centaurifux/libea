@@ -24,27 +24,113 @@
 #ifndef PMXCROSSOVER_H
 #define PMXCROSSOVER_H
 
+#include <cstring>
 #include "ACrossover.h"
-#include "ARandomNumberGenerator.h"
+#include <iostream>
 
 namespace ea
 {
-	class PMXCrossover : public ACrossover
+	template<class T>
+	class PMXCrossover : public ACrossover<T>
 	{
 		public:
-			PMXCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover(rnd_generator) {}
+			PMXCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
 			virtual ~PMXCrossover() {};
-			uint32_t crossover(const ea::Individual* a, const ea::Individual* b, std::vector<Individual*>& children);
+
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			{
+				uint32_t offset1;
+				uint32_t offset2;
+				AGenome<T>* child;
+
+				offset1 = ACrossover<T>::generator->get_number(0, a->size() - 2);
+				offset2 = ACrossover<T>::generator->get_number(offset1 + 1, a->size() - 1);
+
+				child = crossover(a, b, offset1, offset2);
+				children.push_back(child);
+
+				child = crossover(b, a, offset1, offset2);
+				children.push_back(child);
+
+				return 2;
+			}
 
 		private:
-			ea::Individual* crossover(const ea::Individual* parent1, const ea::Individual* parent2, const uint32_t offset1, const uint32_t offset2) const;
-
-			void next_index(const ea::Individual* individual, uint32_t& index) const
+			AGenome<T>* crossover(const AGenome<T>* parent1, const AGenome<T>* parent2, const uint32_t offset1, const uint32_t offset2) const
 			{
-				while(individual->at(index))
+				AGenome<T>* child;
+				uint32_t i;
+				uint32_t index;
+				std::vector<bool> indices(parent1->size());
+				std::vector<bool>::iterator first;
+				std::vector<bool>::iterator last;
+				std::vector<bool>::iterator iter;
+				T gene;
+				T gene_p1;
+				T gene_p2;
+
+				first = indices.begin();
+				last = indices.end();
+
+				std::fill(first, last, false);
+				std::fill(first + offset1, first + offset2 + 1, true);
+
+				child = parent1->instance();
+
+				for(i = offset1; i <= offset2; ++i)
 				{
-					++index;
+					child->copy_to(i, parent1->at(i));
 				}
+
+				for(i = offset1; i <= offset2; ++i)
+				{
+					gene = parent2->at(i);
+
+					if(!child->contains(gene))
+					{
+						gene_p2 = gene;
+
+						while(1)
+						{
+							index = parent2->index_of(gene_p2);
+							gene_p1 = parent1->at(index);
+							index = parent2->index_of(gene_p1);
+
+							if(index >= offset1 && index <= offset2)
+							{
+								gene_p2 = gene_p1;
+							}
+							else
+							{
+								child->copy_to(index, gene);
+								indices[index] = true;
+								break;
+							}
+						}
+					}
+				}
+
+				index = ((iter = std::find(first, last, false))) - first, ++iter;
+
+				for(i = 0; i < offset1; ++i)
+				{
+					if(!child->contains((gene = parent1->at(i))))
+					{
+						child->copy_to(index, gene);
+						index = ((iter = std::find(iter, last, false))) - first, ++iter;
+					}
+				}
+
+				for(i = offset2 + 1; i < child->size(); ++i)
+				{
+					if(!child->contains((gene = parent1->at(i))))
+					{
+						child->copy_to(index, gene);
+						index = ((iter = std::find(iter, last, false))) - first, ++iter;
+					}
+				}
+
+				return child;
 			}
 	};
 }

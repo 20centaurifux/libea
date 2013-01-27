@@ -16,7 +16,7 @@
  ***************************************************************************/
 /*!
  * \file DoubleSwapMutation.h
- * \brief Mutation operator to swap 2 genes.
+ * \brief Mutation operator to swap 3 genes.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
@@ -25,18 +25,18 @@
 #define DOUBLESWAPMUTATION_H
 
 #include "AMutation.h"
-#include "ARandomNumberGenerator.h"
 #include <cstring>
 
 namespace ea
 {
-	class DoubleSwapMutation : public AMutation
+	template<class T>
+	class DoubleSwapMutation : public AMutation<T>
 	{
 		public:
-			DoubleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation(rnd_generator) {}
+			DoubleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation<T>(rnd_generator) {}
 			~DoubleSwapMutation() {};
 
-			void mutate(ea::Genome* genome)
+			void mutate(AGenome<T>* genome)
 			{
 				int32_t offsets[3];
 
@@ -45,7 +45,7 @@ namespace ea
 					return;
 				}
 
-				generator->get_unique_numbers(0, genome->size() - 1, offsets, 3);
+				AMutation<T>::generator->get_unique_numbers(0, genome->size() - 1, offsets, 3);
 
 				genome->swap(offsets[0], offsets[1]);
 				genome->swap(offsets[1], offsets[2]);

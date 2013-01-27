@@ -16,7 +16,7 @@
  ***************************************************************************/
 /*!
  * \file AFactory.h
- * \brief Factories are used to create random instances of individuals.
+ * \brief Factories are used to create (random) instances of individuals.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
@@ -25,7 +25,6 @@
 #define AFACTORY_H
 
 #include<vector>
-#include "ISequence.h"
 #include "ARandomNumberGenerator.h"
 
 namespace ea
@@ -34,7 +33,7 @@ namespace ea
 	class AFactory
 	{
 		public:
-			AFactory(ARandomNumberGenerator* rnd_generator) { generator = rnd_generator; }
+			AFactory(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
 			virtual ~AFactory() {}
 			virtual std::vector<T> random(const uint32_t count) = 0;
 

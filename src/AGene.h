@@ -15,30 +15,57 @@
     General Public License for more details.
  ***************************************************************************/
 /*!
- * \file ACrossover.cpp
- * \brief Crossover operator base class.
+ * \file AGene.h
+ * \brief Base class used for gene implementations.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
 
-#include "ACrossover.h"
+#ifndef AGENE_H
+#define AGENE_H
 
-using namespace std;
+#include "IEquatable.h"
+#include "ICloneable.h"
+#include "IHashfunction.h"
+#include "Observable.h"
 
 namespace ea
 {
-	uint32_t ACrossover::crossover(const std::vector<Individual*> a, const std::vector<Individual*> b, std::vector<Individual*>& children)
+	class AGene;
+
+	class AGeneListener
 	{
-		uint32_t sum = 0;
+		public:
+			~AGeneListener() {};
+			virtual void modified(const AGene* gene) = 0;
+	};
 
-		for(uint32_t i = 0; i < a.size(); i++)
-		{
-			for(uint32_t j = 0; j < b.size(); j++)
+	class AGene : public IEquatable<AGene>, public ICloneable<AGene>, public IHashfunction, public Observable<AGeneListener*>
+	{
+		public:
+			struct equal_to
 			{
-				sum += crossover(a[i], b[j], children);
-			}
-		}
+				bool operator()(AGene* a, AGene* b)
+				{
+					return a->equals(b);
+				}
+			};
 
-		return sum;
-	}
+			struct hash_func
+			{
+				size_t operator()(AGene* gene)
+				{
+					return gene->hash();
+				}
+			};
+
+			virtual ~AGene() {}
+
+		protected:
+			void notifiy()
+			{
+				for_each([gene = this] (AGeneListener* l) { l->modified(gene); });
+			}
+	};
 }
+#endif
