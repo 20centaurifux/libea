@@ -72,12 +72,13 @@ namespace ea
 
 	bool Genome::find(AGene* gene, uint32_t& index) const
 	{
-		auto iter = std::find(_genes->begin(), _genes->end(), gene);
-
-		if(iter != _genes->end())
+		for(auto iter = _genes->begin(); iter != _genes->end(); ++iter)
 		{
-			index = iter - _genes->begin();
-			return true;
+			if((*iter)->equals(gene))
+			{
+				index = iter - _genes->begin();
+				return true;
+			}
 		}
 
 		return false;
@@ -85,7 +86,15 @@ namespace ea
 
 	bool Genome::contains(AGene* gene) const
 	{
-		return !(std::find(_genes->begin(), _genes->end(), gene) == _genes->end());
+		for(auto iter = _genes->begin(); iter != _genes->end(); ++iter)
+		{
+			if((*iter)->equals(gene))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	void Genome::swap(const uint32_t pos1, const uint32_t pos2) const
