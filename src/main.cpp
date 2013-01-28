@@ -45,7 +45,7 @@
 #include "Genome.h"
 #include "AFactory.h"
 #include "SDBMHash.h"
-#include "foreach.h"
+#include "City.h"
 
 using namespace ea;
 using namespace std;
@@ -80,131 +80,7 @@ float fitness(Individual<City*>& individual)
 
 	return f;
 }
-
-void print_cities(Individual<City*>& individual)
-{
-	City* city;
-
-	for(uint32_t i = 0; i < individual.size(); i++)
-	{
-		city = (City*)individual.at(i);
-		cout << city->get_name();
-
-		if(i <= individual.size() - 2)
-		{
-			cout << ", ";
-		}
-	}
-
-	cout << endl;
-}
-
 */
-
-/*
-struct equals
-{
-	bool operator(int foo, int bar)
-	{
-		return foo == bar;
-	}
-};
-*/
-
-void print(AGenome<int>* c)
-{
-	for(uint32_t i = 0; i < c->size(); ++i)
-	{
-		cout << c->at(i) << " ";
-	}
-
-	cout << endl;
-}
-
-struct _hash
-{
-	size_t operator()(const int& foo) const
-	{
-		return foo;
-	}
-};
-
-/*
-float fitness(const AGenome<int>& foo)
-{
-	return 0;
-}
-*/
-
-class City : public AGene
-{
-	public:
-		City(const uint32_t x, const uint32_t y, const string name) : AGene(), _x(x), _y(y), _name(name) {}
-
-		void set_name(const string& name)
-		{
-			_name = name;
-			notifiy();
-		}
-
-		string get_name()
-		{
-			return _name;
-		}
-
-		uint32_t get_x()
-		{
-			return _x;
-		}
-
-		void set_x(const uint32_t x)
-		{
-			_x = x;
-			notifiy();
-		}
-
-		uint32_t get_y()
-		{
-			return _y;
-		}
-
-		void set_y(const uint32_t y)
-		{
-			_y = y;
-			notifiy();
-		}
-
-		bool equals(const AGene* object)
-		{
-			const City* city;
-
-			if((city = dynamic_cast<const City*>(object)))
-			{
-				return _x == city->_x && _y == city->_y && !_name.compare(city->_name);
-			}
-
-			return false;
-		}
-
-		City* clone() const
-		{
-			return new City(_x, _y, _name);
-		}
-
-		size_t hash() const
-		{
-			SDBMHash hash;
-
-			hash << _x << _y << _name;
-
-			return hash.hash();
-		}
-
-	private:
-		uint32_t _x;
-		uint32_t _y;
-		string _name;
-};
 
 class RouteFactory : public AFactory<Genome*>
 {
@@ -270,7 +146,7 @@ float calculate_route(const AGenome<AGene*>& foo)
 
 //FitnessFunc<AGene<City>*> foobar = calculate_route;
 
-void print_cities(Genome* individual)
+void print_cities(AGenome<AGene*>* individual)
 {
 	City* city;
 
@@ -307,9 +183,34 @@ int main()
 
 	c.crossover(parents.at(0), parents.at(1), children);
 
+	print_cities(children.at(0));
+	print_cities(children.at(1));
+
 	for_each(parents.begin(), parents.end(), [] (Genome* genome) { delete genome; });
+	for_each(children.begin(), children.end(), [] (AGenome<AGene*>* genome) { delete genome; });
 
 	delete g;
+
+	/*
+	vector<AGene*> foo;
+
+	foo.push_back(parents.at(0)->at(0));
+	*/
+
+	//City* bar = dynamic_cast<City*>(foo.at(0));
+
+
+	//cout << parents.at(0)->at(1)->equals(foo.at(0)) << endl;
+
+	/*
+	AGenome<AGene*>* genome = parents.at(0);
+
+	AGene* foo = genome->at(0);
+
+	City* bar = dynamic_cast<City*>(foo);
+
+	cout << bar->get_name() << endl;
+	*/
 
 	return 0;
 }

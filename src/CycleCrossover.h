@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <functional>
 #include "ACrossover.h"
-#include "foreach.h"
 
 namespace ea
 {
