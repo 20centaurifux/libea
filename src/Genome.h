@@ -24,6 +24,7 @@
 #ifndef GENOME_H
 #define GENOME_H
 
+#include <algorithm>
 #include "AGenome.h"
 #include "AGene.h"
 
@@ -40,6 +41,7 @@ namespace ea
 
 			virtual ~Genome()
 			{
+				std::for_each(_genes->begin(), _genes->end(), [] (AGene* gene) { if(gene) delete gene; });
 				delete _genes;
 			}
 
