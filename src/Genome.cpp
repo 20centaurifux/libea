@@ -88,7 +88,7 @@ namespace ea
 	{
 		for(auto iter = _genes->begin(); iter != _genes->end(); ++iter)
 		{
-			if((*iter)->equals(gene))
+			if(*iter && (*iter)->equals(gene))
 			{
 				return true;
 			}
