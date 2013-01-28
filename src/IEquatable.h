@@ -32,7 +32,7 @@ namespace ea
 	class IEquatable
 	{
 		public:
-			virtual bool equals(const T* object) = 0;
+			virtual bool equals(const T* object) const = 0;
 
 		protected:
 			virtual ~IEquatable() {}

@@ -44,7 +44,7 @@ namespace ea
 				notifiy();
 			}
 
-			bool equals(const AGene* object)
+			bool equals(const AGene* object) const
 			{
 				const City* city = (City*)object;
 

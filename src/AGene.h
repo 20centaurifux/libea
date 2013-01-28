@@ -45,7 +45,7 @@ namespace ea
 		public:
 			struct equal_to
 			{
-				bool operator()(AGene* a, AGene* b)
+				bool operator()(AGene* a, AGene* b) const
 				{
 					return a->equals(b);
 				}
@@ -53,7 +53,7 @@ namespace ea
 
 			struct hash_func
 			{
-				size_t operator()(AGene* gene)
+				size_t operator()(AGene* gene) const
 				{
 					return gene->hash();
 				}

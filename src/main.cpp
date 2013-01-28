@@ -164,6 +164,10 @@ void print_cities(AGenome<AGene*>* individual)
 	cout << endl;
 }
 
+struct _test
+{
+	size_t operator() (AGene* foo) const { return 0; };
+} _foo;
 
 int main()
 {
@@ -177,14 +181,14 @@ int main()
 	print_cities(parents.at(0));
 	print_cities(parents.at(1));
 
-	CycleCrossover<AGene*, AGene::equal_to> c(g);
+	UniformCrossover<AGene*> c(g);
 
 	vector<AGenome<AGene*>*> children;
 
 	c.crossover(parents.at(0), parents.at(1), children);
 
 	print_cities(children.at(0));
-	print_cities(children.at(1));
+	//print_cities(children.at(1));
 
 	for_each(parents.begin(), parents.end(), [] (Genome* genome) { delete genome; });
 	for_each(children.begin(), children.end(), [] (AGenome<AGene*>* genome) { delete genome; });
