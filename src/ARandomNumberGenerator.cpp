@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file ARandomNumberGenerator.cpp
- * \brief Base class for random number generators.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file ARandomNumberGenerator.cpp
+   @brief Base class for random number generators.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #include <assert.h>

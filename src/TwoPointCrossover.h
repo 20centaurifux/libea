@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file TwoPointCrossover.h
- * \brief Implementation of two-point crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file TwoPointCrossover.h
+   @brief Implementation of two-point crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef TWOPOINTCROSSOVER_H
@@ -28,11 +28,27 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class TwoPointCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Implementation of the two-point crossover operator.
+	 */
 	template<class T>
 	class TwoPointCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			TwoPointCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			virtual ~TwoPointCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -75,5 +91,10 @@ namespace ea
 				return individual;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

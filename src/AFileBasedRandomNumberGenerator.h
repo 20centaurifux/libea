@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file AFileBasedRandomNumberGenerator.h
- * \brief Base class for random number generators reading data from a file.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file AFileBasedRandomNumberGenerator.h
+   @brief Base class for random number generators reading data from a file.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef AFILEBASEDRANDOMNUMBERGENERATOR_H
@@ -29,16 +29,31 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	   	@addtogroup Random
+	   	@{
+	 */
+
+	/**
+	   @class AFileBasedRandomNumberGenerator
+	   @brief Abstract base class for random number generators reading data from a file.
+	 */
 	class AFileBasedRandomNumberGenerator : public ARandomNumberGenerator
 	{
 		public:
+			/*! Default size of the buffer used to read from a file. */
 			static const int32_t DEFAULT_BUFFER_SIZE = 512;
 
+			/**
+			   @param filename name of the file to read random data from
+			   @param buffer_size the buffer size
+			 */
 			AFileBasedRandomNumberGenerator(const char* filename, const int32_t buffer_size);
 			virtual ~AFileBasedRandomNumberGenerator();
-			inline const char* get_filename() const { return _filename; };
+
 			int32_t random();
-			inline uint32_t get_buffer_size() const { return _buffer_size; }
 
 		private:
 			char *_filename;
@@ -49,5 +64,10 @@ namespace ea
 
 			std::ifstream* get_stream();
 	};
+
+	/**
+	   	@}
+	   @}
+	 */
 }
 #endif

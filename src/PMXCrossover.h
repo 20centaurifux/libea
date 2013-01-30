@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file PMXCrossover.h
- * \brief Implementation of PMX crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file PMXCrossover.h
+   @brief Implementation of PMX crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef PMXCROSSOVER_H
@@ -30,11 +30,27 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class PMXCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Implementation of the PMX crossover operator.
+	 */
 	template<class T>
 	class PMXCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			PMXCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			virtual ~PMXCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -133,5 +149,10 @@ namespace ea
 				return child;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

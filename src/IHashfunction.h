@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file IHashfunction.h
- * \brief Interface for hash functions.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file IHashfunction.h
+   @brief Interface for hash functions.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef IHASHFUNCTION_H
@@ -26,11 +26,30 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	 */
+
+	/**
+	   @class IHashfunction
+	   @brief Interface for hashable classes.
+	 */
 	class IHashfunction
 	{
 		public:
 			virtual ~IHashfunction() {};
+
+			/**
+			   @return hash of the instance
+			   
+			   Returns hash of an instance.
+			 */
 			virtual std::size_t hash() const = 0;
 	};
+
+	/**
+	   @}
+	 */
 }
 #endif

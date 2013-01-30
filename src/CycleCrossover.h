@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file CycleCrossover.h
- * \brief Implementation of cycle crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file CycleCrossover.h
+   @brief Implementation of cycle crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef CYCLECROSSOVER_H
@@ -30,11 +30,28 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class CycleCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam E Optional functor to compare genes.
+	   @brief Implementation of the cycle crossover operator.
+	 */
 	template<class T, class Equals = std::equal_to<T> >
 	class CycleCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			CycleCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			virtual ~CycleCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -166,5 +183,10 @@ namespace ea
 				return std::search_n(cycle->begin(), cycle->end(), 1, gene, _equals) != cycle->end();
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

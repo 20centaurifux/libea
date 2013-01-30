@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file AMutation.h
- * \brief Base class for mutation operators.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file AMutation.h
+   @brief Base class for mutation operators.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef AMUTATION_H
@@ -29,15 +29,38 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Mutation
+		@{
+	 */
+
+	/**
+	   @class AMutation
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Abstract base class for all mutation operators.
+	 */
 	template<class T>
 	class AMutation
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			AMutation(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
+
 			virtual ~AMutation() {};
+
+			/**
+			 * @param genome genome to mutate
+
+			   Mutates a genome.
+			 */
 			virtual void mutate(AGenome<T>* genome) = 0;
 
 		protected:
+			/*! A random number generator. */
 			ARandomNumberGenerator* generator;
 	};
 }

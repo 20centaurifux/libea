@@ -14,26 +14,43 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file DoubleSwapMutation.h
- * \brief Mutation operator to swap 3 genes.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file DoubleSwapMutation.h
+   @brief Mutation operator to swap 3 genes.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef DOUBLESWAPMUTATION_H
 #define DOUBLESWAPMUTATION_H
 
-#include "AMutation.h"
 #include <cstring>
+
+#include "AMutation.h"
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Mutation
+		@{
+	 */
+
+	/**
+	   @class DoubleSwapMutation
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Swaps three genes.
+	 */
 	template<class T>
 	class DoubleSwapMutation : public AMutation<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			DoubleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation<T>(rnd_generator) {}
+
 			~DoubleSwapMutation() {};
 
 			void mutate(AGenome<T>* genome)
@@ -51,5 +68,10 @@ namespace ea
 				genome->swap(offsets[1], offsets[2]);
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

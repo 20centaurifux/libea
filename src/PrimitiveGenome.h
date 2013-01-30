@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file PrimitiveGenome.h
- * \brief A genome holding primitive datatypes.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file PrimitiveGenome.h
+   @brief A genome holding primitive datatypes.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef PRIMITIVEGENOME_H
@@ -30,10 +30,24 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	 */
+
+	/**
+	   @class PrimitiveGenome
+	   @tparam T gene datatype
+	   @brief A genome for primitive database like int, bool or float.
+	 */
 	template<class T>
 	class PrimitiveGenome : public AGenome<T>
 	{
 		public:
+			/**
+			   @param size size of the genome
+			   @param fitness_func functor to calculate the fitness of the genome
+			 */
 			PrimitiveGenome(const uint32_t size, const typename FitnessFunc<T>::fitness fitness_func)
 				: AGenome<T>(size, fitness_func), _genes(new std::vector<T>(size)), _modified(true), _fitness(0) {}
 
@@ -115,5 +129,9 @@ namespace ea
 			float _fitness;
 
 	};
+
+	/**
+	   @}
+	 */
 }
 #endif

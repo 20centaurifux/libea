@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file OnePointCrossover.cpp
- * \brief Implementation of one-point crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file OnePointCrossover.h
+   @brief Implementation of one-point crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef ONEPOINTCROSSOVER_H
@@ -28,11 +28,27 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class OnePointCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Implementation of the one-point crossover operator.
+	 */
 	template<class T>
 	class OnePointCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			OnePointCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			virtual ~OnePointCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -68,5 +84,10 @@ namespace ea
 				return individual;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

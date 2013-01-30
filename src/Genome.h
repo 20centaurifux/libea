@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file main.cpp
- * \brief A genome holds objects inherited from the AGene base class.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file main.cpp
+   @brief A genome holds objects inherited from the AGene base class.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef GENOME_H
@@ -30,9 +30,22 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	 */
+
+	/**
+	   @class Genome
+	   @brief A genome holding and observing AGene instances.
+	 */
 	class Genome : public AGenome<AGene*>, public AGeneListener
 	{
 		public:
+			/**
+			   @param size size of the genome
+			   @param fitness_func functor to calculate the fitness of the genome
+			 */
 			Genome(const uint32_t size, const FitnessFunc<AGene*>::fitness fitness_func)
 				: AGenome(size, fitness_func), _genes(new std::vector<AGene*>(size)), _modified(true), _fitness(0)
 			{
@@ -64,5 +77,9 @@ namespace ea
 			bool _modified;
 			float _fitness;
 	};
+
+	/**
+	   @}
+	 */
 }
 #endif

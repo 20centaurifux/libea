@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file IEquatable.h
- * \brief Interface for classes which can be checked for equality.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file IEquatable.h
+   @brief Interface for classes which can be checked for equality.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef IEQUATABLE_H
@@ -28,15 +28,34 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	 */
+
+	/**
+	   @class IEquatable
+	   @tparam T Type of the object to compare.
+	   @brief Supports a method for determining equality of instances.
+	 */
 	template<class T>
 	class IEquatable
 	{
 		public:
+			/**
+			   @param object instance to check for equality
+			   @return true if instances are equal
+
+			   Determines equality of two instance.
+			  */
 			virtual bool equals(const T* object) const = 0;
 
 		protected:
 			virtual ~IEquatable() {}
 	};
 
+	/**
+	   @}
+	 */
 }
 #endif

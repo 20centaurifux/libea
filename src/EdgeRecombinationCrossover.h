@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file EdgeRecombinationCrossover.h
- * \brief Implementation of edge recombination crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file EdgeRecombinationCrossover.h
+   @brief Implementation of edge recombination crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef EDGERECOMBINATIONCROSSOVER_H
@@ -28,16 +28,35 @@
 #include <map>
 #include <unordered_map>
 #include <cstring>
+
 #include "ACrossover.h"
-#include "ARandomNumberGenerator.h"
 
 namespace ea
 {
+
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class EdgeRecombinationCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam Hash Functor to hash genes.
+	   @tparam Equals Optional functor to compare genes.
+	   @brief Implementation of the edge recombination crossover operator.
+	 */
 	template<class T, class Hash, class Equals = std::equal_to<T> >
 	class EdgeRecombinationCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			EdgeRecombinationCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			virtual ~EdgeRecombinationCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -221,5 +240,10 @@ namespace ea
 				return false;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

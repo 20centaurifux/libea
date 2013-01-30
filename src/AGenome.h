@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file AGenome.h
- * \brief Base class for genomes.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file AGenome.h
+   @brief Base class for genomes.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef AGENOME_H
@@ -27,38 +27,113 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdexcept>
+
 #include "IHashfunction.h"
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	 */
+
 	template<class T>
 	class AGenome;
 
+	/**
+	   @struct FitnessFunc
+	   @tparam T gene datatype
+	   @brief Functor to calculate the fitness of a genome.
+	 */
 	template<typename T>
 	struct FitnessFunc
 	{
+		/*! Defines a fitness function. */
 		typedef float (*fitness)(const AGenome<T>& obj);
 	};
 
-	 template<class T>
-	 class AGenome
-	 {
+	/**
+	   @class AGenome
+	   @tparam T gene datatype
+	   @brief Abstract base class for genomes.
+	 */
+	template<class T>
+	class AGenome
+	{
 		public:
+			/**
+			   @param size size of the genome
+			   @param fitness_func functor to calculate the fitness of the genome
+			 */
 			AGenome(const uint32_t size, const typename FitnessFunc<T>::fitness fitness_func)
 				: fitness_func(fitness_func), _size(size), _fitness_set(false) {} 
+
 			virtual ~AGenome() {}
+
+			/**
+			   @return size of the genome
+
+			   Gets the size of the gnome.
+			 */
 			inline uint32_t size() const { return _size; }
+
+			/**
+			   @param index a position
+			   @param gene gene to set
+
+			   Sets the gene at the given position. If you store objects in the genome this method might
+			   insert the given pointer into the genome.
+			 */
 			virtual void set(const uint32_t index, T gene) = 0;
+
+			/**
+			   @param index a position
+			   @param gene gene to copy
+
+			   Copies a gene to the given position. If you store objects in the genome this method might
+			   create a new copy of the gene and insert the copy into the genome.
+			 */
 			virtual void copy_to(const uint32_t index, T gene) = 0;
+
+			/**
+			   @param index a location
+			   @return a gene
+
+			   Returns gene at the given position.
+			 */
 			virtual T at(const uint32_t index) const = 0;
+
+			/**
+			   @param size size of the new genome
+			   @return a new gene
+
+			   Creates a new uninitialized gene with the given size.
+			 */
 			virtual AGenome<T>* instance(const uint32_t size) const = 0;
+
+			/**
+			   @return a new gene
+
+			   Creates a new uninitialized gene with the size with the same size.
+			 */
 			inline AGenome<T>* instance() const { return instance(_size); }
 
+			/**
+			   @return fitness of the genome
+
+			   Calculates the fitness of the genome.
+			 */
 			virtual float fitness()
 			{
 				return fitness_func(*this);
 			}
 
+			/**
+			   @param gene a gene
+			   @return index of the given gene
+
+			   Gets index of a gene.
+			 */
 			virtual uint32_t index_of(T gene) const
 			{
 				uint32_t index;
@@ -71,17 +146,43 @@ namespace ea
 				throw std::out_of_range("index is out of range");
 			}
 
+			/**
+			   @param gene a gene
+			   @param index reference to uint32_t to store the found position
+			   @return true if gene could be found
+
+			   Searches for a gene.
+			 */
 			virtual bool find(T gene, uint32_t& index) const = 0;
+
+			/**
+			   @param gene a gene
+			   @return true if gene could be found
+
+			   Tests if genome contains the given gene.
+			 */
 			virtual bool contains(T gene) const = 0;
+
+			/**
+			   @param pos1 position of the first gene
+			   @param pos2 position of the second gene
+
+			   Swaps to genes.
+			 */
 			virtual void swap(const uint32_t pos1, const uint32_t pos2) const = 0;
 
 		protected:
+			/*! Functor for calculating the fitness. */
 			typename FitnessFunc<T>::fitness fitness_func;
 
 		private:
 			uint32_t _size;
 			bool _fitness_set;
 			float _fitness;
-	 };
+	};
+
+	/**
+	   @}
+	 */
 }
 #endif

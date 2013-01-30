@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file RandomDeviceNumberGenerator.h
- * \brief Random number generator reading from "/dev/random".
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file RandomDeviceNumberGenerator.h
+   @brief Random number generator reading from "/dev/random".
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef RANDOMDEVICENUMBERGENERATOR_H
@@ -28,6 +28,17 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	   	@addtogroup Random
+	   	@{
+	 */
+
+	/**
+	   @class RandomDeviceNumberGenerator
+	   @brief Random number generator reading vom /dev/random.
+	 */
 	class RandomDeviceNumberGenerator : public AFileBasedRandomNumberGenerator
 	{
 		public:
@@ -35,5 +46,10 @@ namespace ea
 			virtual ~RandomDeviceNumberGenerator() {};
 			inline int32_t get_max() const { return 2147483647; };
 	};
+
+	/**
+	   	@}
+	   @}
+	 */
 }
 #endif

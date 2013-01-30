@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file SingleSwapMutation.h
- * \brief Mutation operator to swap 2 genes.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file SingleSwapMutation.h
+   @brief Mutation operator to swap 2 genes.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef SINGLESWAPMUTATION_H
@@ -28,11 +28,27 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Mutation
+		@{
+	 */
+
+	/**
+	   @class SingleSwapMutation
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Swaps two genes.
+	 */
 	template<class T>
 	class SingleSwapMutation : public AMutation<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			SingleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation<T>(rnd_generator) {}
+
 			~SingleSwapMutation() {};
 
 			void mutate(AGenome<T>* genome)
@@ -48,5 +64,10 @@ namespace ea
 				genome->swap(offsets[0], offsets[1]);
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file main.cpp
- * \brief Contains some testing stuff.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file main.cpp
+   @brief Contains some testing stuff.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #include <algorithm>
@@ -28,24 +28,10 @@
 #include <cmath>
 #include <cstring>
 
-#include "AnsiRandomNumberGenerator.h"
-#include "URandomDeviceNumberGenerator.h"
-#include "PrimitiveGenome.h"
-#include "OnePointCrossover.h"
-#include "TwoPointCrossover.h"
-#include "CycleCrossover.h"
-#include "CutAndSpliceCrossover.h"
-#include "UniformCrossover.h"
-#include "PMXCrossover.h"
-#include "OrderedCrossover.h"
-#include "EdgeRecombinationCrossover.h"
-#include "SingleSwapMutation.h"
-#include "DoubleSwapMutation.h"
-#include "AGene.h"
-#include "Genome.h"
-#include "AFactory.h"
-#include "SDBMHash.h"
+#include "ea.h"
+
 #include "City.h"
+#include "AFactory.h"
 
 using namespace ea;
 using namespace std;

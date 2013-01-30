@@ -14,15 +14,16 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file AFileBasedRandomNumberGenerator.cpp
- * \brief Base class for random number generators reading data from a file.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file AFileBasedRandomNumberGenerator.cpp
+   @brief Base class for random number generators reading data from a file.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #include <cstring>
 #include <cassert>
+
 #include "AFileBasedRandomNumberGenerator.h"
 
 using namespace std;

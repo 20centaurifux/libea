@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file UniformCrossover.cpp
- * \brief Implementation of uniform crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file UniformCrossover.h
+   @brief Implementation of uniform crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef UNIFORMCROSSOVER_H
@@ -28,11 +28,28 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class UniformCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam N Ratio between two parents.
+	   @brief Implementation of the uniform crossover operator.
+	 */
 	template<class T, int N = 2>
 	class UniformCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			UniformCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			virtual ~UniformCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -69,5 +86,10 @@ namespace ea
 				return 2;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

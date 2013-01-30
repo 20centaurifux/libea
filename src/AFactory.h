@@ -16,7 +16,7 @@
  ***************************************************************************/
 /*!
  * \file AFactory.h
- * \brief Factories are used to create (random) instances of individuals.
+ * \brief Factories are used to create random instances of objects.
  * \author Sebastian Fedrau <lord-kefir@arcor.de>
  * \version 0.1.0
  */
@@ -25,20 +25,48 @@
 #define AFACTORY_H
 
 #include<vector>
+
 #include "ARandomNumberGenerator.h"
 
 namespace ea
 {
+
+	/**
+	   @addtogroup Core
+	   @{
+	 */
+
+	/**
+	   @class AFactory
+	   @tparam T Datatype of objects the factory creates.
+	   @brief Abstract base class for factories. Factories create random instances of objects.
+	 */
 	template<class T>
 	class AFactory
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			AFactory(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
+
 			virtual ~AFactory() {}
+
+			/**
+			   @param count number of instances that should be created
+			   @return a vector holding generated objects
+
+			   Create new objects.
+			 */
 			virtual std::vector<T> random(const uint32_t count) = 0;
 
 		protected:
+			/*! A random number generator. */
 			ARandomNumberGenerator* generator;
 	};
+
+	/**
+	   @}
+	 */
 }
 #endif

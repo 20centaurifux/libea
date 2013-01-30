@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file CutAndSpliceCrossover.h
- * \brief Implementation of cut and splice crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file CutAndSpliceCrossover.h
+   @brief Implementation of cut and splice crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef CUTANDSPLICECROSSOVER_H
@@ -29,11 +29,27 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class CutAndSpliceCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Implementation of the cut and splice crossover operator.
+	 */
 	template<class T>
 	class CutAndSpliceCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			CutAndSpliceCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			virtual ~CutAndSpliceCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -87,5 +103,10 @@ namespace ea
 				return 2;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

@@ -14,20 +14,39 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file ea.h
- * \brief General declarations.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file ea.h
+   @brief General declarations.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef EA_H
 #define EA_H
 
-#include <stdint.h>
+#include "AnsiRandomNumberGenerator.h"
+#include "RandomDeviceNumberGenerator.h"
+#include "URandomDeviceNumberGenerator.h"
 
-namespace ea
-{
-	typedef uint8_t byte;
-}
+#include "PrimitiveGenome.h"
+#include "Genome.h"
+
+#include "CutAndSpliceCrossover.h"
+#include "CycleCrossover.h"
+#include "EdgeRecombinationCrossover.h"
+#include "OnePointCrossover.h"
+#include "OrderedCrossover.h"
+#include "PMXCrossover.h"
+#include "TwoPointCrossover.h"
+#include "UniformCrossover.h"
+
+#include "SingleSwapMutation.h"
+#include "DoubleSwapMutation.h"
+
+/**
+   @namespace ea
+   @brief libea's namespace.
+ */
+namespace ea {}
+
 #endif

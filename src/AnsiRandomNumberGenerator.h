@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file AnsiRandomNumberGenerator.h
- * \brief ANSI compatible random number generator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file AnsiRandomNumberGenerator.h
+   @brief ANSI compatible random number generator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef ANSIRANDOMNUMBERGENERATOR_H
@@ -28,6 +28,17 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	   	@addtogroup Random
+	   	@{
+	 */
+
+	/**
+	   @class AnsiRandomNumberGenerator
+	   @brief A random number generator using the Ansi C rand() function.
+	 */
 	class AnsiRandomNumberGenerator : public ARandomNumberGenerator
 	{
 		public:
@@ -36,5 +47,10 @@ namespace ea
 			int32_t random();
 			int32_t get_max() const;
 	};
+
+	/**
+	   	@}
+	   @}
+	 */
 }
 #endif

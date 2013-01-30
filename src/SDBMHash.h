@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file SDBMHash.h
- * \brief SDBM hash algorithm.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file SDBMHash.h
+   @brief SDBM hash algorithm.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef SDBMHASH_H
@@ -28,6 +28,15 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	 */
+
+	/**
+	   @class SDBMHash
+	   @brief Implementation of the SDBM hash algorithm.
+	 */
 	class SDBMHash : public AHash
 	{
 		public:
@@ -55,5 +64,9 @@ namespace ea
 		private:
 			size_t _hash;
 	};
+
+	/**
+	   @}
+	 */
 }
 #endif

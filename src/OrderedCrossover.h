@@ -14,11 +14,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
  ***************************************************************************/
-/*!
- * \file OrderedCrossover.h
- * \brief Implementation of ordered crossover operator.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+/**
+   @file OrderedCrossover.h
+   @brief Implementation of ordered crossover operator.
+   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @version 0.1.0
  */
 
 #ifndef ORDEREDCROSSOVER_H
@@ -29,11 +29,27 @@
 
 namespace ea
 {
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Crossover
+		@{
+	 */
+
+	/**
+	   @class OrderedCrossover
+	   @tparam T Datatype of genes stored in the Genome.
+	   @brief Implementation of the one-point crossover operator.
+	 */
 	template<class T, class Equals = std::equal_to<T> >
 	class OrderedCrossover : public ACrossover<T>
 	{
 		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
 			OrderedCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+
 			~OrderedCrossover() {};
 
 			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
@@ -85,5 +101,10 @@ namespace ea
 				return false;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif
