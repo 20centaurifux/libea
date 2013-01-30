@@ -36,8 +36,7 @@
 using namespace ea;
 using namespace std;
 
-/*
-float fitness(Individual<City*>& individual)
+float calculate_route(const AGenome<AGene*>& individual)
 {
 	City* city;
 	float x0, x1, y0, y1;
@@ -45,7 +44,7 @@ float fitness(Individual<City*>& individual)
 
 	for(uint32_t i = 0; i < individual.size(); i++)
 	{
-		city = individual.at(i);
+		city = dynamic_cast<City*>(individual.at(i));
 
 		if(!i)
 		{
@@ -66,7 +65,6 @@ float fitness(Individual<City*>& individual)
 
 	return f;
 }
-*/
 
 class RouteFactory : public AFactory<Genome*>
 {
@@ -122,10 +120,12 @@ const uint32_t RouteFactory::_points[20][2] =
 	{ 136, 196 }, { 54, 6377 }, { 74, 14 }, { 1569, 736 }, { 175, 1841 }
 };
 
+/*
 float calculate_route(const AGenome<AGene*>& foo)
 {
 	return 0;
 }
+*/
 	   
 //Genome(const uint32_t size, const typename FitnessFunc<AGene<T>*>::fitness fitness_func) :
 //typedef float (*fitness)(const AGenome<T>& obj);
@@ -150,14 +150,26 @@ void print_cities(AGenome<AGene*>* individual)
 	cout << endl;
 }
 
-struct _test
+float fitness(const AGenome<bool>& g)
 {
-	size_t operator() (AGene* foo) const { return 0; };
-} _foo;
+	return 0;
+}
+
+void print_binary_genome(const BinaryGenome& genome)
+{
+	for(uint32_t i = 0; i < genome.size(); ++i)
+	{
+		cout << (genome.at(i) ? "1" : "0");
+	}
+
+	cout << endl;
+}
 
 int main()
 {
 	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
+
+	/*
 	RouteFactory f = RouteFactory(g, calculate_route);
 
 	vector<Genome*> parents;
@@ -167,7 +179,7 @@ int main()
 	print_cities(parents.at(0));
 	print_cities(parents.at(1));
 
-	UniformCrossover<AGene*> c(g);
+	EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to> c(g);
 
 	vector<AGenome<AGene*>*> children;
 
@@ -176,31 +188,40 @@ int main()
 	print_cities(children.at(0));
 	//print_cities(children.at(1));
 
+	cout << parents.at(0)->fitness() << endl;
+
+	SingleSwapMutation<AGene*> m(g);
+
+	m.mutate(children.at(0));
+
+	print_cities(children.at(0));
+
+	cout << children.at(0)->fitness() << endl;
+
 	for_each(parents.begin(), parents.end(), [] (Genome* genome) { delete genome; });
 	for_each(children.begin(), children.end(), [] (AGenome<AGene*>* genome) { delete genome; });
+	*/
+
+	BinaryGenome genome(4, fitness);
+
+	genome.set(0, false);
+	genome.set(1, true);
+	genome.set(2, true);
+	genome.set(3, false);
+
+	print_binary_genome(genome);
+
+	/*
+	SingleSwapMutation<bool> m(g);
+
+	m.mutate(&genome);
+	*/
+
+	genome.flip(2);
+
+	print_binary_genome(genome);
 
 	delete g;
-
-	/*
-	vector<AGene*> foo;
-
-	foo.push_back(parents.at(0)->at(0));
-	*/
-
-	//City* bar = dynamic_cast<City*>(foo.at(0));
-
-
-	//cout << parents.at(0)->at(1)->equals(foo.at(0)) << endl;
-
-	/*
-	AGenome<AGene*>* genome = parents.at(0);
-
-	AGene* foo = genome->at(0);
-
-	City* bar = dynamic_cast<City*>(foo);
-
-	cout << bar->get_name() << endl;
-	*/
 
 	return 0;
 }
