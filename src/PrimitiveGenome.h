@@ -38,7 +38,7 @@ namespace ea
 	/**
 	   @class PrimitiveGenome
 	   @tparam T gene datatype
-	   @brief A genome for primitive database like int, bool or float.
+	   @brief A genome for primitive datatypes like int, bool or float.
 	 */
 	template<class T>
 	class PrimitiveGenome : public AGenome<T>
@@ -49,18 +49,18 @@ namespace ea
 			   @param fitness_func functor to calculate the fitness of the genome
 			 */
 			PrimitiveGenome(const uint32_t size, const typename FitnessFunc<T>::fitness fitness_func)
-				: AGenome<T>(size, fitness_func), _genes(new std::vector<T>(size)), _modified(true), _fitness(0) {}
+				: AGenome<T>(size, fitness_func), genes(new std::vector<T>(size)), _modified(true), _fitness(0) {}
 
 			virtual ~PrimitiveGenome()
 			{
-				delete _genes;
+				delete genes;
 			}
 
 			float fitness()
 			{
 				if(_modified)
 				{
-					_fitness =  fitness_func(*this);
+					_fitness =  AGenome<T>::fitness_func(*this);
 					_modified = false;
 				}
 
@@ -69,7 +69,7 @@ namespace ea
 
 			void set(const uint32_t index, T gene)
 			{
-				(*_genes)[index] = gene;
+				(*genes)[index] = gene;
 				_modified = true;
 			}
 
@@ -81,7 +81,7 @@ namespace ea
 
 			T at(const uint32_t index) const
 			{
-				return (*_genes)[index];
+				return (*genes)[index];
 			}
 
 			PrimitiveGenome* instance(const uint32_t size) const
@@ -93,11 +93,11 @@ namespace ea
 			{
 				typename std::vector<T>::iterator iter;
 
-				iter = std::find(_genes->begin(), _genes->end(), gene);
+				iter = std::find(genes->begin(), genes->end(), gene);
 
-				if(iter != _genes->end())
+				if(iter != genes->end())
 				{
-					index = iter - _genes->begin();
+					index = iter - genes->begin();
 					return true;
 				}
 
@@ -106,7 +106,7 @@ namespace ea
 
 			bool contains(T gene) const
 			{
-				if(std::find(_genes->begin(), _genes->end(), gene) == _genes->end())
+				if(std::find(genes->begin(), genes->end(), gene) == genes->end())
 				{
 					return false;
 				}
@@ -118,16 +118,17 @@ namespace ea
 			{
 				T temp;
 
-				temp = (*_genes)[pos1];
-				(*_genes)[pos1] = (*_genes)[pos2];
-				(*_genes)[pos2] = temp;
+				temp = (*genes)[pos1];
+				(*genes)[pos1] = (*genes)[pos2];
+				(*genes)[pos2] = temp;
 			}
 
+		protected:
+			std::vector<T>* genes;
+
 		private:
-			std::vector<T>* _genes;
 			bool _modified;
 			float _fitness;
-
 	};
 
 	/**
