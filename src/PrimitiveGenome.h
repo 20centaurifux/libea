@@ -76,7 +76,6 @@ namespace ea
 			void copy_to(const uint32_t index, T gene)
 			{
 				set(index, gene);
-				_modified = true;
 			}
 
 			T at(const uint32_t index) const
