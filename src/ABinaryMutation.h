@@ -61,5 +61,10 @@ namespace ea
 			/*! A random number generator. */
 			ARandomNumberGenerator* generator;
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

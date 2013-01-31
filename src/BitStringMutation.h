@@ -21,8 +21,8 @@
    @version 0.1.0
  */
 
-#ifndef ABITSTRINGMUTATION_H
-#define ABITSTRINGMUTATION_H
+#ifndef BITSTRINGMUTATION_H
+#define BITSTRINGMUTATION_H
 
 #include "ABinaryMutation.h"
 
@@ -64,6 +64,10 @@ namespace ea
 				}
 			}
 	};
-}
 
+	/**
+		   @}
+	   @}
+	 */
+}
 #endif
