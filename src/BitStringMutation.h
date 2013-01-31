@@ -15,41 +15,55 @@
     General Public License for more details.
  ***************************************************************************/
 /**
-   @file ea.h
-   @brief General declarations.
+   @file BitStringMutation.h
+   @brief Flipping bits with a probability of 1 / length of the genome.
    @author Sebastian Fedrau <lord-kefir@arcor.de>
    @version 0.1.0
  */
 
-#ifndef EA_H
-#define EA_H
+#ifndef ABITSTRINGMUTATION_H
+#define ABITSTRINGMUTATION_H
 
-#include "AnsiRandomNumberGenerator.h"
-#include "RandomDeviceNumberGenerator.h"
-#include "URandomDeviceNumberGenerator.h"
+#include "ABinaryMutation.h"
 
-#include "PrimitiveGenome.h"
-#include "Genome.h"
-#include "BinaryGenome.h"
+namespace ea
+{
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Mutation
+		@{
+	 */
 
-#include "CutAndSpliceCrossover.h"
-#include "CycleCrossover.h"
-#include "EdgeRecombinationCrossover.h"
-#include "OnePointCrossover.h"
-#include "OrderedCrossover.h"
-#include "PMXCrossover.h"
-#include "TwoPointCrossover.h"
-#include "UniformCrossover.h"
+	/**
+	   @class BitStringMutation
+	   @brief Flipping bits with a probability of 1 / length of the genome.
+	 */
+	class BitStringMutation : public ABinaryMutation
+	{
+		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
+			BitStringMutation(ARandomNumberGenerator* rnd_generator) : ABinaryMutation(rnd_generator) {}
 
-#include "SingleSwapMutation.h"
-#include "DoubleSwapMutation.h"
+			void mutate(BinaryGenome* genome)
+			{
+				bool flipped = false;
 
-#include "BitStringMutation.h"
-
-/**
-   @namespace ea
-   @brief libea's namespace.
- */
-namespace ea {}
+				while(!flipped)
+				{
+					for(uint32_t i = 0; i < genome->size(); ++i)
+					{
+						if(!generator->get_number(0, genome->size() - 1))
+						{
+							genome->flip(i);
+							flipped = true;
+						}
+					}
+				}
+			}
+	};
+}
 
 #endif
