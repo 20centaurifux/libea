@@ -53,7 +53,7 @@ namespace ea
 			virtual ~AMutation() {};
 
 			/**
-			 * @param genome genome to mutate
+			   @param genome genome to mutate
 
 			   Mutates a genome.
 			 */
@@ -63,5 +63,10 @@ namespace ea
 			/*! A random number generator. */
 			ARandomNumberGenerator* generator;
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

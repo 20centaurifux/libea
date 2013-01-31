@@ -51,7 +51,7 @@ namespace ea
 			virtual ~ABinaryMutation() {};
 
 			/**
-			 * @param genome genome to mutate
+			   @param genome genome to mutate
 
 			   Mutates a genome.
 			 */
