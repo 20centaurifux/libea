@@ -15,42 +15,50 @@
     General Public License for more details.
  ***************************************************************************/
 /**
-   @file ea.h
-   @brief General declarations.
+   @file InverseBitStringMutation.h
+   @brief Inverts all bits of the genome.
    @author Sebastian Fedrau <lord-kefir@arcor.de>
    @version 0.1.0
  */
 
-#ifndef EA_H
-#define EA_H
+#ifndef INVERSEBITSTRINGMUTATION_H
+#define INVERSEBITSTRINGMUTATION_H
 
-#include "AnsiRandomNumberGenerator.h"
-#include "RandomDeviceNumberGenerator.h"
-#include "URandomDeviceNumberGenerator.h"
+#include "ABinaryMutation.h"
 
-#include "PrimitiveGenome.h"
-#include "Genome.h"
-#include "BinaryGenome.h"
+namespace ea
+{
+	/**
+	   @addtogroup Operators
+	   @{
+	   	@addtogroup Mutation
+		@{
+	 */
 
-#include "CutAndSpliceCrossover.h"
-#include "CycleCrossover.h"
-#include "EdgeRecombinationCrossover.h"
-#include "OnePointCrossover.h"
-#include "OrderedCrossover.h"
-#include "PMXCrossover.h"
-#include "TwoPointCrossover.h"
-#include "UniformCrossover.h"
+	/**
+	   @class InverseBitStringMutation
+	   @brief Inverts all bits of the genome.
+	 */
+	class InverseBitStringMutation : public ABinaryMutation
+	{
+		public:
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
+			InverseBitStringMutation(ARandomNumberGenerator* rnd_generator) : ABinaryMutation(rnd_generator) {}
 
-#include "SingleSwapMutation.h"
-#include "DoubleSwapMutation.h"
+			void mutate(BinaryGenome* genome)
+			{
+				for(uint32_t i = 0; i < genome->size(); ++i)
+				{
+					genome->flip(i);
+				}
+			}
+	};
 
-#include "BitStringMutation.h"
-#include "InverseBitStringMutation.h"
-
-/**
-   @namespace ea
-   @brief libea's namespace.
- */
-namespace ea {}
-
+	/**
+		   @}
+	   @}
+	 */
+}
 #endif
