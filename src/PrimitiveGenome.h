@@ -124,6 +124,7 @@ namespace ea
 			}
 
 		protected:
+			/*! Genes stored in the genome. */
 			std::vector<T>* genes;
 
 		private:
