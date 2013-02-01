@@ -71,12 +71,12 @@ namespace ea
 				// create first individual:
 				individual = a->instance(separator1 + b->size() - separator2);
 
-				for(i = 0; i < separator1; i++)
+				for(i = 0; i < separator1; ++i)
 				{
 					individual->copy_to(i, a->at(i));
 				}
 
-				for(i = separator2; i < b->size(); i++)
+				for(i = separator2; i < b->size(); ++i)
 				{
 					individual->copy_to(m++, b->at(i));
 				}
@@ -86,14 +86,14 @@ namespace ea
 				// create second individual:
 				individual = a->instance(separator2 + a->size() - separator1);
 
-				for(i = 0; i < separator2; i++)
+				for(i = 0; i < separator2; ++i)
 				{
 					individual->copy_to(i, b->at(i));
 				}
 
 				m = separator2;
 
-				for(i = separator1; i < a->size(); i++)
+				for(i = separator1; i < a->size(); ++i)
 				{
 					individual->copy_to(m++, a->at(i));
 				}

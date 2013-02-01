@@ -63,7 +63,7 @@ namespace ea
 
 				individual = a->instance();
 
-				for(i = 0; i < separator; i++)
+				for(i = 0; i < separator; ++i)
 				{
 					individual->copy_to(i, a->at(i));
 				}

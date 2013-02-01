@@ -42,7 +42,7 @@ float calculate_route(const AGenome<AGene*>& individual)
 	float x0, x1, y0, y1;
 	float f = 0;
 
-	for(uint32_t i = 0; i < individual.size(); i++)
+	for(uint32_t i = 0; i < individual.size(); ++i)
 	{
 		city = dynamic_cast<City*>(individual.at(i));
 
@@ -81,7 +81,7 @@ class RouteFactory : public AFactory<Genome*>
 			int32_t numbers[N_CITIES];
 			Genome* individual;
 
-			for(uint32_t i = 0; i < count; i++)
+			for(uint32_t i = 0; i < count; ++i)
 			{
 				individual = new Genome(N_CITIES, _fitness_func);
 				AFactory<Genome*>::generator->get_unique_numbers(0, N_CITIES - 1, numbers, N_CITIES);
@@ -136,7 +136,7 @@ void print_cities(AGenome<AGene*>* individual)
 {
 	City* city;
 
-	for(uint32_t i = 0; i < individual->size(); i++)
+	for(uint32_t i = 0; i < individual->size(); ++i)
 	{
 		city = (City*)individual->at(i);
 		cout << city->get_name().c_str();

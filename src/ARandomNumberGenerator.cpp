@@ -49,7 +49,7 @@ namespace ea
 		assert(numbers != NULL);
 		assert(length > 0);
 
-		for(int32_t i = 0; i < length; i++)
+		for(int32_t i = 0; i < length; ++i)
 		{
 			numbers[i] = get_number(min, max);
 		}
@@ -76,7 +76,7 @@ namespace ea
 			// test if number is already stored in array:
 			found = false;
 
-			for(i = 0; i < count; i++)
+			for(i = 0; i < count; ++i)
 			{
 				if(numbers[i] == rnd)
 				{

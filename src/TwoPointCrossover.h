@@ -73,17 +73,17 @@ namespace ea
 			
 				individual = a->instance();
 
-				for(i = 0; i < offset1; i++)
+				for(i = 0; i < offset1; ++i)
 				{
 					individual->copy_to(i, a->at(i));
 				}
 
-				for(i = offset1; i < offset2; i++)
+				for(i = offset1; i < offset2; ++i)
 				{
 					individual->copy_to(i, b->at(i));
 				}
 
-				for(i = offset2; i < a->size(); i++)
+				for(i = offset2; i < a->size(); ++i)
 				{
 					individual->copy_to(i, a->at(i));
 				}

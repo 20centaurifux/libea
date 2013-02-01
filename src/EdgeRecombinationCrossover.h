@@ -194,7 +194,7 @@ namespace ea
 				}
 				else
 				{
-					for(uint32_t i = 0; i < count; i++)
+					for(uint32_t i = 0; i < count; ++i)
 					{
 						if(_equals(neighbors[i], neighbor))
 						{
