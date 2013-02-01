@@ -58,7 +58,6 @@ namespace ea
 				float max;
 				uint32_t i;
 				uint32_t range[2];
-				uint32_t index;
 
 				sums[0] = population.at(0)->fitness();
 
@@ -71,15 +70,9 @@ namespace ea
 
 				while(selection.size() != count)
 				{
-					do
-					{
-						range[0] = 0;
-						range[1] = population.size() - 1;
-
-						index = find_index(sums, range, (uint32_t)AIndexSelection<T>::generator->get_number(1, max));
-					} while(std::find(selection.begin(), selection.end(), index) != selection.end());
-
-					selection.push_back(index);
+					range[0] = 0;
+					range[1] = population.size() - 1;
+					selection.push_back(find_index(sums, range, (uint32_t)AIndexSelection<T>::generator->get_number(1, max)));
 				}
 
 				delete sums;
