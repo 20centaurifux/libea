@@ -72,7 +72,7 @@ namespace ea
 				{
 					range[0] = 0;
 					range[1] = population.size() - 1;
-					selection.push_back(find_index(sums, range, (uint32_t)AIndexSelection<T>::generator->get_number(1, max)));
+					selection.push_back(find_index(sums, range, (uint32_t)AIndexSelection<T>::generator->get_number(0, max)));
 				}
 
 				delete sums;
