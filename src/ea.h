@@ -32,6 +32,8 @@
 #include "Genome.h"
 #include "BinaryGenome.h"
 
+#include "FitnessProportionalSelection.h"
+
 #include "CutAndSpliceCrossover.h"
 #include "CycleCrossover.h"
 #include "EdgeRecombinationCrossover.h"

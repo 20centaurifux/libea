@@ -150,9 +150,16 @@ void print_cities(AGenome<AGene*>* individual)
 	cout << endl;
 }
 
-float fitness(const AGenome<bool>& g)
+float fitness(const AGenome<int>& g)
 {
-	return 0;
+	float sum = 0;
+
+	for(uint32_t i = 0; i < g.size(); ++i)
+	{
+		sum += g.at(i);
+	}
+
+	return sum / 100;
 }
 
 void print_binary_genome(const BinaryGenome& genome)
@@ -202,24 +209,47 @@ int main()
 	for_each(children.begin(), children.end(), [] (AGenome<AGene*>* genome) { delete genome; });
 	*/
 
-	BinaryGenome genome(4, fitness);
+	vector<AGenome<int>*> population;
 
-	genome.set(0, false);
-	genome.set(1, true);
-	genome.set(2, true);
-	genome.set(3, false);
+	for(uint32_t i = 0; i < 30; ++i)
+	{
+		AGenome<int>* genome = new PrimitiveGenome<int>(8, fitness);
 
-	print_binary_genome(genome);
+		for(uint32_t m = 0; m < 8; ++m)
+		{
+			genome->set(m, g->get_number(1, 100));
+		}
 
-	/*
-	SingleSwapMutation<bool> m(g);
+		population.push_back(genome);
+	}
 
-	m.mutate(&genome);
-	*/
+	float foo = 0;
 
-	genome.flip(2);
+	for(uint32_t i = 0; i < 30; ++i)
+	{
+		cout << "population " << i << ": " << population.at(i)->fitness() << endl;
+		foo += population.at(i)->fitness();
+	}
 
-	print_binary_genome(genome);
+	cout << foo / population.size() << endl;
+
+	vector<uint32_t> selection;
+
+	FitnessProportionalSelection<int> sel(g);
+
+	sel.select(population, 5, selection);
+
+	cout << endl;
+
+	foo = 0;
+
+	for(uint32_t i = 0; i < selection.size(); ++i)
+	{
+		cout << "population " << selection[i] << ": " << population.at(selection[i])->fitness() << endl;
+		foo += population.at(selection[i])->fitness();
+	}
+
+	cout << foo / selection.size() << endl;
 
 	delete g;
 
