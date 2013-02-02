@@ -27,6 +27,7 @@
 #include "AnsiRandomNumberGenerator.h"
 #include "RandomDeviceNumberGenerator.h"
 #include "URandomDeviceNumberGenerator.h"
+#include "MersenneTwisterUniformIntDistribution.h"
 
 #include "PrimitiveGenome.h"
 #include "Genome.h"
