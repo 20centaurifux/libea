@@ -26,6 +26,8 @@
 
 #include <random>
 #include <functional>
+#include <map>
+#include <string>
 #include <ctime>
 #include <assert.h>
 
@@ -53,19 +55,44 @@ namespace ea
 				_engine.seed(time(nullptr));
 			}
 
+			~MersenneTwisterUniformIntDistribution()
+			{
+				for(auto d : _cache)
+				{
+					delete d.second;
+				}
+			}
+
 			int32_t get_number(const int32_t min, const int32_t max)
 			{
+				static std::uniform_int_distribution<int> *distribution = NULL;
 				static int32_t last_min = 0;
 				static int32_t last_max = 0;
-				static std::uniform_int_distribution<int> distribution;
+
+				assert(min < max);
 
 				if(last_min != min || last_max != max)
 				{
-					assert(min < max);
-					distribution = std::uniform_int_distribution<int>(min, max);
+					last_min = min;
+					last_max = max;
+
+					char key[24];
+					std::sprintf(key, "%d-%d", min, max);
+
+					auto iter = _cache.find(key);
+
+					if(iter == _cache.end())
+					{
+						distribution = new std::uniform_int_distribution<int>(min, max);
+						_cache[key] = distribution;
+					}
+					else
+					{
+						distribution = _cache[key];
+					}
 				}
 
-				return distribution(_engine);
+				return (*distribution)(_engine);
 			}
 
 			int32_t random()
@@ -82,6 +109,7 @@ namespace ea
 
 		private:
 			std::mt19937 _engine; 
+			std::map<std::string, std::uniform_int_distribution<int>*> _cache;
 	};
 
 	/**
