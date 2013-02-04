@@ -24,6 +24,8 @@
 #ifndef ANSIRANDOMNUMBERGENERATOR_H
 #define ANSIRANDOMNUMBERGENERATOR_H
 
+#include <ctime>
+
 #include "ARandomNumberGenerator.h"
 
 namespace ea
@@ -42,10 +44,22 @@ namespace ea
 	class AnsiRandomNumberGenerator : public ARandomNumberGenerator
 	{
 		public:
-			AnsiRandomNumberGenerator();
+			AnsiRandomNumberGenerator()
+			{
+				srand(time(NULL));
+			}
+
 			virtual ~AnsiRandomNumberGenerator() {}
-			int32_t random();
-			int32_t get_max() const;
+
+			int32_t random()
+			{
+				return rand();
+			}
+
+			inline int32_t get_max() const
+			{
+				return RAND_MAX;
+			}
 	};
 
 	/**
