@@ -36,6 +36,7 @@
 #include "FitnessProportionalSelection.h"
 #include "TournamentSelection.h"
 #include "DoubleTournamentSelection.h"
+#include "FittestSelection.h"
 
 #include "CutAndSpliceCrossover.h"
 #include "CycleCrossover.h"

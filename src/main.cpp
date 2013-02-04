@@ -174,7 +174,7 @@ void print_binary_genome(const BinaryGenome& genome)
 
 int main()
 {
-	ARandomNumberGenerator* g = new MersenneTwisterUniformIntDistribution();
+	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
 
 	/*
 	RouteFactory f = RouteFactory(g, calculate_route);
@@ -235,9 +235,9 @@ int main()
 
 	vector<uint32_t> selection;
 
-	DoubleTournamentSelection<int, 29> sel(g);
+	DoubleTournamentSelection<int> sel(g);
 
-	sel.select(population, 15, selection);
+	sel.select(population, 10, selection);
 
 	cout << endl;
 
