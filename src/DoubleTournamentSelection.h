@@ -81,16 +81,11 @@ namespace ea
 					individuals.insert(ind);
 				}
 
-				i = 0;
+				auto iter = individuals.begin();
 
-				for(auto ind : individuals)
+				for(i = 0; i < count; ++i, ++iter)
 				{
-					if(i++ == count)
-					{
-						break;
-					}
-
-					selection.push_back(ind.index);
+					selection.push_back(iter->index);
 				}
 			}
 
