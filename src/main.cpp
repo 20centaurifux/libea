@@ -235,7 +235,7 @@ int main()
 
 	vector<uint32_t> selection;
 
-	TournamentSelection<int> sel(g);
+	DoubleTournamentSelection<int, 29> sel(g);
 
 	sel.select(population, 15, selection);
 
