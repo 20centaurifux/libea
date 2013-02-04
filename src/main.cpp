@@ -235,7 +235,7 @@ int main()
 
 	vector<uint32_t> selection;
 
-	FitnessProportionalSelection<int> sel(g);
+	TournamentSelection<int> sel(g);
 
 	sel.select(population, 15, selection);
 

@@ -34,6 +34,7 @@
 #include "BinaryGenome.h"
 
 #include "FitnessProportionalSelection.h"
+#include "TournamentSelection.h"
 
 #include "CutAndSpliceCrossover.h"
 #include "CycleCrossover.h"
