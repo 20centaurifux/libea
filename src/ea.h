@@ -34,6 +34,7 @@
 #include "BinaryGenome.h"
 
 #include "FitnessProportionalSelection.h"
+#include "StochasticUniversalSampling.h"
 #include "TournamentSelection.h"
 #include "DoubleTournamentSelection.h"
 #include "FittestSelection.h"
