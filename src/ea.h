@@ -52,6 +52,7 @@
 #include "DoubleSwapMutation.h"
 
 #include "BitStringMutation.h"
+#include "SingleBitStringMutation.h"
 #include "InverseBitStringMutation.h"
 
 /**
