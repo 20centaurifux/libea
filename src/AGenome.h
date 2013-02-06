@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdexcept>
+#include <assert.h>
 
 #include "IHashfunction.h"
 
@@ -69,6 +70,22 @@ namespace ea
 				: fitness_func(fitness_func), _size(size), _fitness_set(false) {} 
 
 			virtual ~AGenome() {}
+
+			/**
+			   @param from genome to copy genes from
+			   @param to genome to copy genes to
+
+			   Copies genes from a genome to a different one.
+			 */
+			static void copy(const AGenome<T>& from, AGenome<T>& to)
+			{
+				assert(from.size() == to.size());
+
+				for(uint32_t i = 0; i < from.size(); ++i)
+				{
+					to.copy_to(i, from.at(i));
+				}
+			}
 
 			/**
 			   @return size of the genome
