@@ -55,6 +55,8 @@
 #include "SingleBitStringMutation.h"
 #include "InverseBitStringMutation.h"
 
+#include "AFactory.h"
+
 /**
    @namespace ea
    @brief libea's namespace.
