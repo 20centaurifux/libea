@@ -28,6 +28,7 @@
 #include "ICloneable.h"
 #include "IHashfunction.h"
 #include "Observable.h"
+#include "IToString.h"
 
 namespace ea
 {
@@ -59,7 +60,7 @@ namespace ea
 	   @class AGene
 	   @brief Abstract base class for equatable, cloneable, hashable and observable genes.
 	 */
-	class AGene : public IEquatable<AGene>, public ICloneable<AGene>, public IHashfunction, public Observable<AGeneListener*>
+	class AGene : public IEquatable<AGene>, public ICloneable<AGene>, public IHashfunction, public Observable<AGeneListener*>, public IToString
 	{
 		public:
 			/**

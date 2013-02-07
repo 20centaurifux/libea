@@ -66,6 +66,8 @@ namespace ea
 			bool find(AGene* gene, uint32_t& index) const;
 			bool contains(AGene* gene) const;
 			void swap(const uint32_t pos1, const uint32_t pos2) const;
+			std::string to_string(const std::string& separator) const;
+			std::string to_string();
 
 			void modified(const AGene* gene)
 			{

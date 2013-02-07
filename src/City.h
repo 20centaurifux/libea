@@ -71,6 +71,11 @@ namespace ea
 				return hash.hash();
 			}
 
+			std::string to_string()
+			{
+				return get_name();
+			}
+
 		private:
 			uint32_t _x;
 			uint32_t _y;

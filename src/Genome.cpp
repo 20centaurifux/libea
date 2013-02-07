@@ -22,7 +22,10 @@
  */
 
 #include <algorithm>
+#include <sstream>
+
 #include "Genome.h"
+#include "join.h"
 
 using namespace std;
 
@@ -104,5 +107,21 @@ namespace ea
 		temp = (*_genes)[pos1];
 		(*_genes)[pos1] = (*_genes)[pos2];
 		(*_genes)[pos2] = temp;
+	}
+
+	std::string Genome::to_string(const std::string& separator) const
+	{
+		std::ostringstream stream;
+
+		stream << *_genes->begin();
+
+		std::for_each(_genes->begin() + 1, _genes->end(), [&stream, &separator] (AGene* gene) { stream << separator << gene->to_string(); });
+
+		return stream.str();
+	}
+
+	string Genome::to_string()
+	{
+		return to_string(",");
 	}
 }

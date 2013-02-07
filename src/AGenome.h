@@ -26,10 +26,12 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string>
 #include <stdexcept>
 #include <assert.h>
 
-#include "IHashfunction.h"
+#include "IToString.h"
+#include "join.h"
 
 namespace ea
 {
@@ -59,7 +61,7 @@ namespace ea
 	   @brief Abstract base class for genomes.
 	 */
 	template<class T>
-	class AGenome
+	class AGenome : public IToString
 	{
 		public:
 			/**
@@ -187,6 +189,14 @@ namespace ea
 			   Swaps to genes.
 			 */
 			virtual void swap(const uint32_t pos1, const uint32_t pos2) const = 0;
+
+			/**
+			   @param separator a separator
+			   @return a string
+
+			   Returning a string representing the object.
+			 */
+			virtual std::string to_string(const std::string& separator) const = 0;
 
 		protected:
 			/*! Functor for calculating the fitness. */

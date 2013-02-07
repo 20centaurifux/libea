@@ -162,94 +162,60 @@ float fitness(const AGenome<int>& g)
 	return sum / 100;
 }
 
-void print_binary_genome(const BinaryGenome& genome)
+void print_binary_genome(const BinaryGenome* genome)
 {
-	for(uint32_t i = 0; i < genome.size(); ++i)
+	for(uint32_t i = 0; i < genome->size(); ++i)
 	{
-		cout << (genome.at(i) ? "1" : "0");
+		cout << (genome->at(i) ? "1" : "0");
 	}
 
 	cout << endl;
 }
 
+float bcount(const AGenome<bool>& genome)
+{
+	float count = 0;
+
+	for(uint32_t i = 0; i < genome.size(); ++i)
+	{
+		if(genome.at(i))
+		{
+			++count;
+		}
+	}
+	
+	return count / genome.size();
+}
+
 int main()
 {
 	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
+	uint32_t i;
 
-	/*
-	RouteFactory f = RouteFactory(g, calculate_route);
+	BinaryGenome genome(100, bcount);
+	BinaryGenome mutant(100, bcount);
 
-	vector<Genome*> parents;
-
-	parents = f.random(2);
-
-	print_cities(parents.at(0));
-	print_cities(parents.at(1));
-
-	EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to> c(g);
-
-	vector<AGenome<AGene*>*> children;
-
-	c.crossover(parents.at(0), parents.at(1), children);
-
-	print_cities(children.at(0));
-	//print_cities(children.at(1));
-
-	cout << parents.at(0)->fitness() << endl;
-
-	SingleSwapMutation<AGene*> m(g);
-
-	m.mutate(children.at(0));
-
-	print_cities(children.at(0));
-
-	cout << children.at(0)->fitness() << endl;
-
-	for_each(parents.begin(), parents.end(), [] (Genome* genome) { delete genome; });
-	for_each(children.begin(), children.end(), [] (AGenome<AGene*>* genome) { delete genome; });
-	*/
-
-	vector<AGenome<int>*> population;
-
-	for(uint32_t i = 0; i < 30; ++i)
+	for(i = 0; i < genome.size(); ++i)
 	{
-		AGenome<int>* genome = new PrimitiveGenome<int>(8, fitness);
+		genome.set(i, g->get_number(0, 1));
+	}
 
-		for(uint32_t m = 0; m < 8; ++m)
+	cout << mutant.to_string() << endl;
+
+	SingleBitStringMutation m(g);
+
+	for(i = 0; i < 250; ++i)
+	{
+		AGenome<bool>::copy(genome, mutant);
+		m.mutate(&mutant);
+
+		if(mutant.fitness() > genome.fitness())
 		{
-			genome->set(m, g->get_number(1, 100));
+			AGenome<bool>::copy(mutant, genome);
 		}
-
-		population.push_back(genome);
 	}
 
-	float foo = 0;
-
-	for(uint32_t i = 0; i < 30; ++i)
-	{
-		cout << "population " << i << ": " << population.at(i)->fitness() << endl;
-		foo += population.at(i)->fitness();
-	}
-
-	cout << foo / population.size() << endl;
-
-	vector<uint32_t> selection;
-
-	DoubleTournamentSelection<int> sel(g);
-
-	sel.select(population, 10, selection);
-
-	cout << endl;
-
-	foo = 0;
-
-	for(uint32_t i = 0; i < selection.size(); ++i)
-	{
-		cout << "population " << selection[i] << ": " << population.at(selection[i])->fitness() << endl;
-		foo += population.at(selection[i])->fitness();
-	}
-
-	cout << foo / selection.size() << endl;
+	cout << mutant.to_string() << endl;
 
 	delete g;
 

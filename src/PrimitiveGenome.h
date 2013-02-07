@@ -26,7 +26,9 @@
 
 #include <vector>
 #include <algorithm>
+
 #include "AGenome.h"
+#include "join.h"
 
 namespace ea
 {
@@ -120,6 +122,16 @@ namespace ea
 				temp = (*genes)[pos1];
 				(*genes)[pos1] = (*genes)[pos2];
 				(*genes)[pos2] = temp;
+			}
+
+			std::string to_string(const std::string& separator) const
+			{
+				return join<T>(genes->begin(), genes->end(), separator);
+			}
+
+			std::string to_string()
+			{
+				return to_string(",");
 			}
 
 		protected:

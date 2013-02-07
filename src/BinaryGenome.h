@@ -22,6 +22,7 @@
  */
 
 #include "PrimitiveGenome.h"
+#include "join.h"
 
 namespace ea
 {
@@ -52,6 +53,16 @@ namespace ea
 			inline void flip(const uint32_t index)
 			{
 				(*PrimitiveGenome<bool>::genes)[index].flip();
+			}
+
+			std::string to_string(const std::string& separator) const
+			{
+				return join<bool>(genes->begin(), genes->end(), separator);
+			}
+
+			std::string to_string()
+			{
+				return join<bool>(genes->begin(), genes->end());
 			}
 	};
 
