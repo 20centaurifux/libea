@@ -38,6 +38,8 @@ namespace ea
 	class BinaryGenome : public PrimitiveGenome<bool>
 	{
 		public:
+			using PrimitiveGenome<bool>::to_string;
+
 			/**
 			   @param size size of the genome
 			   @param fitness_func functor to calculate the fitness of the genome
@@ -53,11 +55,6 @@ namespace ea
 			inline void flip(const uint32_t index)
 			{
 				(*PrimitiveGenome<bool>::genes)[index].flip();
-			}
-
-			std::string to_string(const std::string& separator) const
-			{
-				return join<bool>(genes->begin(), genes->end(), separator);
 			}
 
 			std::string to_string()
