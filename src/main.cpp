@@ -21,20 +21,95 @@
    @version 0.1.0
  */
 
-#include <algorithm>
-#include <functional>
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstring>
-
 #include "ea.h"
 
-#include "City.h"
-#include "AFactory.h"
+#include <sstream>
+
+#include "AGene.h"
+#include "SDBMHash.h"
 
 using namespace ea;
 using namespace std;
+
+class City : public AGene
+{
+	public:
+		City(const uint32_t x, const uint32_t y, const std::string name) : AGene(), _x(x), _y(y), _name(name) {}
+
+		void set_name(const std::string& name)
+		{
+			_name = name;
+			notifiy();
+		}
+
+		std::string get_name()
+		{
+			return _name;
+		}
+
+		uint32_t get_x()
+		{
+			return _x;
+		}
+
+		void set_x(const uint32_t x)
+		{
+			_x = x;
+			notifiy();
+		}
+
+		uint32_t get_y()
+		{
+			return _y;
+		}
+
+		void set_y(const uint32_t y)
+		{
+			_y = y;
+			notifiy();
+		}
+
+		bool equals(const AGene* object) const
+		{
+			const City* city = (City*)object;
+
+			if((city = dynamic_cast<const City*>(object)))
+
+			{
+				return _x == city->_x && _y == city->_y && !_name.compare(city->_name);
+			}
+
+			return false;
+		}
+
+		City* clone() const
+		{
+			return new City(_x, _y, _name);
+		}
+
+		size_t hash() const
+		{
+			SDBMHash hash;
+
+			hash << _x << _y << _name;
+
+			return hash.hash();
+		}
+
+		std::string to_string()
+		{
+			ostringstream stream;
+
+			stream << "\"" << _name << "\" [" << _x << "," << _y << "]";
+
+			return stream.str();
+		}
+
+	private:
+		uint32_t _x;
+		uint32_t _y;
+		std::string _name;
+};
 
 float calculate_route(const AGenome<AGene*>& individual)
 {
@@ -120,103 +195,17 @@ const uint32_t RouteFactory::_points[20][2] =
 	{ 136, 196 }, { 54, 6377 }, { 74, 14 }, { 1569, 736 }, { 175, 1841 }
 };
 
-/*
-float calculate_route(const AGenome<AGene*>& foo)
-{
-	return 0;
-}
-*/
-	   
-//Genome(const uint32_t size, const typename FitnessFunc<AGene<T>*>::fitness fitness_func) :
-//typedef float (*fitness)(const AGenome<T>& obj);
-
-//FitnessFunc<AGene<City>*> foobar = calculate_route;
-
-void print_cities(AGenome<AGene*>* individual)
-{
-	City* city;
-
-	for(uint32_t i = 0; i < individual->size(); ++i)
-	{
-		city = (City*)individual->at(i);
-		cout << city->get_name().c_str();
-
-		if(i <= individual->size() - 2)
-		{
-			cout << ", ";
-		}
-	}
-
-	cout << endl;
-}
-
-float fitness(const AGenome<int>& g)
-{
-	float sum = 0;
-
-	for(uint32_t i = 0; i < g.size(); ++i)
-	{
-		sum += g.at(i);
-	}
-
-	return sum / 100;
-}
-
-void print_binary_genome(const BinaryGenome* genome)
-{
-	for(uint32_t i = 0; i < genome->size(); ++i)
-	{
-		cout << (genome->at(i) ? "1" : "0");
-	}
-
-	cout << endl;
-}
-
-float bcount(const AGenome<bool>& genome)
-{
-	float count = 0;
-
-	for(uint32_t i = 0; i < genome.size(); ++i)
-	{
-		if(genome.at(i))
-		{
-			++count;
-		}
-	}
-	
-	return count / genome.size();
-}
-
 int main()
 {
 	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
-	uint32_t i;
+	vector<Genome*> population;
+	RouteFactory factory(g, calculate_route);
 
-	BinaryGenome genome(100, bcount);
-	BinaryGenome mutant(100, bcount);
+	population = factory.random(10);
 
-	for(i = 0; i < genome.size(); ++i)
-	{
-		genome.set(i, g->get_number(0, 1));
-	}
+	cout << population.at(0)->to_string(" - ") << endl;
 
-	cout << mutant.to_string() << endl;
-
-	SingleBitStringMutation m(g);
-
-	for(i = 0; i < 250; ++i)
-	{
-		AGenome<bool>::copy(genome, mutant);
-		m.mutate(&mutant);
-
-		if(mutant.fitness() > genome.fitness())
-		{
-			AGenome<bool>::copy(mutant, genome);
-		}
-	}
-
-	cout << mutant.to_string() << endl;
-
+	for_each(population.begin(), population.end(), [] (Genome* genome) { delete genome; });
 	delete g;
 
 	return 0;
