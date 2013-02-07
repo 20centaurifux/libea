@@ -113,7 +113,7 @@ namespace ea
 	{
 		std::ostringstream stream;
 
-		stream << *_genes->begin();
+		stream << (*_genes->begin())->to_string();
 
 		std::for_each(_genes->begin() + 1, _genes->end(), [&stream, &separator] (AGene* gene) { stream << separator << gene->to_string(); });
 
