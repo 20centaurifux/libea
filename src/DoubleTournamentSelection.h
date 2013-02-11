@@ -40,7 +40,7 @@ namespace ea
 
 	/**
 	   @class DoubleTournamentSelection
-	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam T datatype of genes stored in the genome.
 	   @tparam Q number of enemies
 	   @brief Implementation of double-tournament selection.
 	 */
@@ -56,38 +56,47 @@ namespace ea
 
 			virtual ~DoubleTournamentSelection() {};
 
-			void select(const std::vector<AGenome<T>*>& population, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
 				std::multiset<struct individual, struct compare_individuals> individuals;
 				uint32_t i;
 				uint32_t j;
-				struct individual ind;
+				struct individual individual;
+				AGenome<T> *a;
+				AGenome<T> *b;
 
-				assert(population.size() > Q);
+				assert(iter->size() > Q);
 
-				for(i = 0; i < population.size(); ++i)
+				for(i = 0; i < iter->size(); ++i)
 				{
-					ind.index = i;
-					ind.score = 0;
+					individual.index = i;
+					individual.score = 0;
+
+					iter->at(i, a);
 
 					for(j = 0; j < Q; ++j)
 					{
-						if(population.at(i) > population.at(AIndexSelection<T>::generator->get_number(0, population.size() - 1)))
+						iter->at(generator->get_number(0, iter->size() - 1), b);
+
+						if(a->fitness() > b->fitness())
 						{
-							++ind.score;
+							++individual.score;
 						}
 					}
 
-					individuals.insert(ind);
+					individuals.insert(individual);
 				}
 
-				auto iter = individuals.begin();
+				auto it = individuals.begin();
 
-				for(i = 0; i < count; ++i, ++iter)
+				for(i = 0; i < count; ++i, ++it)
 				{
-					selection.push_back(iter->index);
+					selection.push_back(it->index);
 				}
 			}
+
+		protected:
+			using AIndexSelection<T>::generator;
 
 		private:
 			struct individual

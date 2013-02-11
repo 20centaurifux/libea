@@ -23,8 +23,6 @@
 
 #include "ea.h"
 
-#include <sstream>
-
 #include "AGene.h"
 #include "SDBMHash.h"
 
@@ -98,11 +96,7 @@ class City : public AGene
 
 		std::string to_string()
 		{
-			ostringstream stream;
-
-			stream << "\"" << _name << "\" [" << _x << "," << _y << "]";
-
-			return stream.str();
+			return _name;
 		}
 
 	private:
@@ -195,15 +189,49 @@ const uint32_t RouteFactory::_points[20][2] =
 	{ 136, 196 }, { 54, 6377 }, { 74, 14 }, { 1569, 736 }, { 175, 1841 }
 };
 
+/*
+static float _f(const AGenome<bool>& g)
+{
+	return 0;
+}
+*/
+
+#include "IteratorAdapter.h"
+
 int main()
 {
-	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
+	ARandomNumberGenerator* g = new MersenneTwisterUniformIntDistribution();
 	vector<Genome*> population;
 	RouteFactory factory(g, calculate_route);
 
-	population = factory.random(10);
+	population = factory.random(20);
 
-	cout << population.at(0)->to_string(" - ") << endl;
+	for(uint32_t i = 0; i < population.size(); ++i)
+	{
+		cout << population.at(i)->to_string() << " => " << population.at(i)->fitness() << endl;
+	}
+
+	StochasticUniversalSampling<AGene*> sel(g);
+	vector<uint32_t> selection;
+	
+	IteratorAdapter<vector<Genome*>::iterator, Genome*> a(population.begin(), population.end());
+
+	sel.select(&a, 10, selection);
+
+	cout << endl;
+
+	for(uint32_t i : selection)
+	{
+		cout << population.at(i)->to_string() << " => " << population.at(i)->fitness() << endl;
+	}
+
+	/*
+	for(uint32_t i = 0; i < selection.size(); ++i)
+	{
+
+		//cout << population.at(selection)->to_string() << " => " << population.at(i)->fitness() << endl;
+	}
+	*/
 
 	for_each(population.begin(), population.end(), [] (Genome* genome) { delete genome; });
 	delete g;

@@ -24,8 +24,7 @@
 #ifndef AINDEXSELECTION_H
 #define AINDEXSELECTION_H
 
-#include <vector>
-
+#include "IIterator.h"
 #include "AGenome.h"
 #include "ARandomNumberGenerator.h"
 
@@ -40,7 +39,7 @@ namespace ea
 
 	/**
 	   @class AIndexSelection
-	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam T datatype of genes stored in the Genome.
 	   @brief Abstract base class for selection operators.
 	 */
 	template<class T>
@@ -55,14 +54,13 @@ namespace ea
 			virtual ~AIndexSelection() {};
 
 			/**
-			   @param population a population
+			   @param iter range of genomes
 			   @param count number of genomes to select
 			   @param selection vector to store selected genomes
-			   @return number of selected genomes
 			   
 			   Select genomes from a population.
 			 */
-			virtual void select(const std::vector<AGenome<T>*>& population, const uint32_t count, std::vector<uint32_t>& selection) = 0;
+			virtual void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection) = 0;
 
 		protected:
 			/*! Instance of a random number generator. */

@@ -52,29 +52,32 @@ namespace ea
 
 			virtual ~StochasticUniversalSampling() {};
 
-			void select(const std::vector<AGenome<T>*>& population, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
-				float* sums = new float[population.size()];
-				uint32_t i;
+				float* sums = new float[iter->size()];
+				uint32_t i = 0;
 				uint32_t j = 0;
 				uint32_t u;
 				float interval;
 				uint32_t range[2];
+				AGenome<T> *genome;
 
-				sums[0] = population.at(0)->fitness();
+				iter->current(genome);
+				sums[0] = genome->fitness();
 
-				for(i = 1; i < population.size(); ++i)
+				for(i = 0; i < iter->size(); ++i)
 				{
-					sums[i] = sums[i - 1] + population.at(i)->fitness();
+					iter->at(i, genome);
+					sums[i] = sums[i - 1] + genome->fitness();
 				}
 
-				interval = sums[population.size() - 1] / count;
-				u = AIndexSelection<T>::generator->get_number(0, interval);
+				interval = sums[iter->size() - 1] / count;
+				u = generator->get_number(0, interval);
 
 				for(i = 0; i < count; ++i)
 				{
 					range[0] = j;
-					range[1] = population.size() - 1;
+					range[1] = iter->size() - 1;
 
 					j = find_index(sums, range, u);
 
@@ -85,6 +88,9 @@ namespace ea
 
 				delete sums;
 			}
+
+		protected:
+			using AIndexSelection<T>::generator;
 
 		private:
 			inline uint32_t find_index(const float* sums, uint32_t range[2], const uint32_t n) const

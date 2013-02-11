@@ -39,7 +39,7 @@ namespace ea
 
 	/**
 	   @class TournamentSelection
-	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam T datatype of genes stored in the genome.
 	   @tparam Q number of enemies
 	   @brief Implementation of tournament selection.
 	 */
@@ -55,22 +55,26 @@ namespace ea
 
 			virtual ~TournamentSelection() {};
 
-			void select(const std::vector<AGenome<T>*>& population, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
 				uint32_t index;
 				uint32_t enemy;
+				AGenome<T> *a;
+				AGenome<T> *b;
 
-				assert(population.size() > Q);
+				assert(iter->size() > Q);
 
 				while(selection.size() != count)
 				{
-					index = AIndexSelection<T>::generator->get_number(0, population.size() - 1);
+					index = generator->get_number(0, iter->size() - 1);
+					iter->at(index, b);
 
 					for(uint32_t i = 0; i < Q; ++i)
 					{
-						enemy = AIndexSelection<T>::generator->get_number(0, population.size() - 1);
+						enemy = generator->get_number(0, iter->size() - 1);
+						iter->at(enemy, a);
 
-						if(population.at(enemy)->fitness() > population.at(index)->fitness())
+						if(a->fitness() > b->fitness())
 						{
 							index = enemy;
 						}
@@ -79,6 +83,9 @@ namespace ea
 					selection.push_back(index);
 				}
 			}
+
+		protected:
+			using AIndexSelection<T>::generator;
 	};
 
 	/**

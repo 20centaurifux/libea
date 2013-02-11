@@ -39,7 +39,7 @@ namespace ea
 
 	/**
 	   @class FittestSelection
-	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam T datatype of genes stored in the genome.
 	   @brief Select fittest genomes of a population.
 	 */
 	template<class T>
@@ -54,24 +54,27 @@ namespace ea
 
 			virtual ~FittestSelection() {};
 
-			void select(const std::vector<AGenome<T>*>& population, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
 				std::multiset<struct individual, compare_individuals> individuals;
-				struct individual ind;
+				AGenome<T>* genome;
+				struct individual individual;
 				uint32_t index = 0;
 
-				for(auto genome : population)
+				while(!iter->end())
 				{
-					ind.index = index++;
-					ind.fitness = genome->fitness();
-					individuals.insert(ind);
+					individual.index = index++;
+					iter->current(genome);
+					individual.fitness = genome->fitness();
+					individuals.insert(individual);
+					iter->next();
 				}
 
-				auto iter = individuals.begin();
+				auto it = individuals.begin();
 
-				for(uint32_t i = 0; i < count; ++i, ++iter)
+				for(uint32_t i = 0; i < count; ++i, ++it)
 				{
-					selection.push_back(iter->index);
+					selection.push_back(it->index);
 				}
 			}
 

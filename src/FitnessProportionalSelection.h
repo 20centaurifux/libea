@@ -37,7 +37,7 @@ namespace ea
 
 	/**
 	   @class FitnessProportionalSelection
-	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam T datatype of genes stored in the genome.
 	   @brief Implementation of fitness proportional selection.
 	 */
 	template<class T>
@@ -52,31 +52,37 @@ namespace ea
 
 			virtual ~FitnessProportionalSelection() {};
 
-			void select(const std::vector<AGenome<T>*>& population, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
-				float* sums = new float[population.size()];
+				AGenome<T>* genome;
+				float* sums = new float[iter->size()];
 				float max;
 				uint32_t i;
 				uint32_t range[2];
 
-				sums[0] = population.at(0)->fitness();
+				iter->current(genome);
+				sums[0] = genome->fitness();
 
-				for(i = 1; i < population.size(); ++i)
+				for(i = 1; i < iter->size(); ++i)
 				{
-					sums[i] = sums[i - 1] + population.at(i)->fitness();
+					iter->at(i, genome);
+					sums[i] = sums[i - 1] + genome->fitness();
 				}
 
-				max = sums[population.size() - 1];
+				max = sums[iter->size() - 1];
 
 				while(selection.size() != count)
 				{
 					range[0] = 0;
-					range[1] = population.size() - 1;
-					selection.push_back(find_index(sums, range, (uint32_t)AIndexSelection<T>::generator->get_number(0, max)));
+					range[1] = iter->size() - 1;
+					selection.push_back(find_index(sums, range, (uint32_t)generator->get_number(0, max)));
 				}
 
 				delete sums;
 			}
+			
+		protected:
+			using AIndexSelection<T>::generator;
 
 		private:
 			inline uint32_t find_index(const float* sums, uint32_t range[2], const uint32_t n) const
