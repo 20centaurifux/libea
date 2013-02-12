@@ -40,7 +40,7 @@ namespace ea
 	   @brief Adapter class for STL iterators.
 	 */
 	template<class Iterator, class T>
-	class IteratorAdapter : public IIterator
+	class IteratorAdapter : public IIterator<AGenome<T>*>
 	{
 		public:
 			/**
@@ -72,20 +72,20 @@ namespace ea
 				return _end - _begin;
 			}
 
+			AGenome<T>* at(const uint32_t index)
+			{
+				return *(_iter + index);
+			}
+
+			AGenome<T>* current()
+			{
+				return *_iter;
+			}
+
 		private:
 			Iterator _iter;
 			Iterator _begin;
 			Iterator _end;
-
-			void* get_current()
-			{
-				return reinterpret_cast<void*>(*_iter);
-			}
-
-			void* get_item(const uint32_t index)
-			{
-				return reinterpret_cast<void*>(*(_iter + index));
-			}
 	};
 
 	/**

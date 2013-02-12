@@ -48,6 +48,8 @@ namespace ea
 	class DoubleTournamentSelection : AIndexSelection<T>
 	{
 		public:
+			using AIndexSelection<T>::select;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -56,14 +58,12 @@ namespace ea
 
 			virtual ~DoubleTournamentSelection() {};
 
-			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
 				std::multiset<struct individual, struct compare_individuals> individuals;
 				uint32_t i;
 				uint32_t j;
 				struct individual individual;
-				AGenome<T> *a;
-				AGenome<T> *b;
 
 				assert(iter->size() > Q);
 
@@ -72,13 +72,9 @@ namespace ea
 					individual.index = i;
 					individual.score = 0;
 
-					iter->at(i, a);
-
 					for(j = 0; j < Q; ++j)
 					{
-						iter->at(generator->get_number(0, iter->size() - 1), b);
-
-						if(a->fitness() > b->fitness())
+						if(iter->at(i)->fitness() > iter->at(generator->get_number(0, iter->size() - 1))->fitness())
 						{
 							++individual.score;
 						}

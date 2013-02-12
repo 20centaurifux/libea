@@ -46,6 +46,8 @@ namespace ea
 	class FittestSelection : AIndexSelection<T>
 	{
 		public:
+			using AIndexSelection<T>::select;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -54,18 +56,16 @@ namespace ea
 
 			virtual ~FittestSelection() {};
 
-			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
 				std::multiset<struct individual, compare_individuals> individuals;
-				AGenome<T>* genome;
 				struct individual individual;
 				uint32_t index = 0;
 
 				while(!iter->end())
 				{
 					individual.index = index++;
-					iter->current(genome);
-					individual.fitness = genome->fitness();
+					individual.fitness = iter->current()->fitness();
 					individuals.insert(individual);
 					iter->next();
 				}

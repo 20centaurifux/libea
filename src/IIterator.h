@@ -33,8 +33,10 @@ namespace ea
 
 	/**
 	   @class IIterator
+	   @tparam datatype of items stored in container
 	   @brief Interface for iterator classes
 	 */
+	template<class T>
 	class IIterator
 	{
 		public:
@@ -51,7 +53,7 @@ namespace ea
 			virtual bool end() const = 0; 
 
 			/**
-			   Go to first element.
+			   Goes to first element.
 			 */
 			virtual void first() = 0;
 
@@ -61,39 +63,13 @@ namespace ea
 			   Gets size of the range.
 			 */
 			virtual uint32_t size() = 0;
-
-			/**
-			   @tparam T type of the value to read
-			   @param value location to store read value
-
-			   Reads the value of the current element.
-			 */
-			template<class T>
-			void current(T& value)
-			{
-				value = reinterpret_cast<T>(get_current());
-			}
-
-			/**
-			   @tparam T type of the value to read
-			   @param index location of the item to read
-			   @param value location to store read value
-
-			   Reads the value at the given position.
-			 */
-			template<class T>
-			void at(const uint32_t index, T& value)
-			{
-				value = reinterpret_cast<T>(get_item(index));
-			}
-
-		private:
+		
 			/**
 			   @return value of the current element
 
 			   Reads the value of the current element.
 			 */
-			virtual void* get_current() = 0;
+			virtual T current() = 0;
 
 			/**
 			   @param index location of the item to read
@@ -101,7 +77,7 @@ namespace ea
 
 			   Reads the value at the given position.
 			 */
-			virtual void* get_item(const uint32_t index) = 0;
+			virtual T at(const uint32_t index) = 0;
 	};
 
 	/**

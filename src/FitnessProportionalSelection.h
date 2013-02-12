@@ -44,6 +44,8 @@ namespace ea
 	class FitnessProportionalSelection : AIndexSelection<T>
 	{
 		public:
+			using AIndexSelection<T>::select;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -52,21 +54,18 @@ namespace ea
 
 			virtual ~FitnessProportionalSelection() {};
 
-			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
-				AGenome<T>* genome;
 				float* sums = new float[iter->size()];
 				float max;
 				uint32_t i;
 				uint32_t range[2];
 
-				iter->current(genome);
-				sums[0] = genome->fitness();
+				sums[0] = iter->current()->fitness();
 
 				for(i = 1; i < iter->size(); ++i)
 				{
-					iter->at(i, genome);
-					sums[i] = sums[i - 1] + genome->fitness();
+					sums[i] = sums[i - 1] + iter->current()->fitness();
 				}
 
 				max = sums[iter->size() - 1];

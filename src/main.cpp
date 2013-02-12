@@ -211,12 +211,10 @@ int main()
 		cout << population.at(i)->to_string() << " => " << population.at(i)->fitness() << endl;
 	}
 
-	StochasticUniversalSampling<AGene*> sel(g);
+	TournamentSelection<AGene*> sel(g);
 	vector<uint32_t> selection;
-	
-	IteratorAdapter<vector<Genome*>::iterator, Genome*> a(population.begin(), population.end());
 
-	sel.select(&a, 10, selection);
+	sel.select(population.begin(), population.end(), 10, selection);
 
 	cout << endl;
 

@@ -44,6 +44,8 @@ namespace ea
 	class StochasticUniversalSampling : AIndexSelection<T>
 	{
 		public:
+			using AIndexSelection<T>::select;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -52,7 +54,7 @@ namespace ea
 
 			virtual ~StochasticUniversalSampling() {};
 
-			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
 				float* sums = new float[iter->size()];
 				uint32_t i = 0;
@@ -60,15 +62,12 @@ namespace ea
 				uint32_t u;
 				float interval;
 				uint32_t range[2];
-				AGenome<T> *genome;
 
-				iter->current(genome);
-				sums[0] = genome->fitness();
+				sums[0] = iter->current()->fitness();
 
 				for(i = 0; i < iter->size(); ++i)
 				{
-					iter->at(i, genome);
-					sums[i] = sums[i - 1] + genome->fitness();
+					sums[i] = sums[i - 1] + iter->at(i)->fitness();
 				}
 
 				interval = sums[iter->size() - 1] / count;

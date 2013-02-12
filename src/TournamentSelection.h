@@ -47,6 +47,8 @@ namespace ea
 	class TournamentSelection : AIndexSelection<T>
 	{
 		public:
+			using AIndexSelection<T>::select;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -55,26 +57,22 @@ namespace ea
 
 			virtual ~TournamentSelection() {};
 
-			void select(IIterator *iter, const uint32_t count, std::vector<uint32_t>& selection)
+			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
 			{
 				uint32_t index;
 				uint32_t enemy;
-				AGenome<T> *a;
-				AGenome<T> *b;
 
 				assert(iter->size() > Q);
 
 				while(selection.size() != count)
 				{
 					index = generator->get_number(0, iter->size() - 1);
-					iter->at(index, b);
 
 					for(uint32_t i = 0; i < Q; ++i)
 					{
 						enemy = generator->get_number(0, iter->size() - 1);
-						iter->at(enemy, a);
 
-						if(a->fitness() > b->fitness())
+						if(iter->at(enemy)->fitness() > iter->at(index)->fitness())
 						{
 							index = enemy;
 						}
