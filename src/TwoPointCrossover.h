@@ -44,6 +44,8 @@ namespace ea
 	class TwoPointCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -51,19 +53,22 @@ namespace ea
 
 			virtual ~TwoPointCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				uint32_t offset1;
 				uint32_t offset2;
 
-				offset1 = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 3);
-				offset2 = (uint32_t)ACrossover<T>::generator->get_number(offset1 + 1, a->size() - 1);
+				offset1 = (uint32_t)generator->get_number(1, a->size() - 3);
+				offset2 = (uint32_t)generator->get_number(offset1 + 1, a->size() - 1);
 
-				children.push_back(crossover(b, a, offset1, offset2));
-				children.push_back(crossover(a, b, offset1, offset2));
+				inserter->insert(crossover(b, a, offset1, offset2));
+				inserter->insert(crossover(a, b, offset1, offset2));
 
 				return 2;
 			}
+
+		protected:
+			using ACrossover<T>::generator;
 
 		private:
 			AGenome<T>* crossover(const AGenome<T>* a, const AGenome<T>* b, const uint32_t offset1, const uint32_t offset2) const

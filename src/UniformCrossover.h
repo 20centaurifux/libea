@@ -45,6 +45,8 @@ namespace ea
 	class UniformCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -52,7 +54,7 @@ namespace ea
 
 			virtual ~UniformCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				AGenome<T>* child1;
 				AGenome<T>* child2;
@@ -65,7 +67,7 @@ namespace ea
 				{
 					do
 					{
-						rnd = ACrossover<T>::generator->random();
+						rnd = generator->random();
 					} while(!rnd);
 
 					if(rnd % N)
@@ -80,11 +82,14 @@ namespace ea
 					}
 				}
 
-				children.push_back(child1);
-				children.push_back(child2);
+				inserter->insert(child1);
+				inserter->insert(child2);
 
 				return 2;
 			}
+
+		protected:
+			using ACrossover<T>::generator;
 	};
 
 	/**

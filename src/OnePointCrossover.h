@@ -44,6 +44,8 @@ namespace ea
 	class OnePointCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -51,17 +53,20 @@ namespace ea
 
 			virtual ~OnePointCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				uint32_t separator;
 
-				separator = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 2);
+				separator = (uint32_t)generator->get_number(1, a->size() - 2);
 
-				children.push_back(crossover(b, a, separator));
-				children.push_back(crossover(a, b, separator));
+				inserter->insert(crossover(b, a, separator));
+				inserter->insert(crossover(a, b, separator));
 
 				return 2;
 			}
+
+		protected:
+			using ACrossover<T>::generator;
 
 		private:
 			AGenome<T>* crossover(const AGenome<T>* a, const AGenome<T>* b, const uint32_t separator) const

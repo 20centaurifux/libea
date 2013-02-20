@@ -45,6 +45,8 @@ namespace ea
 	class OrderedCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -52,14 +54,14 @@ namespace ea
 
 			~OrderedCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				uint32_t separator;
 				uint32_t i;
 				uint32_t m = 0;
 				AGenome<T> *individual;
 
-				separator = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 2);
+				separator = (uint32_t)generator->get_number(1, a->size() - 2);
 
 				individual = a->instance();
 
@@ -80,10 +82,13 @@ namespace ea
 					individual->copy_to(i, b->at(m));
 				}
 
-				children.push_back(individual);
+				inserter->insert(individual);
 
 				return 1;
 			}
+
+		protected:
+			using ACrossover<T>::generator;
 
 		private:
 			Equals equals;

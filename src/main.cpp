@@ -198,11 +198,27 @@ static float _f(const AGenome<bool>& g)
 
 #include "IteratorAdapter.h"
 
+#include "IInserter.h"
+#include "VectorAdapter.h"
+
+template<class T>
+class Foo
+{
+	public:
+		template<class Inserter>
+		IInserter<T>* create_adapter(Inserter* inserter)
+		{
+			return new VectorAdapter<Inserter, T>(inserter);
+		}
+};
+
 int main()
 {
 	ARandomNumberGenerator* g = new MersenneTwisterUniformIntDistribution();
 	vector<Genome*> population;
 	RouteFactory factory(g, calculate_route);
+
+	//foo(std::back_inserter(bar));
 
 	population = factory.random(20);
 
@@ -230,6 +246,33 @@ int main()
 		//cout << population.at(selection)->to_string() << " => " << population.at(i)->fitness() << endl;
 	}
 	*/
+
+	vector<Genome*> children;
+
+	UniformCrossover<AGene*> c(g);
+
+	//VectorAdapter<std::back_insert_iterator<AGenome<AGene*>*>, AGene*> adapter(std::back_inserter(children));
+	//std::back_insert_iterator<std::vector<Genome*> > foo = std::back_inserter(children);
+	//auto bar = std::back_inserter(children);
+	//std::back_insert_iterator<std::vector<AGenome<AGene*>*> >* foo = &bar;
+
+	//Foo<AGenome<AGene*>*> foobar;
+
+	//auto adapter = foobar.create_adapter(&children);
+
+	//c.crossover(population.at(0), population.at(1), adapter);
+	c.crossover(population.at(0), population.at(1), &children);
+
+	//delete adapter;
+
+	cout << endl;
+
+	for(auto genome : children)
+	{
+		cout << genome->to_string() << endl;
+	}
+
+	//c.crossover(population.at(0), population.at(1), std::back_inserter(children));
 
 	for_each(population.begin(), population.end(), [] (Genome* genome) { delete genome; });
 	delete g;

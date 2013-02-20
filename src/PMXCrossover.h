@@ -46,6 +46,8 @@ namespace ea
 	class PMXCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -53,23 +55,26 @@ namespace ea
 
 			virtual ~PMXCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				uint32_t offset1;
 				uint32_t offset2;
 				AGenome<T>* child;
 
-				offset1 = ACrossover<T>::generator->get_number(0, a->size() - 2);
-				offset2 = ACrossover<T>::generator->get_number(offset1 + 1, a->size() - 1);
+				offset1 = generator->get_number(0, a->size() - 2);
+				offset2 = generator->get_number(offset1 + 1, a->size() - 1);
 
 				child = crossover(a, b, offset1, offset2);
-				children.push_back(child);
+				inserter->insert(child);
 
 				child = crossover(b, a, offset1, offset2);
-				children.push_back(child);
+				inserter->insert(child);
 
 				return 2;
 			}
+
+		protected:
+			using ACrossover<T>::generator;
 
 		private:
 			AGenome<T>* crossover(const AGenome<T>* parent1, const AGenome<T>* parent2, const uint32_t offset1, const uint32_t offset2) const

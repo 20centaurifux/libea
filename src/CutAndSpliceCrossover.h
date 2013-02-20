@@ -45,6 +45,8 @@ namespace ea
 	class CutAndSpliceCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::_crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -52,7 +54,7 @@ namespace ea
 
 			virtual ~CutAndSpliceCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				uint32_t separator1;
 				uint32_t separator2;
@@ -65,8 +67,8 @@ namespace ea
 				assert(b != NULL);
 				assert(b->size() > 1);
 
-				m = separator1 = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 2);
-				separator2 = (uint32_t)ACrossover<T>::generator->get_number(1, a->size() - 2);
+				m = separator1 = (uint32_t)generator->get_number(1, a->size() - 2);
+				separator2 = (uint32_t)generator->get_number(1, a->size() - 2);
 
 				// create first individual:
 				individual = a->instance(separator1 + b->size() - separator2);
@@ -81,7 +83,7 @@ namespace ea
 					individual->copy_to(m++, b->at(i));
 				}
 
-				children.push_back(individual);
+				inserter->insert(individual);
 
 				// create second individual:
 				individual = a->instance(separator2 + a->size() - separator1);
@@ -98,10 +100,13 @@ namespace ea
 					individual->copy_to(m++, a->at(i));
 				}
 
-				children.push_back(individual);
+				inserter->insert(individual);
 
 				return 2;
 			}
+
+		protected:
+			using ACrossover<T>::generator;
 	};
 
 	/**

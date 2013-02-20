@@ -26,6 +26,7 @@
 
 #include <vector>
 
+#include "VectorAdapter.h"
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
 
@@ -57,12 +58,34 @@ namespace ea
 			/**
 			   @param a a genome
 			   @param b a genome
-			   @param children reference to a vector for storing generated child genomes
+			   @param inserter an inserter to append generated children
 			   @return number of generated children
 			   
 			   Combine two genomes.
 			 */
-			virtual uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children) = 0;
+			virtual uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter) = 0;
+
+			/**
+			   @param a a genome
+			   @param b a genome
+			   @param children vector to store generated children
+			   @tparam Vector type of the children vector
+			   @return number of generated children
+			   
+			   Combine two genomes.
+			 */
+			template<class Vector>
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, Vector* children)
+			{
+				IInserter<AGenome<T>*>* adapter = new VectorAdapter<Vector, AGenome<T>*>(children);
+				uint32_t result;
+
+				result = crossover(a, b, adapter);
+
+				delete adapter;
+
+				return result;
+			}
 
 		protected:
 			/*! Instance of a random number generator. */

@@ -52,6 +52,8 @@ namespace ea
 	class EdgeRecombinationCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -59,7 +61,7 @@ namespace ea
 
 			virtual ~EdgeRecombinationCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				Neighbors *nblist;
 				std::unordered_map<T, Neighbors*, Hash, Equals> nbs;
@@ -92,7 +94,7 @@ namespace ea
 				child = a->instance();
 
 				// get initial gene:
-				x = ACrossover<T>::generator->get_number(0, 1) ? a->at(0) : b->at(0);
+				x = generator->get_number(0, 1) ? a->at(0) : b->at(0);
 
 				while(1)
 				{
@@ -128,7 +130,7 @@ namespace ea
 						{
 							if(next_count[j] || !j)
 							{
-								x = next_gene[j][ACrossover<T>::generator->get_number(0, next_count[j] - 1)];
+								x = next_gene[j][generator->get_number(0, next_count[j] - 1)];
 								break;
 							}
 						}
@@ -137,19 +139,22 @@ namespace ea
 					{
 						do
 						{
-							x = a->at(ACrossover<T>::generator->get_number(0, a->size() - 1));
+							x = a->at(generator->get_number(0, a->size() - 1));
 						} while(gene_exists(child, child_i, x));
 					}
 				}
 
 				// append child:
-				children.push_back(child);
+				inserter->insert(child);
 
 				// clean up:
 				delete[] nblist;
 
 				return 1;
 			}
+
+		protected:
+			using ACrossover<T>::generator;
 
 		private:
 			typedef struct

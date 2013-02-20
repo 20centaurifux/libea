@@ -47,6 +47,8 @@ namespace ea
 	class CycleCrossover : public ACrossover<T>
 	{
 		public:
+			using ACrossover<T>::crossover;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
@@ -54,7 +56,7 @@ namespace ea
 
 			virtual ~CycleCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, std::vector<AGenome<T>*>& children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
 			{
 				uint32_t index = 0;
 				uint32_t offset = 1;
@@ -65,8 +67,6 @@ namespace ea
 				bool flag = true;
 				AGenome<T>* child1;
 				AGenome<T>* child2;
-				AGenome<T>* p1;
-				AGenome<T>* p2;
 
 				// create initial cycle:
 				cycles.push_back((cycle = new std::vector<T>()));
@@ -113,36 +113,24 @@ namespace ea
 
 				for(auto iter = cycles.begin(); iter != cycles.end(); ++iter)
 				{
-					if(flag)
-					{
-						p1 = child2;
-						p2 = child1;
-					}
-					else
-					{
-						p1 = child1;
-						p2 = child2;
-					}
-
 					for(uint32_t m = 0; m < a->size(); m++)
 					{
 						if(contains(*iter, a->at(m)))
 						{
-							p1->copy_to(m, a->at(m));
+							(flag ? child1 : child2)->copy_to(m, a->at(m));
 						}
 
 						if(contains(*iter, b->at(m)))
 						{
-							p2->copy_to(m, b->at(m));
+							(flag ? child2 : child1)->copy_to(m, b->at(m));
 						}
 					}
 
 					flag = !flag;
-
 				}
 
-				children.push_back(child1);
-				children.push_back(child2);
+				inserter->insert(child1);
+				inserter->insert(child2);
 
 				// free memory:
 				std::for_each(cycles.begin(), cycles.end(), [] (std::vector<T>* cycle) { delete cycle; });
