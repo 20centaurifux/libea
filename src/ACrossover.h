@@ -88,7 +88,7 @@ namespace ea
 			}
 
 			template<class Iterator, class Vector>
-			void population_crossover(const Iterator& begin, const Iterator& end, Vector& children)
+			void multi_crossover(const Iterator& begin, const Iterator& end, Vector& children)
 			{
 				uint32_t size = end - begin;
 
