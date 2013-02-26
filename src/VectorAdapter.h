@@ -46,15 +46,15 @@ namespace ea
 			/**
 			   @param vector a vector
 			 */
-			VectorAdapter(Vector* vector) : _vector(vector) {}
+			VectorAdapter(Vector& vector) : _vector(vector) {}
 
 			void insert(T genome)
 			{
-				_vector->push_back(dynamic_cast<typename Vector::value_type>(genome));
+				_vector.push_back(dynamic_cast<typename Vector::value_type>(genome));
 			}
 
 		private:
-			Vector* _vector;
+			Vector& _vector;
 	};
 
 	/**
