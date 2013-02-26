@@ -26,6 +26,8 @@
 #include "AGene.h"
 #include "SDBMHash.h"
 
+#include <iostream>
+
 using namespace ea;
 using namespace std;
 
@@ -132,7 +134,7 @@ float calculate_route(const AGenome<AGene*>& individual)
 		}
 	}
 
-	return f;
+	return f * -1;
 }
 
 class RouteFactory : public AFactory<Genome*>
@@ -189,93 +191,94 @@ const uint32_t RouteFactory::_points[20][2] =
 	{ 136, 196 }, { 54, 6377 }, { 74, 14 }, { 1569, 736 }, { 175, 1841 }
 };
 
-/*
-static float _f(const AGenome<bool>& g)
+template<class Vector>
+void clear(Vector& vector)
 {
-	return 0;
+	for(auto el : vector)
+	{
+		delete el;
+	}
+
+	vector.erase(vector.begin(), vector.end());
 }
-*/
 
-#include "IteratorAdapter.h"
-
-#include "IInserter.h"
-#include "VectorAdapter.h"
-
-template<class T>
-class Foo
-{
-	public:
-		template<class Inserter>
-		IInserter<T>* create_adapter(Inserter* inserter)
-		{
-			return new VectorAdapter<Inserter, T>(inserter);
-		}
-};
+#define POP_SIZE 50
+#define SEL_SIZE 40
+#define ROUNDS   30
 
 int main()
 {
-	ARandomNumberGenerator* g = new MersenneTwisterUniformIntDistribution();
+	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
+	AIndexSelection<AGene*>* sel = new TournamentSelection<AGene*>(g);
+	ACrossover<AGene*>* crossover = new PMXCrossover<AGene*>(g);
+	AMutation<AGene*>* mutation = new DoubleSwapMutation<AGene*>(g);
+	AFactory<Genome*>* factory = new RouteFactory(g, calculate_route);
 	vector<Genome*> population;
-	RouteFactory factory(g, calculate_route);
+	vector<Genome*> selection;
+	vector<Genome*> children;
+	float av = 0;
 
-	//foo(std::back_inserter(bar));
+	population = factory->random(POP_SIZE);
 
-	population = factory.random(20);
-
-	for(uint32_t i = 0; i < population.size(); ++i)
+	// create initial population:
+	for(auto genome : population)
 	{
-		cout << population.at(i)->to_string() << " => " << population.at(i)->fitness() << endl;
+		cout << genome->to_string() << ", " << genome->fitness() << endl;
+		av += genome->fitness();
 	}
 
-	TournamentSelection<AGene*> sel(g);
-	vector<uint32_t> selection;
-
-	sel.select(population.begin(), population.end(), 10, selection);
-
+	cout << av / population.size() << endl;
 	cout << endl;
 
-	for(uint32_t i : selection)
+	for(uint32_t i = 0; i < ROUNDS; ++i)
 	{
-		cout << population.at(i)->to_string() << " => " << population.at(i)->fitness() << endl;
+		// select genomes:
+		sel->select_population(population.begin(), population.end(), SEL_SIZE, selection);
+		
+		// crossover:
+		crossover->multi_crossover(selection.begin(), selection.end(), children);
+
+		// selection:
+		clear(population);
+		
+		sel->select_population(children.begin(), children.end(), POP_SIZE, population);
+
+		// mutation:
+		mutation->multi_mutate(population.begin(), population.end());
+
+		// debug:
+		av = 0;
+
+		if(i == ROUNDS - 1)
+		{
+			cout << endl;
+
+			for(auto genome : population)
+			{
+				cout << genome->to_string() << ", " << genome->fitness() << endl;
+				av += genome->fitness();
+			}
+
+			cout << av / population.size() << endl;
+		}
+
+		clear(selection);
+		clear(children);
 	}
+
+	// free memory:
+	for_each(population.begin(), population.end(), [] (Genome *g) { delete g; });
+
+	delete factory;
+	delete mutation;
+	delete crossover;
+	delete sel;
+	delete g;
 
 	/*
-	for(uint32_t i = 0; i < selection.size(); ++i)
-	{
-
-		//cout << population.at(selection)->to_string() << " => " << population.at(i)->fitness() << endl;
-	}
-	*/
-
-	vector<Genome*> children;
-
-	UniformCrossover<AGene*> c(g);
-
-	//VectorAdapter<std::back_insert_iterator<AGenome<AGene*>*>, AGene*> adapter(std::back_inserter(children));
-	//std::back_insert_iterator<std::vector<Genome*> > foo = std::back_inserter(children);
-	//auto bar = std::back_inserter(children);
-	//std::back_insert_iterator<std::vector<AGenome<AGene*>*> >* foo = &bar;
-
-	//Foo<AGenome<AGene*>*> foobar;
-
-	//auto adapter = foobar.create_adapter(&children);
-
-	//c.crossover(population.at(0), population.at(1), adapter);
-	c.crossover(population.at(0), population.at(1), &children);
-
-	//delete adapter;
-
-	cout << endl;
-
-	for(auto genome : children)
-	{
-		cout << genome->to_string() << endl;
-	}
-
-	//c.crossover(population.at(0), population.at(1), std::back_inserter(children));
-
 	for_each(population.begin(), population.end(), [] (Genome* genome) { delete genome; });
 	delete g;
+	*/
 
 	return 0;
 }

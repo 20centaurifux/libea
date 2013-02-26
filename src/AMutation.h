@@ -59,6 +59,18 @@ namespace ea
 			 */
 			virtual void mutate(AGenome<T>* genome) = 0;
 
+			template<class Iterator>
+			void multi_mutate(const Iterator& begin, const Iterator& end, uint32_t rate = 5)
+			{
+				for(Iterator iter = begin; iter != end; ++iter)
+				{
+					if(!generator->get_number(0, rate))
+					{
+						mutate(*iter);
+					}
+				}
+			}
+
 		protected:
 			/*! A random number generator. */
 			ARandomNumberGenerator* generator;
