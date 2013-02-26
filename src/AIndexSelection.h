@@ -79,6 +79,24 @@ namespace ea
 				select(&adapter, count, selection);
 			}
 
+			template<class Iterator, class Vector>
+			void select_population(const Iterator& begin, const Iterator& end, const uint32_t count, Vector& children)
+			{
+				std::vector<uint32_t> selection;
+				AGenome<T>* from;
+				AGenome<T>* to;
+
+				select(begin, end, count, selection);
+
+				for(uint32_t index : selection)
+				{
+					from = *(begin + index);
+					to = (*begin)->instance();
+					AGenome<T>::copy(*from, *to);
+					children.push_back(dynamic_cast<typename Vector::value_type>(to));
+				}
+			}
+
 		protected:
 			/*! Instance of a random number generator. */
 			ARandomNumberGenerator* generator;
