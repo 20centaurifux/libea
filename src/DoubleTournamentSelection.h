@@ -45,7 +45,7 @@ namespace ea
 	   @brief Implementation of double-tournament selection.
 	 */
 	template<class T, uint32_t Q = 5>
-	class DoubleTournamentSelection : AIndexSelection<T>
+	class DoubleTournamentSelection : public AIndexSelection<T>
 	{
 		public:
 			using AIndexSelection<T>::select;

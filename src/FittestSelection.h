@@ -43,7 +43,7 @@ namespace ea
 	   @brief Select fittest genomes of a population.
 	 */
 	template<class T>
-	class FittestSelection : AIndexSelection<T>
+	class FittestSelection : public AIndexSelection<T>
 	{
 		public:
 			using AIndexSelection<T>::select;

@@ -41,7 +41,7 @@ namespace ea
 	   @brief Implementation of fitness proportional selection.
 	 */
 	template<class T>
-	class FitnessProportionalSelection : AIndexSelection<T>
+	class FitnessProportionalSelection : public AIndexSelection<T>
 	{
 		public:
 			using AIndexSelection<T>::select;

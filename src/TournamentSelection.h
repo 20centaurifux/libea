@@ -44,7 +44,7 @@ namespace ea
 	   @brief Implementation of tournament selection.
 	 */
 	template<class T, uint32_t Q = 5>
-	class TournamentSelection : AIndexSelection<T>
+	class TournamentSelection : public AIndexSelection<T>
 	{
 		public:
 			using AIndexSelection<T>::select;
