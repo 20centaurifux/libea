@@ -75,7 +75,7 @@ namespace ea
 			   Combine two genomes.
 			 */
 			template<class Vector>
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, Vector* children)
+			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, Vector& children)
 			{
 				IInserter<AGenome<T>*>* adapter = new VectorAdapter<Vector, AGenome<T>*>(children);
 				uint32_t result;
@@ -85,6 +85,20 @@ namespace ea
 				delete adapter;
 
 				return result;
+			}
+
+			template<class Iterator, class Vector>
+			void xcrossover(const Iterator& begin, const Iterator& end, Vector& children)
+			{
+				uint32_t size = end - begin;
+
+				for(uint32_t i = 0; i < size - 1; ++i)
+				{
+					for(uint32_t j = i + 1; j < size; ++j)
+					{
+						crossover(*(begin + i), *(begin + j), children);
+					}
+				}
 			}
 
 		protected:
