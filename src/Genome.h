@@ -42,6 +42,8 @@ namespace ea
 	class Genome : public AGenome<AGene*>, public AGeneListener
 	{
 		public:
+			using AGenome<AGene*>::instance;
+
 			/**
 			   @param size size of the genome
 			   @param fitness_func functor to calculate the fitness of the genome
