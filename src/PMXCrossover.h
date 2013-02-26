@@ -26,7 +26,6 @@
 
 #include <cstring>
 #include "ACrossover.h"
-#include <iostream>
 
 namespace ea
 {
