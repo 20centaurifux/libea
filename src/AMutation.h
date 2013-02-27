@@ -59,6 +59,14 @@ namespace ea
 			 */
 			virtual void mutate(AGenome<T>* genome) = 0;
 
+			/**
+			   @param begin begin of a range of genomes
+			   @param end end of a range of genomes
+			   @param rate mutation probability
+			   @tparam Iterator iterator type
+			   
+			   Mutates genomes of a population with the given probability.
+			 */
 			template<class Iterator>
 			void multi_mutate(const Iterator& begin, const Iterator& end, uint32_t rate = 5)
 			{

@@ -87,18 +87,31 @@ namespace ea
 				return result;
 			}
 
+			/**
+			   @param begin begin of a population
+			   @param end end of a population
+			   @param children vector to store generated children
+			   @tparam Iterator type of the iterator
+			   @tparam Vector type of the children vector
+			   @return number of generated children
+			   
+			   Combine two genomes.
+			 */
 			template<class Iterator, class Vector>
-			void multi_crossover(const Iterator& begin, const Iterator& end, Vector& children)
+			uint32_t multi_crossover(const Iterator& begin, const Iterator& end, Vector& children)
 			{
 				uint32_t size = end - begin;
+				uint32_t result = 0;
 
 				for(uint32_t i = 0; i < size - 1; ++i)
 				{
 					for(uint32_t j = i + 1; j < size; ++j)
 					{
-						crossover(*(begin + i), *(begin + j), children);
+						result += crossover(*(begin + i), *(begin + j), children);
 					}
 				}
+
+				return result;
 			}
 
 		protected:

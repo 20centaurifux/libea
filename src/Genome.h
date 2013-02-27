@@ -36,15 +36,20 @@ namespace ea
 	   @{
 	 */
 
+	/*! Genome base class. */
 	typedef AGenome<AGene*> GenomeBase;
+
+	/*! Vector containing instances of Genome base classes. */
 	typedef std::vector<GenomeBase*> GenomeBaseVector;
+
+	/*! Factory returning instances of Genome base classes. */
 	typedef AFactory<GenomeBase*> GenomeBaseFactory;
 
 	/**
 	   @class Genome
 	   @brief A genome holding and observing AGene instances.
 	 */
-	class Genome : public GenomeBase, public AGeneListener
+	class Genome : public AGenome<AGene*>, public AGeneListener
 	{
 		public:
 			using GenomeBase::instance;

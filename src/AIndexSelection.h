@@ -57,7 +57,7 @@ namespace ea
 			/**
 			   @param iter range of genomes
 			   @param count number of genomes to select
-			   @param selection vector to store selected genomes
+			   @param selection vector to store indices selected genomes
 			   
 			   Select genomes from a population.
 			 */
@@ -67,7 +67,8 @@ namespace ea
 			   @param begin begin of a range of genomes
 			   @param end end of a range of genomes
 			   @param count number of genomes to select
-			   @param selection vector to store selected genomes
+			   @param selection vector to store indices of selected genomes
+			   @tparam Iterator iterator type
 			   
 			   Select genomes from a population.
 			 */
@@ -79,6 +80,16 @@ namespace ea
 				select(&adapter, count, selection);
 			}
 
+			/**
+			   @param begin begin of a range of genomes
+			   @param end end of a range of genomes
+			   @param count number of genomes to select
+			   @param children vector to store selected genomes
+			   @tparam Iterator iterator type
+			   @tparam Vector vector type
+			   
+			   Select genomes from a population.
+			 */
 			template<class Iterator, class Vector>
 			void select_population(const Iterator& begin, const Iterator& end, const uint32_t count, Vector& children)
 			{

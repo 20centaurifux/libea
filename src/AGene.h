@@ -117,8 +117,13 @@ namespace ea
 			}
 	};
 
+	/*! Crossover for genomes holding instances of AGene based classes. */
 	typedef ACrossover<AGene*> AGeneCrossover;
+
+	/*! Index selection for genomes holding instances of AGene based classes. */
 	typedef AIndexSelection<AGene*> AGeneIndexSelection;
+
+	/*! Mutation for genomes holding instances of AGene based classes. */
 	typedef AMutation<AGene*> AGeneMutation;
 
 	/**
