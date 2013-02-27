@@ -108,7 +108,9 @@ namespace ea
 			 */
 			void notifiy()
 			{
-				for_each([gene = this] (AGeneListener* l) { l->modified(gene); });
+				AGene* gene = this;
+
+				for_each([&gene] (AGeneListener* l) { l->modified(gene); });
 			}
 	};
 
