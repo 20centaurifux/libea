@@ -202,9 +202,9 @@ void clear(Vector& vector)
 	vector.erase(vector.begin(), vector.end());
 }
 
-#define POP_SIZE 50
-#define SEL_SIZE 40
-#define ROUNDS   10
+#define POP_SIZE 100
+#define SEL_SIZE 70
+#define ROUNDS   50
 
 GenomeBase* get_fittest(const GenomeBaseVector& p)
 {
@@ -223,8 +223,8 @@ GenomeBase* get_fittest(const GenomeBaseVector& p)
 
 int main()
 {
-	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
-	AGeneIndexSelection* sel = new TournamentSelection<AGene*>(g);
+	ARandomNumberGenerator* g = new MersenneTwisterUniformIntDistribution();
+	AGeneIndexSelection* sel = new FitnessProportionalSelection<AGene*>(g);
 	AGeneCrossover* crossover = new EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to>(g);
 	AGeneMutation* mutation = new DoubleSwapMutation<AGene*>(g);
 	GenomeBaseFactory* factory = new RouteFactory(g, calculate_route);

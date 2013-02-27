@@ -24,6 +24,7 @@
 #ifndef FITNESSPROPORTIONALSELECTION_H
 #define FITNESSPROPORTIONALSELECTION_H
 
+#include <cassert>
 #include "AIndexSelection.h"
 
 namespace ea
@@ -69,12 +70,21 @@ namespace ea
 				}
 
 				max = sums[iter->size() - 1];
+				assert(max != 0);
 
 				while(selection.size() != count)
 				{
 					range[0] = 0;
 					range[1] = iter->size() - 1;
-					selection.push_back(find_index(sums, range, (uint32_t)generator->get_number(0, max)));
+
+					if(max > 0)
+					{
+						selection.push_back(find_index(sums, range, (uint32_t)generator->get_number(0, max)));
+					}
+					else
+					{
+						selection.push_back(find_index(sums, range, (uint32_t)generator->get_number(max, 0)));
+					}
 				}
 
 				delete sums;
@@ -84,7 +94,7 @@ namespace ea
 			using AIndexSelection<T>::generator;
 
 		private:
-			inline uint32_t find_index(const float* sums, uint32_t range[2], const uint32_t n) const
+			uint32_t find_index(const float* sums, uint32_t range[2], const uint32_t n) const
 			{
 				uint32_t mid;
 
