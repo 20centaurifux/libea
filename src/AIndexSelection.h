@@ -93,7 +93,7 @@ namespace ea
 					from = *(begin + index);
 					to = (*begin)->instance();
 					AGenome<T>::copy(*from, *to);
-					children.push_back(dynamic_cast<typename Vector::value_type>(to));
+					children.push_back(to);
 				}
 			}
 

@@ -50,7 +50,7 @@ namespace ea
 
 			void insert(T genome)
 			{
-				_vector.push_back(dynamic_cast<typename Vector::value_type>(genome));
+				_vector.push_back(genome);
 			}
 
 		private:
