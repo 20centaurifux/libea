@@ -204,31 +204,36 @@ void clear(Vector& vector)
 
 #define POP_SIZE 50
 #define SEL_SIZE 40
-#define ROUNDS   30
+#define ROUNDS   20
+
+Genome* get_fittest(const vector<Genome*>& p)
+{
+	Genome* best = NULL;
+
+	for(auto g : p)
+	{
+		if(!best || (best->fitness() <= g->fitness()))
+		{
+			best = g;
+		}
+	}
+
+	return best;
+}
 
 int main()
 {
 	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
 	AIndexSelection<AGene*>* sel = new TournamentSelection<AGene*>(g);
-	ACrossover<AGene*>* crossover = new PMXCrossover<AGene*>(g);
+	ACrossover<AGene*>* crossover = new EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to>(g);
 	AMutation<AGene*>* mutation = new DoubleSwapMutation<AGene*>(g);
 	AFactory<Genome*>* factory = new RouteFactory(g, calculate_route);
 	vector<Genome*> population;
 	vector<Genome*> selection;
 	vector<Genome*> children;
-	float av = 0;
-
-	population = factory->random(POP_SIZE);
 
 	// create initial population:
-	for(auto genome : population)
-	{
-		cout << genome->to_string() << ", " << genome->fitness() << endl;
-		av += genome->fitness();
-	}
-
-	cout << av / population.size() << endl;
-	cout << endl;
+	population = factory->random(POP_SIZE);
 
 	for(uint32_t i = 0; i < ROUNDS; ++i)
 	{
@@ -244,23 +249,11 @@ int main()
 		sel->select_population(children.begin(), children.end(), POP_SIZE, population);
 
 		// mutation:
-		mutation->multi_mutate(population.begin(), population.end());
+		mutation->multi_mutate(population.begin(), population.end(), 3);
 
-		// debug:
-		av = 0;
-
-		if(i == ROUNDS - 1)
-		{
-			cout << endl;
-
-			for(auto genome : population)
-			{
-				cout << genome->to_string() << ", " << genome->fitness() << endl;
-				av += genome->fitness();
-			}
-
-			cout << av / population.size() << endl;
-		}
+		// show fittest genome:
+		Genome* b = get_fittest(population);
+		cout << "fittest genome: " << b->to_string() << ", " << b->fitness() * -1 << endl;
 
 		clear(selection);
 		clear(children);
