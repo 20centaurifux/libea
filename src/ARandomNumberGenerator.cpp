@@ -36,6 +36,8 @@ namespace ea
 		uint32_t rnd;
 		int32_t result;
 
+		assert(limit > (uint32_t)get_max());
+
 		do
 		{
 			rnd = abs(random());
