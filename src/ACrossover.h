@@ -100,6 +100,7 @@ namespace ea
 			template<class Iterator, class Vector>
 			uint32_t multi_crossover(const Iterator& begin, const Iterator& end, Vector& children)
 			{
+				IInserter<AGenome<T>*>* adapter = new VectorAdapter<Vector, AGenome<T>*>(children);
 				uint32_t size = end - begin;
 				uint32_t result = 0;
 
@@ -107,9 +108,11 @@ namespace ea
 				{
 					for(uint32_t j = i + 1; j < size; ++j)
 					{
-						result += crossover(*(begin + i), *(begin + j), children);
+						result += crossover(*(begin + i), *(begin + j), adapter);
 					}
 				}
+
+				delete adapter;
 
 				return result;
 			}
