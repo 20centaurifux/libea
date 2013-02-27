@@ -34,13 +34,18 @@ namespace ea
 		uint32_t scale = (get_max() + 1u) / range;
 		uint32_t limit = scale * range;
 		uint32_t rnd;
+		int32_t result;
 
 		do
 		{
 			rnd = abs(random());
-		} while(rnd > limit);
+		} while(rnd >= limit);
 
-		return (int32_t)rnd / scale + min;
+		result = (int32_t)rnd / scale + min;
+
+		assert(result >= min && result <= max);
+
+		return result;
 	}
 
 	void ARandomNumberGenerator::get_numbers(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length)
