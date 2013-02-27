@@ -107,7 +107,7 @@ class City : public AGene
 		std::string _name;
 };
 
-float calculate_route(const AGenome<AGene*>& individual)
+float calculate_route(const GenomeBase& individual)
 {
 	City* city;
 	float x0, x1, y0, y1;
@@ -137,25 +137,25 @@ float calculate_route(const AGenome<AGene*>& individual)
 	return f * -1;
 }
 
-class RouteFactory : public AFactory<Genome*>
+class RouteFactory : public GenomeBaseFactory
 {
 	public:
 		static const int32_t N_CITIES = 20;
 
 		RouteFactory(ARandomNumberGenerator* rnd_generator,  FitnessFunc<AGene*>::fitness fitness_func)
-			: AFactory<Genome*>(rnd_generator), _fitness_func(fitness_func) {};
+			: GenomeBaseFactory(rnd_generator), _fitness_func(fitness_func) {};
 		virtual ~RouteFactory() {};
 
-		vector<Genome*> random(const uint32_t count)
+		GenomeBaseVector random(const uint32_t count)
 		{
-			vector<Genome*> population;
+			GenomeBaseVector population;
 			int32_t numbers[N_CITIES];
 			Genome* individual;
 
 			for(uint32_t i = 0; i < count; ++i)
 			{
 				individual = new Genome(N_CITIES, _fitness_func);
-				AFactory<Genome*>::generator->get_unique_numbers(0, N_CITIES - 1, numbers, N_CITIES);
+				GenomeBaseFactory::generator->get_unique_numbers(0, N_CITIES - 1, numbers, N_CITIES);
 
 				for(int32_t j = 0; j < N_CITIES; j++)
 				{
@@ -204,11 +204,11 @@ void clear(Vector& vector)
 
 #define POP_SIZE 50
 #define SEL_SIZE 40
-#define ROUNDS   20
+#define ROUNDS   10
 
-Genome* get_fittest(const vector<Genome*>& p)
+GenomeBase* get_fittest(const GenomeBaseVector& p)
 {
-	Genome* best = NULL;
+	GenomeBase* best = NULL;
 
 	for(auto g : p)
 	{
@@ -224,13 +224,13 @@ Genome* get_fittest(const vector<Genome*>& p)
 int main()
 {
 	ARandomNumberGenerator* g = new AnsiRandomNumberGenerator();
-	AIndexSelection<AGene*>* sel = new TournamentSelection<AGene*>(g);
-	ACrossover<AGene*>* crossover = new EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to>(g);
-	AMutation<AGene*>* mutation = new DoubleSwapMutation<AGene*>(g);
-	AFactory<Genome*>* factory = new RouteFactory(g, calculate_route);
-	vector<Genome*> population;
-	vector<Genome*> selection;
-	vector<Genome*> children;
+	AGeneIndexSelection* sel = new TournamentSelection<AGene*>(g);
+	AGeneCrossover* crossover = new EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to>(g);
+	AGeneMutation* mutation = new DoubleSwapMutation<AGene*>(g);
+	GenomeBaseFactory* factory = new RouteFactory(g, calculate_route);
+	GenomeBaseVector population;
+	GenomeBaseVector selection;
+	GenomeBaseVector children;
 
 	// create initial population:
 	population = factory->random(POP_SIZE);
@@ -252,7 +252,7 @@ int main()
 		mutation->multi_mutate(population.begin(), population.end(), 3);
 
 		// show fittest genome:
-		Genome* b = get_fittest(population);
+		GenomeBase* b = get_fittest(population);
 		cout << "fittest genome: " << b->to_string() << ", " << b->fitness() * -1 << endl;
 
 		clear(selection);
@@ -260,7 +260,7 @@ int main()
 	}
 
 	// free memory:
-	for_each(population.begin(), population.end(), [] (Genome *g) { delete g; });
+	for_each(population.begin(), population.end(), [] (GenomeBase* g) { delete g; });
 
 	delete factory;
 	delete mutation;

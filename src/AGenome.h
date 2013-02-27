@@ -198,6 +198,13 @@ namespace ea
 			 */
 			virtual std::string to_string(const std::string& separator) const = 0;
 
+			/**
+			   @return a string
+
+			   Returning a string representing the object.
+			 */
+			virtual std::string to_string() = 0;
+
 		protected:
 			/*! Functor for calculating the fitness. */
 			typename FitnessFunc<T>::fitness fitness_func;

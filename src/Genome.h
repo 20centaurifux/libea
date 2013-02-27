@@ -27,6 +27,7 @@
 #include <algorithm>
 #include "AGenome.h"
 #include "AGene.h"
+#include "AFactory.h"
 
 namespace ea
 {
@@ -35,14 +36,19 @@ namespace ea
 	   @{
 	 */
 
+	typedef AGenome<AGene*> GenomeBase;
+	typedef std::vector<GenomeBase*> GenomeBaseVector;
+	typedef AFactory<GenomeBase*> GenomeBaseFactory;
+
 	/**
 	   @class Genome
 	   @brief A genome holding and observing AGene instances.
 	 */
-	class Genome : public AGenome<AGene*>, public AGeneListener
+	class Genome : public GenomeBase, public AGeneListener
 	{
 		public:
-			using AGenome<AGene*>::instance;
+			using GenomeBase::instance;
+			using GenomeBase::to_string;
 
 			/**
 			   @param size size of the genome

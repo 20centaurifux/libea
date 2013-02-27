@@ -29,6 +29,9 @@
 #include "IHashfunction.h"
 #include "Observable.h"
 #include "IToString.h"
+#include "ACrossover.h"
+#include "AIndexSelection.h"
+#include "AMutation.h"
 
 namespace ea
 {
@@ -113,6 +116,10 @@ namespace ea
 				for_each([&gene] (AGeneListener* l) { l->modified(gene); });
 			}
 	};
+
+	typedef ACrossover<AGene*> AGeneCrossover;
+	typedef AIndexSelection<AGene*> AGeneIndexSelection;
+	typedef AMutation<AGene*> AGeneMutation;
 
 	/**
 	   @}
