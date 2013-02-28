@@ -24,6 +24,7 @@
 #ifndef AFACTORY_H
 #define AFACTORY_H
 
+#include <memory>
 #include<vector>
 
 #include "ARandomNumberGenerator.h"
@@ -48,7 +49,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			AFactory(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
+			AFactory(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 
 			virtual ~AFactory() {}
 
@@ -62,7 +63,7 @@ namespace ea
 
 		protected:
 			/*! A random number generator. */
-			ARandomNumberGenerator* generator;
+			std::shared_ptr<ARandomNumberGenerator> generator;
 	};
 
 	/**

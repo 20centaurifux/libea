@@ -49,7 +49,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			DoubleSwapMutation(ARandomNumberGenerator* rnd_generator) : AMutation<T>(rnd_generator) {}
+			DoubleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : AMutation<T>(rnd_generator) {}
 
 			~DoubleSwapMutation() {};
 

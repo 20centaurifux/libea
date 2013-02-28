@@ -27,6 +27,7 @@
 #include "SDBMHash.h"
 
 #include <iostream>
+#include <memory>
 
 using namespace ea;
 using namespace std;
@@ -142,7 +143,7 @@ class RouteFactory : public GenomeBaseFactory
 	public:
 		static const int32_t N_CITIES = 20;
 
-		RouteFactory(ARandomNumberGenerator* rnd_generator,  FitnessFunc<AGene*>::fitness fitness_func)
+		RouteFactory(shared_ptr<ARandomNumberGenerator> rnd_generator,  FitnessFunc<AGene*>::fitness fitness_func)
 			: GenomeBaseFactory(rnd_generator), _fitness_func(fitness_func) {};
 		virtual ~RouteFactory() {};
 
@@ -202,9 +203,9 @@ void clear(Vector& vector)
 	vector.erase(vector.begin(), vector.end());
 }
 
-#define POP_SIZE 100
-#define SEL_SIZE 70
-#define ROUNDS   50
+#define POP_SIZE 50
+#define SEL_SIZE 30
+#define ROUNDS    5
 
 GenomeBase* get_fittest(const GenomeBaseVector& p)
 {
@@ -223,10 +224,13 @@ GenomeBase* get_fittest(const GenomeBaseVector& p)
 
 int main()
 {
-	ARandomNumberGenerator* g = new MersenneTwisterUniformIntDistribution();
-	AGeneIndexSelection* sel = new FitnessProportionalSelection<AGene*>(g);
+	auto g = shared_ptr<ARandomNumberGenerator>(new AnsiRandomNumberGenerator());
+
+	AGeneIndexSelection* sel0 = new TournamentSelection<AGene*>(g);
+	AGeneIndexSelection* sel1 = new DoubleTournamentSelection<AGene*>(g);
+
 	AGeneCrossover* crossover = new EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to>(g);
-	AGeneMutation* mutation = new DoubleSwapMutation<AGene*>(g);
+	AGeneMutation* mutation = new SingleSwapMutation<AGene*>(g);
 	GenomeBaseFactory* factory = new RouteFactory(g, calculate_route);
 	GenomeBaseVector population;
 	GenomeBaseVector selection;
@@ -238,7 +242,7 @@ int main()
 	for(uint32_t i = 0; i < ROUNDS; ++i)
 	{
 		// select genomes:
-		sel->select_population(population.begin(), population.end(), SEL_SIZE, selection);
+		sel0->select_population(population.begin(), population.end(), SEL_SIZE, selection);
 		
 		// crossover:
 		crossover->multi_crossover(selection.begin(), selection.end(), children);
@@ -246,10 +250,10 @@ int main()
 		// selection:
 		clear(population);
 		
-		sel->select_population(children.begin(), children.end(), POP_SIZE, population);
+		sel1->select_population(children.begin(), children.end(), POP_SIZE, population);
 
 		// mutation:
-		mutation->multi_mutate(population.begin(), population.end(), 3);
+		mutation->multi_mutate(population.begin(), population.end(), 2);
 
 		// show fittest genome:
 		GenomeBase* b = get_fittest(population);
@@ -265,8 +269,8 @@ int main()
 	delete factory;
 	delete mutation;
 	delete crossover;
-	delete sel;
-	delete g;
+	delete sel0;
+	delete sel1;
 
 	/*
 	for_each(population.begin(), population.end(), [] (Genome* genome) { delete genome; });

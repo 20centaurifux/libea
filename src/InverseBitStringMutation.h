@@ -45,7 +45,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			InverseBitStringMutation(ARandomNumberGenerator* rnd_generator) : ABinaryMutation(rnd_generator) {}
+			InverseBitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ABinaryMutation(rnd_generator) {}
 
 			void mutate(BinaryGenome* genome)
 			{

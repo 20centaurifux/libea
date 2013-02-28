@@ -24,6 +24,8 @@
 #ifndef ABINARYMUTATION_H
 #define ABINARYMUTATION_H
 
+#include <memory>
+
 #include "ABinaryMutation.h"
 #include "ARandomNumberGenerator.h"
 
@@ -46,7 +48,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			ABinaryMutation(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
+			ABinaryMutation(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 
 			virtual ~ABinaryMutation() {};
 
@@ -59,7 +61,7 @@ namespace ea
 
 		protected:
 			/*! A random number generator. */
-			ARandomNumberGenerator* generator;
+			std::shared_ptr<ARandomNumberGenerator> generator;
 	};
 
 	/**

@@ -24,6 +24,8 @@
 #ifndef AMUTATION_H
 #define AMUTATION_H
 
+#include <memory>
+
 #include "AGenome.h"
 #include "ARandomNumberGenerator.h"
 
@@ -48,7 +50,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			AMutation(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
+			AMutation(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 
 			virtual ~AMutation() {};
 
@@ -81,7 +83,7 @@ namespace ea
 
 		protected:
 			/*! A random number generator. */
-			ARandomNumberGenerator* generator;
+			std::shared_ptr<ARandomNumberGenerator> generator;
 	};
 
 	/**

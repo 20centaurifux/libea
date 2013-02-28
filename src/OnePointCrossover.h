@@ -49,7 +49,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			OnePointCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+			OnePointCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
 
 			virtual ~OnePointCrossover() {};
 
@@ -59,8 +59,8 @@ namespace ea
 
 				separator = (uint32_t)generator->get_number(1, a->size() - 2);
 
-				inserter->insert(crossover(b, a, separator));
-				inserter->insert(crossover(a, b, separator));
+				inserter->insert(create_child(b, a, separator));
+				inserter->insert(create_child(a, b, separator));
 
 				return 2;
 			}
@@ -69,7 +69,7 @@ namespace ea
 			using ACrossover<T>::generator;
 
 		private:
-			AGenome<T>* crossover(const AGenome<T>* a, const AGenome<T>* b, const uint32_t separator) const
+			AGenome<T>* create_child(const AGenome<T>* a, const AGenome<T>* b, const uint32_t separator) const
 			{
 				uint32_t i;
 				AGenome<T>* individual;

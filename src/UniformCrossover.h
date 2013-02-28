@@ -50,7 +50,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			UniformCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+			UniformCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
 
 			virtual ~UniformCrossover() {};
 

@@ -52,7 +52,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			CycleCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+			CycleCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
 
 			virtual ~CycleCrossover() {};
 

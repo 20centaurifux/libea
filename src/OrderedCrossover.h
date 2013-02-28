@@ -50,7 +50,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			OrderedCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+			OrderedCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
 
 			~OrderedCrossover() {};
 

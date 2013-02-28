@@ -53,7 +53,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			DoubleTournamentSelection(ARandomNumberGenerator* rnd_generator)
+			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
 				: AIndexSelection<T>(rnd_generator) {}
 
 			virtual ~DoubleTournamentSelection() {};

@@ -24,6 +24,8 @@
 #ifndef AINDEXSELECTION_H
 #define AINDEXSELECTION_H
 
+#include <memory>
+
 #include "IIterator.h"
 #include "IteratorAdapter.h"
 #include "AGenome.h"
@@ -50,7 +52,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			AIndexSelection(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
+			AIndexSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 
 			virtual ~AIndexSelection() {};
 
@@ -110,7 +112,7 @@ namespace ea
 
 		protected:
 			/*! Instance of a random number generator. */
-			ARandomNumberGenerator* generator;
+			std::shared_ptr<ARandomNumberGenerator> generator;
 	};
 
 	/**

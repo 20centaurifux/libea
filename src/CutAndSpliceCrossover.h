@@ -45,12 +45,12 @@ namespace ea
 	class CutAndSpliceCrossover : public ACrossover<T>
 	{
 		public:
-			using ACrossover<T>::_crossover;
+			using ACrossover<T>::crossover;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			CutAndSpliceCrossover(ARandomNumberGenerator* rnd_generator) : ACrossover<T>(rnd_generator) {}
+			CutAndSpliceCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
 
 			virtual ~CutAndSpliceCrossover() {};
 

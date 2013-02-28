@@ -25,6 +25,7 @@
 #define ACROSSOVER_H
 
 #include <vector>
+#include <memory>
 
 #include "VectorAdapter.h"
 #include "ACrossover.h"
@@ -51,7 +52,7 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			ACrossover(ARandomNumberGenerator* rnd_generator) : generator(rnd_generator) {}
+			ACrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 
 			virtual ~ACrossover() {};
 
@@ -119,7 +120,7 @@ namespace ea
 
 		protected:
 			/*! Instance of a random number generator. */
-			ARandomNumberGenerator* generator;
+			std::shared_ptr<ARandomNumberGenerator> generator;
 	};
 
 	/**
