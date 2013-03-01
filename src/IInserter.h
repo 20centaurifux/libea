@@ -33,7 +33,7 @@ namespace ea
 
 	/**
 	   @class IInserter
-	   @tparam datatype of items stored in container
+	   @tparam T datatype of items stored in container
 	   @brief Interface for wrapper classes used to insert data.
 	 */
 	template<class T>
