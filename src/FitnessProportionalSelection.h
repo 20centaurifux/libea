@@ -38,20 +38,21 @@ namespace ea
 
 	/**
 	   @class FitnessProportionalSelection
-	   @tparam T datatype of genes stored in the genome.
+	   @tparam T datatype of genes stored in the genome
+	   @tparam Compare functor to compare fitness values
 	   @brief Implementation of fitness proportional selection.
 	 */
-	template<class T>
-	class FitnessProportionalSelection : public AIndexSelection<T>
+	template<class T, class Compare>
+	class FitnessProportionalSelection : public AIndexSelection<T, Compare>
 	{
 		public:
-			using AIndexSelection<T>::select;
+			using AIndexSelection<T, Compare>::select;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			FitnessProportionalSelection(ARandomNumberGenerator* rnd_generator)
-				: AIndexSelection<T>(rnd_generator) {}
+			FitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
+				: AIndexSelection<T, Compare>(rnd_generator) {}
 
 			virtual ~FitnessProportionalSelection() {};
 
@@ -91,7 +92,8 @@ namespace ea
 			}
 			
 		protected:
-			using AIndexSelection<T>::generator;
+			using AIndexSelection<T, Compare>::generator;
+			using AIndexSelection<T, Compare>::compare;
 
 		private:
 			uint32_t find_index(const float* sums, uint32_t range[2], const uint32_t n) const

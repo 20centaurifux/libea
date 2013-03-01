@@ -39,21 +39,22 @@ namespace ea
 
 	/**
 	   @class TournamentSelection
-	   @tparam T datatype of genes stored in the genome.
+	   @tparam T datatype of genes stored in the genome
+	   @tparam Compare functor to compare fitness values
 	   @tparam Q number of enemies
 	   @brief Implementation of tournament selection.
 	 */
-	template<class T, uint32_t Q = 5>
-	class TournamentSelection : public AIndexSelection<T>
+	template<class T, class Compare = std::greater<float>, uint32_t Q = 5>
+	class TournamentSelection : public AIndexSelection<T, Compare>
 	{
 		public:
-			using AIndexSelection<T>::select;
+			using AIndexSelection<T, Compare>::select;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
 			TournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
-				: AIndexSelection<T>(rnd_generator) {}
+				: AIndexSelection<T, Compare>(rnd_generator) {}
 
 			virtual ~TournamentSelection() {};
 
@@ -72,7 +73,7 @@ namespace ea
 					{
 						enemy = generator->get_number(0, iter->size() - 1);
 
-						if(iter->at(enemy)->fitness() > iter->at(index)->fitness())
+						if(compare(iter->at(enemy)->fitness(), iter->at(index)->fitness()))
 						{
 							index = enemy;
 						}
@@ -83,7 +84,8 @@ namespace ea
 			}
 
 		protected:
-			using AIndexSelection<T>::generator;
+			using AIndexSelection<T, Compare>::generator;
+			using AIndexSelection<T, Compare>::compare;
 	};
 
 	/**

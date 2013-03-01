@@ -25,6 +25,7 @@
 #define AINDEXSELECTION_H
 
 #include <memory>
+#include <functional>
 
 #include "IIterator.h"
 #include "IteratorAdapter.h"
@@ -42,15 +43,17 @@ namespace ea
 
 	/**
 	   @class AIndexSelection
-	   @tparam T datatype of genes stored in the genome.
+	   @tparam T datatype of genes stored in the genome
+	   @tparam Compare functor to compare fitness values
 	   @brief Abstract base class for selection operators.
 	 */
-	template<class T>
+	template<class T, class Compare = std::greater<float> >
 	class AIndexSelection
 	{
 		public:
 			/**
 			   @param rnd_generator instance of a random number generator
+			   @param problem type of the optimization problem
 			 */
 			AIndexSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 
@@ -113,6 +116,8 @@ namespace ea
 		protected:
 			/*! Instance of a random number generator. */
 			std::shared_ptr<ARandomNumberGenerator> generator;
+			/*! Functor to compare fitness values. */
+			Compare compare;
 	};
 
 	/**

@@ -135,7 +135,7 @@ float calculate_route(const GenomeBase& individual)
 		}
 	}
 
-	return f * -1;
+	return f;
 }
 
 class RouteFactory : public GenomeBaseFactory
@@ -213,7 +213,7 @@ GenomeBase* get_fittest(const GenomeBaseVector& p)
 
 	for(auto g : p)
 	{
-		if(!best || (best->fitness() <= g->fitness()))
+		if(!best || (best->fitness() >= g->fitness()))
 		{
 			best = g;
 		}
@@ -226,8 +226,8 @@ int main()
 {
 	auto g = shared_ptr<ARandomNumberGenerator>(new AnsiRandomNumberGenerator());
 
-	AGeneIndexSelection* sel0 = new TournamentSelection<AGene*>(g);
-	AGeneIndexSelection* sel1 = new DoubleTournamentSelection<AGene*>(g);
+	AGeneSelectMinimumIndex* sel0 = new TournamentSelection<AGene*, less<float> >(g);
+	AGeneSelectMinimumIndex* sel1 = new FitnessProportionalSelection<AGene*, less<float> >(g);
 
 	AGeneCrossover* crossover = new EdgeRecombinationCrossover<AGene*, AGene::hash_func, AGene::equal_to>(g);
 	AGeneMutation* mutation = new SingleSwapMutation<AGene*>(g);
@@ -257,7 +257,7 @@ int main()
 
 		// show fittest genome:
 		GenomeBase* b = get_fittest(population);
-		cout << "fittest genome: " << b->to_string() << ", " << b->fitness() * -1 << endl;
+		cout << "fittest genome: " << b->to_string() << ", " << b->fitness() << endl;
 
 		clear(selection);
 		clear(children);

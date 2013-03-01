@@ -39,20 +39,21 @@ namespace ea
 
 	/**
 	   @class FittestSelection
-	   @tparam T datatype of genes stored in the genome.
+	   @tparam T datatype of genes stored in the genome
+	   @tparam Compare functor to compare fitness values
 	   @brief Select fittest genomes of a population.
 	 */
-	template<class T>
-	class FittestSelection : public AIndexSelection<T>
+	template<class T, class Compare = std::greater<float> >
+	class FittestSelection : public AIndexSelection<T, Compare>
 	{
 		public:
-			using AIndexSelection<T>::select;
+			using AIndexSelection<T, Compare>::select;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			FittestSelection(ARandomNumberGenerator* rnd_generator)
-				: AIndexSelection<T>(rnd_generator) {}
+			FittestSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
+				: AIndexSelection<T, Compare>(rnd_generator) {}
 
 			virtual ~FittestSelection() {};
 
@@ -78,6 +79,9 @@ namespace ea
 				}
 			}
 
+		protected:
+			using AIndexSelection<T, Compare>::compare;
+
 		private:
 			struct individual
 			{
@@ -89,10 +93,11 @@ namespace ea
 			{
 				bool operator()(const struct individual& a, const struct individual& b) const
 				{
-					return a.fitness > b.fitness;
+					static Compare cmp;
+					
+					return cmp(a.fitness, b.fitness);
 				}
 			};
-
 	};
 
 	/**

@@ -24,6 +24,8 @@
 #ifndef AGENE_H
 #define AGENE_H
 
+#include <functional>
+
 #include "IEquatable.h"
 #include "ICloneable.h"
 #include "IHashfunction.h"
@@ -121,7 +123,15 @@ namespace ea
 	typedef ACrossover<AGene*> AGeneCrossover;
 
 	/*! Index selection for genomes holding instances of AGene based classes. */
-	typedef AIndexSelection<AGene*> AGeneIndexSelection;
+	template<class Compare = std::greater<float> >
+	struct AGeneIndexSelection
+	{
+		typedef AIndexSelection<AGene*, Compare> Type;
+	};
+
+	typedef AGeneIndexSelection<>::Type AGeneSelectMaximumIndex;
+
+	typedef AGeneIndexSelection<std::less<float> >::Type AGeneSelectMinimumIndex;
 
 	/*! Mutation for genomes holding instances of AGene based classes. */
 	typedef AMutation<AGene*> AGeneMutation;

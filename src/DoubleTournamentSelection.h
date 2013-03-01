@@ -40,21 +40,22 @@ namespace ea
 
 	/**
 	   @class DoubleTournamentSelection
-	   @tparam T datatype of genes stored in the genome.
+	   @tparam T datatype of genes stored in the genome
+	   @tparam Compare functor to compare fitness values
 	   @tparam Q number of enemies
 	   @brief Implementation of double-tournament selection.
 	 */
-	template<class T, uint32_t Q = 5>
-	class DoubleTournamentSelection : public AIndexSelection<T>
+	template<class T, class Compare = std::greater<float>, uint32_t Q = 5>
+	class DoubleTournamentSelection : public AIndexSelection<T, Compare>
 	{
 		public:
-			using AIndexSelection<T>::select;
+			using AIndexSelection<T, Compare>::select;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
 			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
-				: AIndexSelection<T>(rnd_generator) {}
+				: AIndexSelection<T, Compare>(rnd_generator) {}
 
 			virtual ~DoubleTournamentSelection() {};
 
@@ -74,7 +75,7 @@ namespace ea
 
 					for(j = 0; j < Q; ++j)
 					{
-						if(iter->at(i)->fitness() > iter->at(generator->get_number(0, iter->size() - 1))->fitness())
+						if(compare(iter->at(i)->fitness(), iter->at(generator->get_number(0, iter->size() - 1))->fitness()))
 						{
 							++individual.score;
 						}
@@ -92,7 +93,8 @@ namespace ea
 			}
 
 		protected:
-			using AIndexSelection<T>::generator;
+			using AIndexSelection<T, Compare>::generator;
+			using AIndexSelection<T, Compare>::compare;
 
 		private:
 			struct individual
