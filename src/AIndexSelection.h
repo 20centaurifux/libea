@@ -53,7 +53,6 @@ namespace ea
 		public:
 			/**
 			   @param rnd_generator instance of a random number generator
-			   @param problem type of the optimization problem
 			 */
 			AIndexSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 

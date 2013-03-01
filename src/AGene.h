@@ -122,15 +122,22 @@ namespace ea
 	/*! Crossover for genomes holding instances of AGene based classes. */
 	typedef ACrossover<AGene*> AGeneCrossover;
 
-	/*! Index selection for genomes holding instances of AGene based classes. */
+	/**
+	  @struct AGeneIndexSelection
+	  @tparam Compare functor to compare fitness values
+	  @brief Index selection for genomes holding instances of AGene based classes.
+	 */
 	template<class Compare = std::greater<float> >
 	struct AGeneIndexSelection
 	{
+		/*! Wrapped type. */
 		typedef AIndexSelection<AGene*, Compare> Type;
 	};
 
+	/*! Index selection for genomes holding instances of AGene based classes (minimization problems). */
 	typedef AGeneIndexSelection<>::Type AGeneSelectMaximumIndex;
 
+	/*! Index selection for genomes holding instances of AGene based classes (maximization problems). */
 	typedef AGeneIndexSelection<std::less<float> >::Type AGeneSelectMinimumIndex;
 
 	/*! Mutation for genomes holding instances of AGene based classes. */
