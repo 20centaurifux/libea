@@ -1,24 +1,23 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file SingleBitStringMutation.h
-   @brief Flipping a single bit in the genome.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Flips a single bit of a genome.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef SINGLEBITSTRINGMUTATION_H
@@ -37,19 +36,26 @@ namespace ea
 
 	/**
 	   @class SingleBitStringMutation
-	   @brief Flipping a single bit in the genome.
+	   @brief Flips a single bit of a genome.
 	 */
 	class SingleBitStringMutation : public ABinaryMutation
 	{
 		public:
+			using ABinaryMutation::mutate;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
 			SingleBitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ABinaryMutation(rnd_generator) {}
 
-			void mutate(BinaryGenome* genome)
+			/**
+			   @param genome genome to mutate
+			 
+			   Mutates a genome.
+			 */
+			void mutate(std::shared_ptr<PrimitiveGenome<bool>> genome) override
 			{
-				genome->flip(generator->get_number(0, genome->size() - 1));
+				genome->flip(this->generator->get_int32(0, genome->size() - 1));
 			}
 	};
 

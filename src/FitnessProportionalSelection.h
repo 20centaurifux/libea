@@ -1,31 +1,34 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file FitnessProportionalSelection.h
-   @brief Implementation of fitness proportional selection.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of the fitness-proportional selection.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef FITNESSPROPORTIONALSELECTION_H
 #define FITNESSPROPORTIONALSELECTION_H
 
+#include <vector>
 #include <cassert>
-#include "AIndexSelection.h"
+#include <algorithm>
+#include <functional>
+#include <cstdlib>
+#include "ASelection.h"
 
 namespace ea
 {
@@ -38,65 +41,97 @@ namespace ea
 
 	/**
 	   @class FitnessProportionalSelection
-	   @tparam T datatype of genes stored in the genome
-	   @tparam Compare functor to compare fitness values
-	   @brief Implementation of fitness proportional selection.
+	   @tparam TGenome type of the genome class
+	   @brief Implementation of fitness-proportional selection. Use this operator
+	          with positive fitness values only.
 	 */
-	template<class T, class Compare>
-	class FitnessProportionalSelection : public AIndexSelection<T, Compare>
+	template<typename TGenome>
+	class FitnessProportionalSelection : public ASelection<TGenome>
 	{
 		public:
-			using AIndexSelection<T, Compare>::select;
+			using ASelection<TGenome>::select;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
 			FitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
-				: AIndexSelection<T, Compare>(rnd_generator) {}
+				: ASelection<TGenome>(rnd_generator) {}
 
-			virtual ~FitnessProportionalSelection() {};
+			~FitnessProportionalSelection() {}
 
-			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
+		protected:
+			using ASelection<TGenome>::generator;
+
+			virtual void select_impl(IInputAdapter<std::shared_ptr<TGenome>> &input, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
-				float* sums = new float[iter->size()];
-				float max;
-				uint32_t i;
+				double* sums;
+
+				sums = new double[input.size()];
+
+				cumulate(sums, input);
+				select(input, sums, count, output);
+
+				delete[] sums;
+			}
+
+			/**
+			   @param sums an array
+			   @param input a population
+			   @param align value to add to each cumulated sum
+
+			   Fills an array with cumulated fitness values.
+			 */
+			void cumulate(double* sums, IInputAdapter<std::shared_ptr<TGenome>> &input, const double align = 0) const
+			{
+				sums[0] = input.at(0)->fitness() + align;
+
+				for(uint32_t i = 1; i < input.size(); i++)
+				{
+					sums[i] = sums[i - 1] + input.at(i)->fitness() + align;
+				}
+			}
+
+			/**
+			   @param input a population
+			   @param sums an array containing cumulated fitness values
+			   @param count number of individuals to select
+			   @param output location to write selected genomes to
+
+			   Selects genomes respecting the cumulated fitness values.
+			 */
+			void select(IInputAdapter<std::shared_ptr<TGenome>> &input, const double* sums, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) const
+			{
+				double* numbers;
+				double max;
 				uint32_t range[2];
 
-				sums[0] = iter->current()->fitness();
+				max = sums[input.size() - 1];
+				assert(max > 0);
 
-				for(i = 1; i < iter->size(); ++i)
-				{
-					sums[i] = sums[i - 1] + iter->current()->fitness();
-				}
+				numbers = new double[count];
 
-				max = sums[iter->size() - 1];
-				assert(max != 0);
+				generator->get_double_seq(0, max, numbers, count);
 
-				while(selection.size() != count)
+				for(uint32_t i = 0; i < count; i++)
 				{
 					range[0] = 0;
-					range[1] = iter->size() - 1;
+					range[1] = input.size() - 1;
 
-					if(max > 0)
-					{
-						selection.push_back(find_index(sums, range, (uint32_t)generator->get_number(0, max)));
-					}
-					else
-					{
-						selection.push_back(find_index(sums, range, (uint32_t)generator->get_number(max, 0)));
-					}
+					output.append(input.at(find(sums, range, numbers[i])));
 				}
 
-				delete sums;
+				delete[] numbers;
 			}
-			
-		protected:
-			using AIndexSelection<T, Compare>::generator;
-			using AIndexSelection<T, Compare>::compare;
 
-		private:
-			uint32_t find_index(const float* sums, uint32_t range[2], const uint32_t n) const
+			/**
+			   @param sums array containing cumulated fitness values
+			   @param range range of the search
+			   @param n value to search
+			   @return index of the found value
+
+			   Searches for a value in the cumulated fitness value array.
+			 */
+			uint32_t find(const double* sums, uint32_t range[2], const double n) const
 			{
 				uint32_t mid;
 
@@ -119,8 +154,144 @@ namespace ea
 	};
 
 	/**
-		   @}
-	   @}
+	   @class AlignedFitnessProportionalSelection
+	   @tparam TGenome type of the genome class
+	   @brief Implementation of fitness-proportional selection. This operator aligns
+	          fitness values and can be used with positive and negative numbers.
 	 */
+	template<typename TGenome>
+	class AlignedFitnessProportionalSelection : public FitnessProportionalSelection<TGenome>
+	{
+		public:
+			using FitnessProportionalSelection<TGenome>::select;
+
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
+			AlignedFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
+				: FitnessProportionalSelection<TGenome>(rnd_generator) {}
+
+			~AlignedFitnessProportionalSelection() {}
+
+		protected:
+			void select_impl(IInputAdapter<std::shared_ptr<TGenome>> &input, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
+			{
+				double s;
+				double* sums;
+				double align = 0.0;
+
+				if((s = smallest(input)) < 0)
+				{
+					align = abs(s) * 2;
+				}
+
+				sums = new double[input.size()];
+
+				this->cumulate(sums, input, align);
+				this->select(input, sums, count, output);
+
+				delete[] sums;
+			}
+
+		private:
+			double smallest(IInputAdapter<std::shared_ptr<TGenome>> &input)
+			{
+				double min;
+
+				input.first();
+				min = input.current()->fitness();
+				input.next();
+
+				while(!input.end())
+				{
+					if(input.current()->fitness() < min)
+					{
+						min = input.current()->fitness();
+					}
+
+					input.next();
+				}
+
+				return min;
+			}
+	};
+
+	/**
+	   @class MinimizingFitnessProportionalSelection
+	   @tparam TGenome type of the genome class
+	   @brief Implementation of fitness-proportional selection for minimization
+	          problems. This operator can be used with positive and negative
+	          numbers.
+	 */
+	template<typename TGenome>
+	class MinimizingFitnessProportionalSelection : public FitnessProportionalSelection<TGenome>
+	{
+		public:
+			using FitnessProportionalSelection<TGenome>::select;
+
+			/**
+			   @param rnd_generator instance of a random number generator
+			 */
+			MinimizingFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
+				: FitnessProportionalSelection<TGenome>(rnd_generator) {}
+
+			~MinimizingFitnessProportionalSelection() {}
+
+		protected:
+			using ASelection<TGenome>::generator;
+
+			void select_impl(IInputAdapter<std::shared_ptr<TGenome>> &input, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
+			{
+				std::vector<std::shared_ptr<TGenome>> ordered;
+				double* sums;
+				uint32_t i = 1;
+				double align = 0.0;
+				double* numbers;
+				uint32_t range[2];
+				uint32_t index;
+
+				// sort genomes by fitness value:
+				while(!input.end())
+				{
+					ordered.push_back(input.current());
+					input.next();
+				}
+
+				std::sort(begin(ordered), end(ordered),
+				          [](const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b) { return a->fitness() > b->fitness(); });
+
+				// cumulate (aligned) fitness values:
+				sums = new double[input.size()];
+				sums[0] = ordered[0]->fitness();
+
+				if(sums[0] < 0)
+				{
+					align = abs(sums[0]) * 2;
+					sums[0] += align;
+				}
+
+				for(auto iter = begin(ordered) + 1; iter < end(ordered); iter++, i++)
+				{
+					sums[i] = sums[i - 1] + (*iter)->fitness() + align;
+				}
+
+				// select genomes:
+				numbers = new double[count];
+				generator->get_double_seq(0, sums[ordered.size() - 1], numbers, count);
+
+				for(i = 0; i < count; i++)
+				{
+					range[0] = 0;
+					range[1] = ordered.size() - 1;
+
+
+					index = this->find(sums, range, numbers[i]);
+					output.append(ordered.at(ordered.size() - 1 - index));
+				}
+
+				delete[] numbers;
+				delete[] sums;
+			}
+	};
 }
 #endif

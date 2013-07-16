@@ -1,23 +1,23 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file SDBMHash.h
    @brief SDBM hash algorithm.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
  */
 
@@ -49,7 +49,7 @@ namespace ea
 
 			inline void append(const char* buffer, const size_t size)
 			{
-				for(uint32_t i = 0; i < size; ++i)
+				for(uint32_t i = 0; i < size; i++)
 				{
 					_hash = buffer[i] + (_hash << 6) + (_hash << 16) - _hash;
 				}

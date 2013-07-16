@@ -1,35 +1,32 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file ACrossover.h
    @brief Crossover operator base class.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef ACROSSOVER_H
 #define ACROSSOVER_H
 
-#include <vector>
 #include <memory>
-
-#include "VectorAdapter.h"
-#include "ACrossover.h"
+#include <vector>
 #include "ARandomNumberGenerator.h"
+#include "OutputAdapter.h"
 
 namespace ea
 {
@@ -42,10 +39,10 @@ namespace ea
 
 	/**
 	   @class ACrossover
-	   @tparam T Datatype of genes stored in the Genome.
-	   @brief Abstract base class for all crossover operators.
+	   @tparam TGenome type of the genome class
+	   @brief Abstract base class for crossover operators.
 	 */
-	template<class T>
+	template<typename TGenome> 
 	class ACrossover
 	{
 		public:
@@ -54,78 +51,66 @@ namespace ea
 			 */
 			ACrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : generator(rnd_generator) {}
 
-			virtual ~ACrossover() {};
+			~ACrossover() {}
 
 			/**
 			   @param a a genome
 			   @param b a genome
-			   @param inserter an inserter to append generated children
+			   @param container a container used to store the generated genomes
+			   @tparam TOutputContainer type of the specified container
 			   @return number of generated children
 			   
-			   Combine two genomes.
+			   Combines two genomes.
 			 */
-			virtual uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter) = 0;
-
-			/**
-			   @param a a genome
-			   @param b a genome
-			   @param children vector to store generated children
-			   @tparam Vector type of the children vector
-			   @return number of generated children
-			   
-			   Combine two genomes.
-			 */
-			template<class Vector>
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, Vector& children)
+			template<typename TOutputContainer>
+			uint32_t crossover(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, TOutputContainer &container)
 			{
-				IInserter<AGenome<T>*>* adapter = new VectorAdapter<Vector, AGenome<T>*>(children);
-				uint32_t result;
+				auto adapter =  make_output_adapter<std::shared_ptr<TGenome>>(container);
 
-				result = crossover(a, b, adapter);
-
-				delete adapter;
-
-				return result;
+				return crossover_impl(a, b, adapter);
 			}
 
 			/**
-			   @param begin begin of a population
-			   @param end end of a population
-			   @param children vector to store generated children
-			   @tparam Iterator type of the iterator
-			   @tparam Vector type of the children vector
+			   @param begin begin of a range
+			   @param end end of a range
+			   @param container a container used to store the generated genomes
+			   @tparam TIterator iterator type
+			   @tparam TOutputContainer type of the specified container
 			   @return number of generated children
 			   
-			   Combine two genomes.
+			   Combines multiple genomes.
 			 */
-			template<class Iterator, class Vector>
-			uint32_t multi_crossover(const Iterator& begin, const Iterator& end, Vector& children)
+			template<typename TIterator, typename TOutputContainer>
+			uint32_t crossover(const TIterator &begin, const TIterator &end, TOutputContainer &container)
 			{
-				IInserter<AGenome<T>*>* adapter = new VectorAdapter<Vector, AGenome<T>*>(children);
+				auto adapter =  make_output_adapter<std::shared_ptr<TGenome>>(container);
 				uint32_t size = end - begin;
 				uint32_t result = 0;
 
-				for(uint32_t i = 0; i < size - 1; ++i)
+				for(uint32_t i = 0; i < size - 1; i++)
 				{
-					for(uint32_t j = i + 1; j < size; ++j)
+					for(uint32_t j = i + 1; j < size; j++)
 					{
-						result += crossover(*(begin + i), *(begin + j), adapter);
+						result += crossover_impl(*(begin + i), *(begin + j), adapter);
 					}
 				}
-
-				delete adapter;
 
 				return result;
 			}
 
 		protected:
-			/*! Instance of a random number generator. */
+			/*! A random number generator. */
 			std::shared_ptr<ARandomNumberGenerator> generator;
-	};
 
-	/**
-		   @}
-	   @}
-	 */
+			/**
+			   @param a a genome
+			   @param b a genome
+			   @param output an adapter wrapping a container used to store the generated genomes
+			   @return number of generated children
+			   
+			   Combines two genomes.
+			 */
+			virtual uint32_t crossover_impl(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, IOutputAdapter<std::shared_ptr<TGenome>> &output) = 0;
+	};
 }
 #endif

@@ -1,31 +1,32 @@
 /***************************************************************************
-    begin........: December 2012
+    begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file CycleCrossover.h
-   @brief Implementation of cycle crossover operator.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of the cycle crossover operator.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef CYCLECROSSOVER_H
 #define CYCLECROSSOVER_H
 
+#include <cassert>
+#include <vector>
+#include <map>
 #include <algorithm>
-#include <functional>
 #include "ACrossover.h"
 
 namespace ea
@@ -39,67 +40,79 @@ namespace ea
 
 	/**
 	   @class CycleCrossover
-	   @tparam T Datatype of genes stored in the Genome.
-	   @tparam E Optional functor to compare genes.
-	   @brief Implementation of the cycle crossover operator.
+	   @tparam TGenome type of the genome class
+	   @tparam LessThan optional functor to test if a gene is smaller than another one
+	   @brief Implementation of the uniform crossover operator.
 	 */
-	template<class T, class Equals = std::equal_to<T> >
-	class CycleCrossover : public ACrossover<T>
+	template<typename TGenome, typename LessThan = std::less<typename TGenome::value_type>>
+	class CycleCrossover : public ACrossover<TGenome>
 	{
 		public:
-			using ACrossover<T>::crossover;
+			using ACrossover<TGenome>::crossover;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			CycleCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
-
+			CycleCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<TGenome>(rnd_generator) {}
 			virtual ~CycleCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
+		protected:
+			uint32_t crossover_impl(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
-				uint32_t index = 0;
-				uint32_t offset = 1;
-				T gene;
-				std::vector<T> *cycle;
-				int32_t count = 1;
+				std::vector<T>* cycle;
 				std::vector<std::vector<T>*> cycles;
+				uint32_t index = 0;
+				T gene;
+				uint32_t count = 1;
+				uint32_t offset = 1;
+				std::shared_ptr<TGenome> child0;
+				std::shared_ptr<TGenome> child1;
+				std::map<T, bool, LessThan> assigned;
 				bool flag = true;
-				AGenome<T>* child1;
-				AGenome<T>* child2;
+
+				assert(a->size() >= 2);
+				assert(a->size() == b->size());
+
+				// initialize map to mark genes assigned:
+				for(uint32_t i = 0; i < a->size(); i++)
+				{
+					assigned[a->at(i)] = false;
+				}
 
 				// create initial cycle:
-				cycles.push_back((cycle = new std::vector<T>()));
+				cycle = new std::vector<T>();
+				cycles.push_back(cycle);
 
-				// insert first gene of individual "a" into initial cycle:
+				// insert first gene of the first individual into the initial cycle:
 				cycle->push_back(a->at(0));
+				assigned[a->at(0)] = true;
 
 				// find next gene:
 				next_gene(a, b, index, gene);
 
 				// check if we have inserted all exisiting genes:
-				while(count != (int32_t)a->size())
+				while(count != a->size())
 				{
 					// has current gene already been assigned?
-					while(!gene_assigned(cycles, gene))
+					while(!assigned[gene])
 					{
 						// insert current gene into current cycle & update counter:
-						cycle->push_back(gene);
-						count++;
+						cycle->push_back(gene), count++;
+						assigned[gene] = true;
 
 						// find next gene:
 						next_gene(a, b, index, gene);
 					}
 
 					// check if we have inserted all exisiting genes:
-					if(count != (int32_t)a->size())
+					if(count != a->size())
 					{
 						// find next unassigned gene:
-						while(offset < a->size() - 1 && gene_assigned(cycles, a->at(offset)))
+						while(offset < a->size() - 1 && assigned[a->at(offset)])
 						{
 							offset++;
 						}
-			
+
 						gene = a->at((index = offset++));
 
 						// create new cycle:
@@ -108,59 +121,60 @@ namespace ea
 				}
 
 				// create children:
-				child1 = a->instance();
-				child2 = a->instance();
+				child0 = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
+				child1 = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
 
-				for(auto iter = cycles.begin(); iter != cycles.end(); ++iter)
+				for(auto iter = cycles.begin(); iter != cycles.end(); iter++)
 				{
 					for(uint32_t m = 0; m < a->size(); m++)
 					{
 						if(contains(*iter, a->at(m)))
 						{
-							(flag ? child1 : child2)->copy_to(m, a->at(m));
+							(flag ? child0 : child1)->copy_to(m, a->at(m));
 						}
 
 						if(contains(*iter, b->at(m)))
 						{
-							(flag ? child2 : child1)->copy_to(m, b->at(m));
+							(flag ? child1 : child0)->copy_to(m, b->at(m));
 						}
 					}
 
 					flag = !flag;
 				}
 
-				inserter->insert(child1);
-				inserter->insert(child2);
+				output.append(child0);
+				output.append(child1);
 
 				// free memory:
-				std::for_each(cycles.begin(), cycles.end(), [] (std::vector<T>* cycle) { delete cycle; });
+				std::for_each(cycles.begin(), cycles.end(), [](std::vector<T>* cycle) { delete cycle; });
 
 				return 2;
 			}
 
-		private:
-			Equals _equals;
+		protected:
+			using ACrossover<TGenome>::generator;
 
-			inline bool next_gene(const AGenome<T> *a, const AGenome<T> *b, uint32_t& index, T& gene)
+		private:
+			/// @cond INTERNAL
+			typedef typename TGenome::value_type T;
+
+			struct
 			{
-				if(a->find(b->at(index), index))
+				LessThan _lessthan;
+
+				bool operator()(const T &a, const T &b)
+				{
+					return !_lessthan(a, b) && !_lessthan(b, a);
+				}
+			} _equals;
+
+			inline bool next_gene(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, uint32_t &index, T &gene)
+			{
+				if(a->index_of(b->at(index), index))
 				{
 					gene = a->at(index);
+
 					return true;
-				}
-
-				return false;
-			}
-
-			bool gene_assigned(std::vector<std::vector<T>*> cycles, const T gene)
-			{
-				// search for given gene in all cycles:
-				for(auto cycle = cycles.begin(); cycle != cycles.end(); ++cycle)
-				{
-					if(contains(*cycle, gene))
-					{
-						return true;
-					}
 				}
 
 				return false;
@@ -170,6 +184,7 @@ namespace ea
 			{
 				return std::search_n(cycle->begin(), cycle->end(), 1, gene, _equals) != cycle->end();
 			}
+			/// @endcond
 	};
 
 	/**

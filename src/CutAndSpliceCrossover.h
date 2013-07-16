@@ -1,31 +1,30 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file CutAndSpliceCrossover.h
-   @brief Implementation of cut and splice crossover operator.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of the cut-and-splice crossover operator.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef CUTANDSPLICECROSSOVER_H
 #define CUTANDSPLICECROSSOVER_H
 
+#include <cassert>
 #include "ACrossover.h"
-#include "ARandomNumberGenerator.h"
 
 namespace ea
 {
@@ -38,40 +37,39 @@ namespace ea
 
 	/**
 	   @class CutAndSpliceCrossover
-	   @tparam T Datatype of genes stored in the Genome.
-	   @brief Implementation of the cut and splice crossover operator.
+	   @tparam TGenome type of the genome class
+	   @brief Implementation of the cut-and-splice crossover operator.
 	 */
-	template<class T>
-	class CutAndSpliceCrossover : public ACrossover<T>
+	template<typename TGenome>
+	class CutAndSpliceCrossover : public ACrossover<TGenome>
 	{
 		public:
-			using ACrossover<T>::crossover;
+			using ACrossover<TGenome>::crossover;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			CutAndSpliceCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
+			CutAndSpliceCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<TGenome>(rnd_generator) {}
 
 			virtual ~CutAndSpliceCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
+		protected:
+			uint32_t crossover_impl(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
 				uint32_t separator1;
 				uint32_t separator2;
-				AGenome<T> *individual;
+				std::shared_ptr<TGenome> individual;
 				uint32_t i;
 				uint32_t m;
 
-				assert(a != NULL);
 				assert(a->size() > 1);
-				assert(b != NULL);
 				assert(b->size() > 1);
 
-				m = separator1 = (uint32_t)generator->get_number(1, a->size() - 2);
-				separator2 = (uint32_t)generator->get_number(1, a->size() - 2);
+				m = separator1 = (uint32_t)generator->get_int32(1, a->size() - 2);
+				separator2 = (uint32_t)generator->get_int32(1, a->size() - 2);
 
 				// create first individual:
-				individual = a->instance(separator1 + b->size() - separator2);
+				individual = std::make_shared<TGenome>(separator1 + b->size() - separator2, a->get_fitness_func());
 
 				for(i = 0; i < separator1; ++i)
 				{
@@ -83,10 +81,10 @@ namespace ea
 					individual->copy_to(m++, b->at(i));
 				}
 
-				inserter->insert(individual);
+				output.append(individual);
 
 				// create second individual:
-				individual = a->instance(separator2 + a->size() - separator1);
+				individual = std::make_shared<TGenome>(separator2 + a->size() - separator1, a->get_fitness_func());
 
 				for(i = 0; i < separator2; ++i)
 				{
@@ -100,13 +98,13 @@ namespace ea
 					individual->copy_to(m++, a->at(i));
 				}
 
-				inserter->insert(individual);
+				output.append(individual);
 
 				return 2;
 			}
 
 		protected:
-			using ACrossover<T>::generator;
+			using ACrossover<TGenome>::generator;
 	};
 
 	/**

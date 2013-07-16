@@ -1,32 +1,32 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file FittestSelection.h
-   @brief Select fittest genomes of a population.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Selects fittest genomes of a population.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef FITTESTSELECTION_H
 #define FITTESTSELECTION_H
 
+#include <functional>
 #include <set>
-
-#include "AIndexSelection.h"
+#include <cassert>
+#include "ASelection.h"
 
 namespace ea
 {
@@ -39,70 +39,65 @@ namespace ea
 
 	/**
 	   @class FittestSelection
-	   @tparam T datatype of genes stored in the genome
-	   @tparam Compare functor to compare fitness values
-	   @brief Select fittest genomes of a population.
+	   @tparam TGenome type of the genome class
+	   @tparam Compare a compare function 
+	   @brief Selects the fittest genomes of a population.
 	 */
-	template<class T, class Compare = std::greater<float> >
-	class FittestSelection : public AIndexSelection<T, Compare>
+	template<typename TGenome, typename Compare = std::greater<double>>
+	class FittestSelection : public ASelection<TGenome>
 	{
 		public:
-			using AIndexSelection<T, Compare>::select;
-
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
 			FittestSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
-				: AIndexSelection<T, Compare>(rnd_generator) {}
+				: ASelection<TGenome>(rnd_generator) {}
 
-			virtual ~FittestSelection() {};
+			~FittestSelection() {}
 
-			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
+		protected:
+			void select_impl(IInputAdapter<std::shared_ptr<TGenome>> &input, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
-				std::multiset<struct individual, compare_individuals> individuals;
-				struct individual individual;
+				std::multiset<Individual, CompareIndividuals> individuals;
+				Individual individual;
 				uint32_t index = 0;
 
-				while(!iter->end())
+				assert(count <= input.size());
+
+				while(!input.end())
 				{
 					individual.index = index++;
-					individual.fitness = iter->current()->fitness();
+					individual.fitness = input.current()->fitness();
 					individuals.insert(individual);
-					iter->next();
+					input.next();
 				}
 
 				auto it = individuals.begin();
 
-				for(uint32_t i = 0; i < count; ++i, ++it)
+				for(uint32_t i = 0; i < count; i++, it++)
 				{
-					selection.push_back(it->index);
+					output.append(input.at(it->index));
 				}
 			}
 
-		protected:
-			using AIndexSelection<T, Compare>::compare;
-
 		private:
-			struct individual
+			/// @cond INTERNAL
+			typedef struct
 			{
 				uint32_t index;
-				float fitness;
-			};
+				double fitness;
+			} Individual;
 
-			struct compare_individuals
+			typedef struct
 			{
-				bool operator()(const struct individual& a, const struct individual& b) const
+				bool operator()(const Individual& a, const Individual& b) const
 				{
 					static Compare cmp;
-					
+
 					return cmp(a.fitness, b.fitness);
 				}
-			};
+			} CompareIndividuals;
+			/// @endcond
 	};
-
-	/**
-		   @}
-	   @}
-	 */
 }
 #endif

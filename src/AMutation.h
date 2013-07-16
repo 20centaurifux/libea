@@ -1,31 +1,30 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file AMutation.h
    @brief Base class for mutation operators.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef AMUTATION_H
 #define AMUTATION_H
 
 #include <memory>
-
+#include <cassert>
 #include "AGenome.h"
 #include "ARandomNumberGenerator.h"
 
@@ -40,10 +39,10 @@ namespace ea
 
 	/**
 	   @class AMutation
-	   @tparam T Datatype of genes stored in the Genome.
-	   @brief Abstract base class for all mutation operators.
+	   @tparam TGenome type of the genome class
+	   @brief Abstract base class for mutation operators.
 	 */
-	template<class T>
+	template<class TGenome>
 	class AMutation
 	{
 		public:
@@ -54,31 +53,56 @@ namespace ea
 
 			virtual ~AMutation() {};
 
+
 			/**
 			   @param genome genome to mutate
-
+			 
 			   Mutates a genome.
 			 */
-			virtual void mutate(AGenome<T>* genome) = 0;
+			virtual void mutate(std::shared_ptr<TGenome> genome) = 0;
 
 			/**
-			   @param begin begin of a range of genomes
-			   @param end end of a range of genomes
-			   @param rate mutation probability
-			   @tparam Iterator iterator type
-			   
-			   Mutates genomes of a population with the given probability.
+			   @param src genome to copy genes from
+			   @param dst genome to copy genes to & mutate
+
+			   Creates a copy of a genome & mutates it.
 			 */
-			template<class Iterator>
-			void multi_mutate(const Iterator& begin, const Iterator& end, uint32_t rate = 5)
+			void mutate(const std::shared_ptr<TGenome> src, std::shared_ptr<TGenome> dst)
 			{
-				for(Iterator iter = begin; iter != end; ++iter)
+				copy(src, dst);
+				mutate(dst);
+			}
+
+			/**
+			   @param begin begin of a range
+			   @param end end of a range
+			   @param prohability that an individual will be mutated
+			   @tparam TIterator iterator type
+			   @return number of generated children
+			   
+			   Mutates multiple genomes.
+			 */
+			template<typename TIterator>
+			void mutate(const TIterator &begin, const TIterator &end, const double prohability = 0.1)
+			{
+				TIterator iter;
+				uint32_t index = 0;
+				uint32_t size;
+				double* numbers;
+
+				size = end - begin;
+				numbers = new double[size];
+				generator->get_double_seq(0, 1, numbers, size);
+
+				for(iter = begin; iter != end; iter++, index++)
 				{
-					if(!generator->get_number(0, rate))
+					if(numbers[index] >= prohability)
 					{
 						mutate(*iter);
 					}
 				}
+
+				delete[] numbers;
 			}
 
 		protected:

@@ -1,30 +1,29 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file OrderedCrossover.h
-   @brief Implementation of ordered crossover operator.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of the ordered crossover operator.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef ORDEREDCROSSOVER_H
 #define ORDEREDCROSSOVER_H
 
-#include <functional>
+#include <cassert>
 #include "ACrossover.h"
 
 namespace ea
@@ -38,32 +37,34 @@ namespace ea
 
 	/**
 	   @class OrderedCrossover
-	   @tparam T Datatype of genes stored in the Genome.
-	   @brief Implementation of the one-point crossover operator.
+	   @tparam TGenome type of the genome class
+	   @tparam Equals optional functor to compare genes
+	   @brief Implementation of the ordered crossover operator.
 	 */
-	template<class T, class Equals = std::equal_to<T> >
-	class OrderedCrossover : public ACrossover<T>
+	template<typename TGenome,  typename LessThan = std::less<typename TGenome::value_type>>
+	class OrderedCrossover : public ACrossover<TGenome>
 	{
 		public:
-			using ACrossover<T>::crossover;
+			using ACrossover<TGenome>::crossover;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			OrderedCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
+			OrderedCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<TGenome>(rnd_generator) {}
 
-			~OrderedCrossover() {};
+			virtual ~OrderedCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
+		protected:
+			uint32_t crossover_impl(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
 				uint32_t separator;
 				uint32_t i;
 				uint32_t m = 0;
-				AGenome<T> *individual;
+				std::shared_ptr<TGenome> individual;
 
-				separator = (uint32_t)generator->get_number(1, a->size() - 2);
+				separator = (uint32_t)generator->get_int32(1, a->size() - 2);
 
-				individual = a->instance();
+				individual = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
 
 				for(i = 0; i < separator; ++i)
 				{
@@ -74,7 +75,7 @@ namespace ea
 				{
 					while(gene_exists(b->at(m), individual, i))
 					{
-						++m;
+						m++;
 					}
 
 					assert(m < b->size());
@@ -82,22 +83,24 @@ namespace ea
 					individual->copy_to(i, b->at(m));
 				}
 
-				inserter->insert(individual);
+				output.append(individual);
 
 				return 1;
 			}
 
 		protected:
-			using ACrossover<T>::generator;
+			using ACrossover<TGenome>::generator;
 
 		private:
-			Equals equals;
+			typedef typename TGenome::value_type T;
 
-			inline bool gene_exists(T gene, AGenome<T>* individual, const uint32_t len)
+			LessThan less_than;
+
+			inline bool gene_exists(const T gene, const std::shared_ptr<TGenome> &individual, const uint32_t len)
 			{
 				for(uint32_t i = 0; i < len; ++i)
 				{
-					if(equals(gene, individual->at(i)))
+					if(!less_than(gene, individual->at(i)) && !less_than(individual->at(i), gene))
 					{
 						return true;
 					}

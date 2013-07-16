@@ -1,37 +1,37 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file ARandomNumberGenerator.cpp
    @brief Base class for random number generators.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #include <assert.h>
+#include <cmath>
 #include "ARandomNumberGenerator.h"
 
 using namespace std;
 
 namespace ea
 {
-	int32_t ARandomNumberGenerator::get_number(const int32_t min, const int32_t max)
+	int32_t ARandomNumberGenerator::get_int32(const int32_t min, const int32_t max)
 	{
 		uint32_t range = max - min + 1;
-		uint32_t scale = (get_max() + 1u) / range;
+		uint32_t scale = (get_max_int32() + 1u) / range;
 		uint32_t limit = scale * range;
 		uint32_t rnd;
 		int32_t result;
@@ -40,63 +40,44 @@ namespace ea
 
 		do
 		{
-			rnd = abs(random());
+			rnd = abs(get_int32());
 		} while(rnd >= limit);
 
 		result = (int32_t)rnd / scale + min;
-
 		assert(result >= min && result <= max);
 
 		return result;
 	}
 
-	void ARandomNumberGenerator::get_numbers(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length)
+	double ARandomNumberGenerator::get_double(const double min, const double max)
 	{
-		assert(min < max);
-		assert(numbers != NULL);
-		assert(length > 0);
+		double rnd_max = get_max_double() + 1.0;
+		double range = max - min;
+		double result;
 
-		for(int32_t i = 0; i < length; ++i)
-		{
-			numbers[i] = get_number(min, max);
-		}
+		result = abs(get_double()) / rnd_max * range + min;
+		assert(result >= min && result <= max);
+
+		return result;
 	}
 
-	void ARandomNumberGenerator::get_unique_numbers(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length)
+	void ARandomNumberGenerator::get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length)
 	{
-		int32_t count = 0;
-		int32_t i;
-		int32_t rnd;
-		bool found;
+		get_seq<int32_t, int32_t (ARandomNumberGenerator::*)(const int32_t, const int32_t)>(min, max, numbers, length, &ARandomNumberGenerator::get_int32);
+	}
 
-		assert(min < max);
-		assert(numbers != NULL);
-		assert(length > 0);
-		assert(length - 1 <= max - min);
+	void ARandomNumberGenerator::get_double_seq(const double min, const double max, double* numbers, const int32_t length)
+	{
+		get_seq<double, double (ARandomNumberGenerator::*)(const double, const double)>(min, max, numbers, length, &ARandomNumberGenerator::get_double);
+	}
 
-		// test if we've found enough numbers:
-		while(count != length)
-		{
-			// get next number:
-			rnd = get_number(min, max);
+	void ARandomNumberGenerator::get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length)
+	{
+		get_unique_seq<int32_t, int32_t (ARandomNumberGenerator::*)(const int32_t, const int32_t)>(min, max, numbers, length, &ARandomNumberGenerator::get_int32);
+	}
 
-			// test if number is already stored in array:
-			found = false;
-
-			for(i = 0; i < count; ++i)
-			{
-				if(numbers[i] == rnd)
-				{
-					found = true;
-					break;
-				}
-			}
-
-			if(!found)
-			{
-				// and random number to array:
-				numbers[count++] = rnd;
-			}
-		}
+	void ARandomNumberGenerator::get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length)
+	{
+		get_unique_seq<double, double (ARandomNumberGenerator::*)(const double, const double)>(min, max, numbers, length, &ARandomNumberGenerator::get_double);
 	}
 }

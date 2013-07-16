@@ -1,32 +1,30 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /*!
  * \file AFactory.h
  * \brief Factories are used to create random instances of objects.
- * \author Sebastian Fedrau <lord-kefir@arcor.de>
- * \version 0.1.0
+ * \author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef AFACTORY_H
 #define AFACTORY_H
 
 #include <memory>
-#include<vector>
-
+#include "OutputAdapter.h"
 #include "ARandomNumberGenerator.h"
 
 namespace ea
@@ -39,7 +37,7 @@ namespace ea
 
 	/**
 	   @class AFactory
-	   @tparam T Datatype of objects the factory creates.
+	   @tparam T datatype of objects created by the factory
 	   @brief Abstract base class for factories. Factories create random instances of objects.
 	 */
 	template<class T>
@@ -55,15 +53,28 @@ namespace ea
 
 			/**
 			   @param count number of instances that should be created
-			   @return a vector holding generated objects
+			   @param container container to write generated objects to
+			   @tparam TContainer type of the specified container
 
-			   Create new objects.
+			   Creates random objects.
 			 */
-			virtual std::vector<T> random(const uint32_t count) = 0;
+			template<typename TContainer>
+			void random(const uint32_t count, TContainer &container)
+			{
+				auto adapter = make_output_adapter<typename TContainer::value_type>(container);
+
+				random_impl(count, adapter);
+			}
 
 		protected:
 			/*! A random number generator. */
 			std::shared_ptr<ARandomNumberGenerator> generator;
+
+			/**
+			   @param count number of objects to create
+			   @param output destination to write created objects to
+			 */
+			virtual void random_impl(const uint32_t count, IOutputAdapter<T> &output) = 0;
 	};
 
 	/**

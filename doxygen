@@ -6,9 +6,9 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "libea Project"
 PROJECT_NUMBER         =
-PROJECT_BRIEF          = "Simple template based library for evolutionary algorithms."
+PROJECT_BRIEF          = "Simple template based C++ library for evolutionary algorithms."
 PROJECT_LOGO           =
-OUTPUT_DIRECTORY       = ./docs
+OUTPUT_DIRECTORY       = ./doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
 BRIEF_MEMBER_DESC      = YES
@@ -43,8 +43,7 @@ DISTRIBUTE_GROUP_DOC   = NO
 SUBGROUPING            = YES
 INLINE_GROUPED_CLASSES = NO
 INLINE_SIMPLE_STRUCTS  = NO
-TYPEDEF_HIDES_STRUCT   = NO
-SYMBOL_CACHE_SIZE      = 0
+TYPEDEF_HIDES_STRUCT   = YES
 LOOKUP_CACHE_SIZE      = 0
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -171,7 +170,7 @@ QHG_LOCATION           =
 GENERATE_ECLIPSEHELP   = NO
 ECLIPSE_DOC_ID         = org.doxygen.Project
 DISABLE_INDEX          = NO
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 ENUM_VALUES_PER_LINE   = 4
 TREEVIEW_WIDTH         = 250
 EXT_LINKS_IN_WINDOW    = NO

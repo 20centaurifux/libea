@@ -1,39 +1,30 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file AGene.h
    @brief Base class used for gene implementations.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
  */
 
 #ifndef AGENE_H
 #define AGENE_H
 
-#include <functional>
-
-#include "IEquatable.h"
-#include "ICloneable.h"
-#include "IHashfunction.h"
 #include "Observable.h"
-#include "IToString.h"
-#include "ACrossover.h"
-#include "AIndexSelection.h"
-#include "AMutation.h"
 
 namespace ea
 {
@@ -42,12 +33,11 @@ namespace ea
 	   @{
 	 */
 
-	class AGene;
-
 	/**
 	   @class AGeneListener
 	   @brief Abstract base class for classes notified when an AGene has been modified.
 	  */
+	template<typename TGene>
 	class AGeneListener
 	{
 		public:
@@ -58,90 +48,79 @@ namespace ea
 
 			   Called then a gene has been modified.
 			 */
-			virtual void modified(const AGene* gene) = 0;
+			virtual void gene_modified(TGene* gene) = 0;
 	};
 
 	/**
 	   @class AGene
 	   @brief Abstract base class for equatable, cloneable, hashable and observable genes.
 	 */
-	class AGene : public IEquatable<AGene>, public ICloneable<AGene>, public IHashfunction, public Observable<AGeneListener*>, public IToString
+	template<typename TDerived>
+	class AGene : public Observable<AGeneListener<TDerived>*>
 	{
 		public:
 			/**
-			   @struct equal_to
-			   @brief Functor to compare two instances inherited from ABase.
+			   @struct LessThan
+			   @brief A functor for comparing genes.
 			 */
-			struct equal_to
+			typedef struct
 			{
 				/**
-				   @param a a gene
-				   @param b a gene
-				   @return true of gene a and b are equal
-
-				   Compares two genes.
+				    @param a a gene
+				    @param b a gene
+				    @return true if gene a is smaller than gene b
+				  
+				    Compares two genes.
 				 */
-				bool operator()(AGene* a, AGene* b) const
+				bool operator()(TDerived* a, TDerived* b)
 				{
-					return a->equals(b);
+					return a->less_than(b);
 				}
-			};
 
-			/**
-			   @struct hash_func
-			   @brief Functor to calculate hash of a gene inherited from ABase.
-			 */
-			struct hash_func
-			{
-				/**
-				   @param gene a gene
-				   @return hash value
-
-				   Returns the hash value of a gene.
-				 */
-				size_t operator()(AGene* gene) const
-				{
-					return gene->hash();
-				}
-			};
+			} LessThan;
 
 			virtual ~AGene() {}
+
+			/**
+			    @return hash of the gene
+			  
+			    Returns the hash of the gene.
+			 */
+			virtual size_t hash() = 0;
+
+			/**
+			    @param gene a gene to compare with instance
+			    @return true if the instance is smaller than the given gene
+			  
+			    Compares two genes.
+			 */
+			virtual bool less_than(TDerived* gene) = 0;
+
+			/**
+			    @return a new gene instance
+			  
+			    Clones the instance.
+			 */
+			virtual TDerived* clone() const = 0;
+
+			/**
+			    @return a string representing the gene
+			  
+			    Returns a gene representing the gene.
+			 */
+			virtual std::string to_string() const = 0;
 
 		protected:
 			/**
 			   Notify listeners that gene has been modified.
 			 */
-			void notifiy()
+			void modified()
 			{
-				AGene* gene = this;
+				TDerived* gene = dynamic_cast<TDerived*>(this);
 
-				for_each([&gene] (AGeneListener* l) { l->modified(gene); });
+				this->for_each([&gene] (AGeneListener<TDerived>* l) { l->gene_modified(gene); });
 			}
 	};
-
-	/*! Crossover for genomes holding instances of AGene based classes. */
-	typedef ACrossover<AGene*> AGeneCrossover;
-
-	/**
-	  @struct AGeneIndexSelection
-	  @tparam Compare functor to compare fitness values
-	  @brief Index selection for genomes holding instances of AGene based classes.
-	 */
-	template<class Compare = std::greater<float> >
-	struct AGeneIndexSelection
-	{
-		/*! Wrapped type. */
-		typedef AIndexSelection<AGene*, Compare> Type;
-	};
-
-	/*! Index selection for genomes holding instances of AGene based classes (minimization problems). */
-	typedef AGeneIndexSelection<>::Type AGeneSelectMaximumIndex;
-
-	/*! Index selection for genomes holding instances of AGene based classes (maximization problems). */
-	typedef AGeneIndexSelection<std::less<float> >::Type AGeneSelectMinimumIndex;
-
-	/*! Mutation for genomes holding instances of AGene based classes. */
-	typedef AMutation<AGene*> AGeneMutation;
 
 	/**
 	   @}

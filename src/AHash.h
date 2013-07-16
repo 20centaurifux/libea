@@ -1,23 +1,23 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file AHash.h
    @brief Base class for hash algorithms.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
  */
 
@@ -25,6 +25,7 @@
 #define AHASH_H
 
 #include <string>
+#include <cstring>
 #include <stdint.h>
 #include <assert.h>
 
@@ -38,7 +39,7 @@ namespace ea
 	/*! Helper to copy a generic to the buffer. */
 	#define AHASH_APPEND(from, size)          \
 		assert(size <= 8);                \
-		std::memcpy(_buffer, from, size); \
+		memcpy(_buffer, from, size); \
 		append(_buffer, size);            \
 		return *this;
 
@@ -93,6 +94,17 @@ namespace ea
 			AHash& operator<<(const double value)
 			{
 				AHASH_APPEND(&value, sizeof(double));
+			}
+
+			/**
+			   @param value value to append
+			   @return reference to the hash algorithm
+			   
+			   Appends double value to buffer.
+			 */
+			AHash& operator<<(const size_t value)
+			{
+				AHASH_APPEND(&value, sizeof(size_t));
 			}
 
 			/**

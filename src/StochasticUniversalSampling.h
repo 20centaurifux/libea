@@ -1,30 +1,30 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file StochasticUniversalSampling.h
-   @brief Implementation of stochastic universal sampling selection operator.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of stochastic universal sampling.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef STOCHASTICUNIVERSALSAMPLING_H
 #define STOCHASTICUNIVERSALSAMPLING_H
 
-#include "AIndexSelection.h"
+#include <cassert>
+#include "ASelection.h"
 
 namespace ea
 {
@@ -37,62 +37,61 @@ namespace ea
 
 	/**
 	   @class StochasticUniversalSampling
-	   @tparam T Datatype of genes stored in the Genome.
-	   @brief Implementation of stochastic universal sampling selection operator.
+	   @brief Implementation of stochastic universal sampling. This operator can only be
+	          used with positive fitness values.
 	 */
-	template<class T>
-	class StochasticUniversalSampling : AIndexSelection<T>
+	template<typename TGenome>
+	class StochasticUniversalSampling : public ASelection<TGenome>
 	{
 		public:
-			using AIndexSelection<T>::select;
-
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			StochasticUniversalSampling(ARandomNumberGenerator* rnd_generator)
-				: AIndexSelection<T>(rnd_generator) {}
+			StochasticUniversalSampling(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
+				: ASelection<TGenome>(rnd_generator) {}
 
-			virtual ~StochasticUniversalSampling() {};
+			~StochasticUniversalSampling() {}
 
-			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
+		protected:
+			using ASelection<TGenome>::generator;
+
+			void select_impl(IInputAdapter<std::shared_ptr<TGenome>> &input, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
-				float* sums = new float[iter->size()];
+				double* sums;
 				uint32_t i = 0;
 				uint32_t j = 0;
-				uint32_t u;
-				float interval;
+				double u;
+				double interval;
 				uint32_t range[2];
 
-				sums[0] = iter->current()->fitness();
+				sums = new double[input.size()];
+				sums[0] = input.current()->fitness();
 
-				for(i = 0; i < iter->size(); ++i)
+				for(i = 1; i < input.size(); i++)
 				{
-					sums[i] = sums[i - 1] + iter->at(i)->fitness();
+					sums[i] = sums[i - 1] + input.at(i)->fitness();
 				}
 
-				interval = sums[iter->size() - 1] / count;
-				u = generator->get_number(0, interval);
+				interval = sums[input.size() - 1] / count;
+				u = generator->get_double(0, interval);
 
 				for(i = 0; i < count; ++i)
 				{
 					range[0] = j;
-					range[1] = iter->size() - 1;
+					range[1] = input.size() - 1;
 
 					j = find_index(sums, range, u);
 
-					selection.push_back(j);
+					output.append(input.at(j));
 
 					u += interval;
 				}
 
-				delete sums;
+				delete[] sums;
 			}
 
-		protected:
-			using AIndexSelection<T>::generator;
-
 		private:
-			inline uint32_t find_index(const float* sums, uint32_t range[2], const uint32_t n) const
+			inline uint32_t find_index(const double* sums, uint32_t range[2], const double n) const
 			{
 				uint32_t mid;
 
@@ -113,10 +112,5 @@ namespace ea
 				return range[1];
 			}
 	};
-
-	/**
-		   @}
-	   @}
-	 */
 }
 #endif

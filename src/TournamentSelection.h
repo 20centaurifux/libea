@@ -1,32 +1,30 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file TournamentSelection.h
-   @brief Implementation of tournament selection.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of the tournament selection.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef TOURNAMENTSELECTION_H
 #define TOURNAMENTSELECTION_H
 
-#include <assert.h>
-
-#include "AIndexSelection.h"
+#include <cassert>
+#include "ASelection.h"
 
 namespace ea
 {
@@ -39,58 +37,57 @@ namespace ea
 
 	/**
 	   @class TournamentSelection
-	   @tparam T datatype of genes stored in the genome
-	   @tparam Compare functor to compare fitness values
+	   @tparam TGenome type of the genome class
+	   @tparam Compare a compare function
 	   @tparam Q number of enemies
+	   @tparam P prohability (0..100) that the fitter individual gets selected
 	   @brief Implementation of tournament selection.
 	 */
-	template<class T, class Compare = std::greater<float>, uint32_t Q = 5>
-	class TournamentSelection : public AIndexSelection<T, Compare>
+	template<typename TGenome, typename Compare = std::greater<double>, const uint32_t Q = 3, const uint32_t P = 65>
+	class TournamentSelection : public ASelection<TGenome>
 	{
 		public:
-			using AIndexSelection<T, Compare>::select;
-
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
 			TournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
-				: AIndexSelection<T, Compare>(rnd_generator) {}
+				: ASelection<TGenome>(rnd_generator)
+			{
+				assert(P >= 0);
+				assert(P <= 100);
+			}
 
-			virtual ~TournamentSelection() {};
+			~TournamentSelection() {}
 
-			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
+		protected:
+			void select_impl(IInputAdapter<std::shared_ptr<TGenome>> &input, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
 				uint32_t index;
-				uint32_t enemy;
+				uint32_t size = 0;
+				int32_t enemies[Q];
+				int32_t prohability[Q];
+				static Compare compare;
 
-				assert(iter->size() > Q);
+				assert(input.size() > Q);
 
-				while(selection.size() != count)
+				while(size != count)
 				{
-					index = generator->get_number(0, iter->size() - 1);
+					index = this->generator->get_int32(0, input.size() - 1);
+					this->generator->get_int32_seq(0, input.size() - 1, enemies, Q);
+					this->generator->get_int32_seq(0, 100, prohability, Q);
 
 					for(uint32_t i = 0; i < Q; ++i)
 					{
-						enemy = generator->get_number(0, iter->size() - 1);
-
-						if(compare(iter->at(enemy)->fitness(), iter->at(index)->fitness()))
+						if(prohability[i] >= (int32_t)P && compare(input.at(enemies[i])->fitness(), input.at(index)->fitness()))
 						{
-							index = enemy;
+							index = enemies[i];
 						}
 					}
 
-					selection.push_back(index);
+					output.append(input.at(index));
+					size++;
 				}
 			}
-
-		protected:
-			using AIndexSelection<T, Compare>::generator;
-			using AIndexSelection<T, Compare>::compare;
 	};
-
-	/**
-		   @}
-	   @}
-	 */
 }
 #endif

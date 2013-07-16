@@ -1,29 +1,29 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file TwoPointCrossover.h
-   @brief Implementation of two-point crossover operator.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of the two-point crossover operator.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef TWOPOINTCROSSOVER_H
 #define TWOPOINTCROSSOVER_H
 
+#include <cassert>
 #include "ACrossover.h"
 
 namespace ea
@@ -37,48 +37,52 @@ namespace ea
 
 	/**
 	   @class TwoPointCrossover
-	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam TGenome type of the genome class
 	   @brief Implementation of the two-point crossover operator.
 	 */
-	template<class T>
-	class TwoPointCrossover : public ACrossover<T>
+	template<typename TGenome>
+	class TwoPointCrossover : public ACrossover<TGenome>
 	{
 		public:
-			using ACrossover<T>::crossover;
+			using ACrossover<TGenome>::crossover;
 
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			TwoPointCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<T>(rnd_generator) {}
+			TwoPointCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<TGenome>(rnd_generator) {}
 
 			virtual ~TwoPointCrossover() {};
 
-			uint32_t crossover(const AGenome<T>* a, const AGenome<T>* b, IInserter<AGenome<T>*>* inserter)
+		protected:
+			uint32_t crossover_impl(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
+				uint32_t offset0;
 				uint32_t offset1;
-				uint32_t offset2;
 
-				offset1 = (uint32_t)generator->get_number(1, a->size() - 3);
-				offset2 = (uint32_t)generator->get_number(offset1 + 1, a->size() - 1);
+				assert(a->size() >= 5);;
+				offset0 = (uint32_t)generator->get_int32(1, a->size() - 3);
 
-				inserter->insert(create_child(b, a, offset1, offset2));
-				inserter->insert(create_child(a, b, offset1, offset2));
+				assert(offset0 < b->size() - 2);
+				offset1 = (uint32_t)generator->get_int32(offset0 + 1, b->size() - 1);
+
+				output.append(create_child(b, a, offset0, offset1));
+				output.append(create_child(a, b, offset0, offset1));
 
 				return 2;
 			}
 
 		protected:
-			using ACrossover<T>::generator;
+			using ACrossover<TGenome>::generator;
 
 		private:
-			AGenome<T>* create_child(const AGenome<T>* a, const AGenome<T>* b, const uint32_t offset1, const uint32_t offset2) const
+			std::shared_ptr<TGenome> create_child(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, const uint32_t offset1, const uint32_t offset2) const
 			{
 				uint32_t i;
-				AGenome<T> *individual;
+				std::shared_ptr<TGenome> individual;
 			
-				individual = a->instance();
+				individual = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
 
-				for(i = 0; i < offset1; ++i)
+				for(i = 0; i < offset1; i++)
 				{
 					individual->copy_to(i, a->at(i));
 				}
@@ -88,7 +92,7 @@ namespace ea
 					individual->copy_to(i, b->at(i));
 				}
 
-				for(i = offset2; i < a->size(); ++i)
+				for(i = offset2; i < a->size(); i++)
 				{
 					individual->copy_to(i, a->at(i));
 				}

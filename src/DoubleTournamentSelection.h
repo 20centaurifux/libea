@@ -1,33 +1,31 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file DoubleTournamentSelection.h
-   @brief Implementation of double-tournament selection.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Implementation of the double-tournament selection.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef DOUBLETOURNAMENTSELECTION_H
 #define DOUBLETOURNAMENTSELECTION_H
 
 #include <set>
-#include <assert.h>
-
-#include "AIndexSelection.h"
+#include <cassert>
+#include "ASelection.h"
 
 namespace ea
 {
@@ -40,63 +38,73 @@ namespace ea
 
 	/**
 	   @class DoubleTournamentSelection
-	   @tparam T datatype of genes stored in the genome
-	   @tparam Compare functor to compare fitness values
+	   @tparam TGenome type of the genome class
+	   @tparam Compare a compare function
 	   @tparam Q number of enemies
+	   @tparam P prohability (1..100) that the fitter individual gets selected
 	   @brief Implementation of double-tournament selection.
 	 */
-	template<class T, class Compare = std::greater<float>, uint32_t Q = 5>
-	class DoubleTournamentSelection : public AIndexSelection<T, Compare>
+	template<typename TGenome, typename Compare = std::greater<double>, const uint32_t Q = 3, const uint32_t P = 65>
+	class DoubleTournamentSelection : public ASelection<TGenome>
 	{
 		public:
-			using AIndexSelection<T, Compare>::select;
-
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
 			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd_generator)
-				: AIndexSelection<T, Compare>(rnd_generator) {}
+				: ASelection<TGenome>(rnd_generator)
+			{
+				assert(P >= 0);
+				assert(P <= 100);
+			}
 
-			virtual ~DoubleTournamentSelection() {};
+			~DoubleTournamentSelection() {}
 
-			void select(IIterator<AGenome<T>*> *iter, const uint32_t count, std::vector<uint32_t>& selection)
+		protected:
+			using ASelection<TGenome>::generator;
+
+			void select_impl(IInputAdapter<std::shared_ptr<TGenome>> &input, const uint32_t count, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
 				std::multiset<struct individual, struct compare_individuals> individuals;
-				uint32_t i;
+				uint32_t i = 0;
 				uint32_t j;
 				struct individual individual;
+				static Compare compare;
+				int32_t numbers[Q];
+				int32_t prohability[Q];
 
-				assert(iter->size() > Q);
+				assert(input.size() > Q);
 
-				for(i = 0; i < iter->size(); ++i)
+				while(!input.end())
 				{
 					individual.index = i;
 					individual.score = 0;
 
+					generator->get_int32_seq(0, input.size() - 1, numbers, Q);
+					generator->get_int32_seq(0, 100, prohability, Q);
+
 					for(j = 0; j < Q; ++j)
 					{
-						if(compare(iter->at(i)->fitness(), iter->at(generator->get_number(0, iter->size() - 1))->fitness()))
+						if(prohability[j] >= (int32_t)P && compare(input.at(i)->fitness(), input.at(numbers[j])->fitness()))
 						{
 							++individual.score;
 						}
 					}
 
 					individuals.insert(individual);
+					input.next(), i++;
 				}
 
 				auto it = individuals.begin();
 
 				for(i = 0; i < count; ++i, ++it)
 				{
-					selection.push_back(it->index);
+					output.append(input.at(it->index));
 				}
 			}
 
-		protected:
-			using AIndexSelection<T, Compare>::generator;
-			using AIndexSelection<T, Compare>::compare;
-
 		private:
+			/// @cond INTERNAL
 			struct individual
 			{
 				uint32_t index;
@@ -110,11 +118,7 @@ namespace ea
 					return a.score > b.score;
 				}
 			};
+			/// @endcond
 	};
-
-	/**
-		   @}
-	   @}
-	 */
 }
 #endif

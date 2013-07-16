@@ -1,33 +1,34 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
-   @file main.cpp
-   @brief A genome holds objects inherited from the AGene base class.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
+   @file Genome.h
+   @brief A genome holds objects derived from the TGene base class.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
  */
 
 #ifndef GENOME_H
 #define GENOME_H
 
-#include <algorithm>
-#include "AGenome.h"
+#include <vector>
+#include <sstream>
 #include "AGene.h"
-#include "AFactory.h"
+#include "AGenome.h"
+#include "SDBMHash.h"
 
 namespace ea
 {
@@ -36,61 +37,174 @@ namespace ea
 	   @{
 	 */
 
-	/*! Genome base class. */
-	typedef AGenome<AGene*> GenomeBase;
-
-	/*! Vector containing instances of Genome base classes. */
-	typedef std::vector<GenomeBase*> GenomeBaseVector;
-
-	/*! Factory returning instances of Genome base classes. */
-	typedef AFactory<GenomeBase*> GenomeBaseFactory;
-
 	/**
 	   @class Genome
-	   @brief A genome holding and observing AGene instances.
+	   @brief A genome holding and observing TGene instances.
 	 */
-	class Genome : public AGenome<AGene*>, public AGeneListener
+	template<typename TGene>
+	class Genome: public AGenome<TGene*, Genome<TGene>>, public AGeneListener<TGene>
 	{
 		public:
-			using GenomeBase::instance;
-			using GenomeBase::to_string;
+			/**
+			   @struct LessThan
+			   @brief Functor for comparing two genomes.
+			 */
+			typedef struct
+			{
+				/**
+				   @param a a gene
+				   @param b a gene
+				   @return true if a is smaller than b
+
+				   Compares two genes.
+				 */
+				bool operator()(TGene* a, TGene* b)
+				{
+					if(a->size() == b->size())
+					{
+						for(uint32_t i = 0; i < a->size(); i++)
+						{
+							if(a->at(i)->less_than(b->at(i)))
+							{
+								return true;
+							}
+						}
+					}
+					else
+					{
+						return a->size() < b->size();
+					}
+
+					return false;
+				}
+			} LessThan;
+
+			/*! Type of the fitness function related to the genome. */
+			typedef double (*FitnessFunc)(const Genome<TGene>* genome);
 
 			/**
 			   @param size size of the genome
-			   @param fitness_func functor to calculate the fitness of the genome
+			   @param fitness functor to calculate the fitness of the genome
 			 */
-			Genome(const uint32_t size, const FitnessFunc<AGene*>::fitness fitness_func)
-				: AGenome(size, fitness_func), _genes(new std::vector<AGene*>(size)), _modified(true), _fitness(0)
+			Genome(const uint32_t size, FitnessFunc fitness)
+				: AGenome<TGene*, Genome>(size, fitness)
 			{
-				std::fill(_genes->begin(), _genes->end(), nullptr);
+				_genes = new std::vector<TGene*>(size);
+				std::fill(begin(*_genes), end(*_genes), nullptr);
 			}
 
 			virtual ~Genome()
 			{
-				std::for_each(_genes->begin(), _genes->end(), [] (AGene* gene) { if(gene) delete gene; });
+				std::for_each(begin(*_genes), end(*_genes), [](TGene* gene) { delete gene; });
 				delete _genes;
 			}
 
-			float fitness();
-			void set(const uint32_t index, AGene* gene);
-			void copy_to(const uint32_t index, AGene* gene);
-			AGene* at(const uint32_t index) const;
-			Genome* instance(const uint32_t size) const;
-			bool find(AGene* gene, uint32_t& index) const;
-			bool contains(AGene* gene) const;
-			void swap(const uint32_t pos1, const uint32_t pos2) const;
-			std::string to_string(const std::string& separator) const;
-			std::string to_string();
-
-			void modified(const AGene* gene)
+			TGene* at(const uint32_t index) const override
 			{
-				_modified = true;
+				return (*_genes)[index];
+			}
+
+			/**
+			   @param index a position
+			   @param gene gene to set
+
+			   Sets the gene at the given position.
+			 */
+			void set(const uint32_t index, TGene* const gene) override
+			{
+				(*_genes)[index] = gene;
+				gene->attach_listener(this);
+				this->modified();
+			}
+
+			/**
+			   @param index a position
+			   @param gene gene to copy
+
+			   Copies a gene to the specified position. If you store object pointers you might
+			   want to use this function to clone the object and free memory.
+			 */
+			void copy_to(const uint32_t index, TGene* const gene) override
+			{
+				TGene* g = gene->clone();
+
+				if((*_genes)[index])
+				{
+					delete (*_genes)[index];
+				}
+
+				(*_genes)[index] = g;
+				g->attach_listener(this);
+				this->modified();
+			}
+
+			void swap(const uint32_t pos1, const uint32_t pos2) override
+			{
+				TGene* gene;
+
+				if(pos1 == pos2)
+				{
+					return;
+				}
+
+				gene = (*_genes)[pos1];
+				(*_genes)[pos1] = (*_genes)[pos2];
+				(*_genes)[pos2] = gene;
+
+				this->modified();
+			}
+
+			/**
+			   @param gene gene to search
+			   @param index reference to uint32_t to store the found index
+			   @return true if gene could be found
+
+			   Searches for a gene.
+			 */
+			bool index_of(TGene* const gene, uint32_t &index) const override
+			{
+				for(uint32_t i = 0; i < this->size(); i++)
+				{
+					if(!gene->less_than((*_genes)[i]) && !(*_genes)[i]->less_than(gene))
+					{
+						index = i;
+
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			void gene_modified(TGene* gene) override
+			{
+				this->modified();
+			}
+
+		protected:
+			size_t hash_impl() override
+			{
+				SDBMHash hasher;
+
+				std::for_each(begin(*_genes), end(*_genes), [&hasher](TGene* gene) { hasher << gene->hash(); });
+
+				return hasher.hash();
+			}
+
+			std::string to_string_impl() override
+			{
+				std::ostringstream stream;
+				auto first = begin(*_genes);
+
+				stream << (*first)->to_string();
+				std::for_each(first + 1, end(*_genes), [&stream](TGene* gene) { stream << "," << gene->to_string(); });
+
+				return stream.str();
 			}
 
 		private:
-			std::vector<AGene*>* _genes;
-			bool _modified;
-			float _fitness;
+			SDBMHash _hasher;
+			std::vector<TGene*>* _genes;
 	};
 
 	/**

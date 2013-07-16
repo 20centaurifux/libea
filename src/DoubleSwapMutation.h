@@ -1,30 +1,27 @@
 /***************************************************************************
     begin........: November 2012
     copyright....: Sebastian Fedrau
-    email........: lord-kefir@arcor.de
+    email........: sebastian.fedrau@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU General Public License v3 as published by
     the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    General Public License v3 for more details.
  ***************************************************************************/
 /**
    @file DoubleSwapMutation.h
-   @brief Mutation operator to swap 3 genes.
-   @author Sebastian Fedrau <lord-kefir@arcor.de>
-   @version 0.1.0
+   @brief Mutation operator to swap three genes.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
 #ifndef DOUBLESWAPMUTATION_H
 #define DOUBLESWAPMUTATION_H
-
-#include <cstring>
 
 #include "AMutation.h"
 
@@ -39,21 +36,23 @@ namespace ea
 
 	/**
 	   @class DoubleSwapMutation
-	   @tparam T Datatype of genes stored in the Genome.
+	   @tparam TGenome type of the genome class.
 	   @brief Swaps three genes.
 	 */
-	template<class T>
-	class DoubleSwapMutation : public AMutation<T>
+	template<class TGenome>
+	class DoubleSwapMutation : public AMutation<TGenome>
 	{
 		public:
+			using AMutation<TGenome>::mutate;
+
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			DoubleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : AMutation<T>(rnd_generator) {}
+			DoubleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : AMutation<TGenome>(rnd_generator) {}
 
 			~DoubleSwapMutation() {};
 
-			void mutate(AGenome<T>* genome)
+			void mutate(std::shared_ptr<TGenome> genome) override
 			{
 				int32_t offsets[3];
 
@@ -62,8 +61,7 @@ namespace ea
 					return;
 				}
 
-				AMutation<T>::generator->get_unique_numbers(0, genome->size() - 1, offsets, 3);
-
+				this->generator->get_unique_int32_seq(0, genome->size() - 1, offsets, 3);
 				genome->swap(offsets[0], offsets[1]);
 				genome->swap(offsets[1], offsets[2]);
 			}
