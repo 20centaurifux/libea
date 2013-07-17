@@ -54,7 +54,7 @@ binary mutations: *ABinaryMutation*.
 
 ### Creating primitive genomes
 
-This example will show the basic concepts of ***libea***.
+This example shows the basic concepts of ***libea***.
 
 Assume our individuals consist of binary values. In this case we use the
 *PrimitiveGenome* base class.
@@ -168,7 +168,7 @@ a method named *random()*  to generate genomes:
 
 ***libea*** makes heavy usage of shared pointers to save resources. It's a good
 approach to generate shared pointers in your factory class because these kind
-of pointers will be used in other functions we're going to see later in this
+of pointers are used in other functions we're going to see later in this
 tutorial.
 
 
@@ -257,7 +257,7 @@ class:
 Looking at this code you might see one important aspect: after modifying a
 property of the *City* class we call the *modified()* method. This is quite
 important because the *Genome* class has an internal cache. The *modified()*
-method will clear this cache.
+method clears this cache.
 
 Classes inherited from *AGene* have to override a few methods. One of these
 methods is the *hash()* method. If you're going to write your own gene class
@@ -348,7 +348,7 @@ The return value is the number of generated children.
 
 If you're going to copy genes from one genome to another ***never*** use the
 *set()* method of the destination genome because this may lead to a memory
-leak. Please use the *copy_to()* method instead. It will free resources and
+leak. Please use the *copy_to()* method instead. It frees resources and
 clone genes correctly. Here's an example how to copy genes properly:
 
 	template<typename TGenome>
@@ -402,7 +402,7 @@ Once again we use a binary genome for this example:
 		     << endl;
 	});
 
-The genomes will be mutated in-place, but it's also possible to mutate a single
+The genomes are mutated in-place, but it's also possible to mutate a single
 genome and copy the result to a different location:
 
 	auto g = make_shared<TR1UniformDistribution<mt19937_64>>();
