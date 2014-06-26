@@ -79,14 +79,13 @@ namespace ea
 
 	/**
 	   @tparam TGenome type of the genome class
-	   @tparam LessThan an optional compare function
 	   @param a a genome
 	   @param b a genome
 	   @return true if both genomes are equal
 	   
-	   Tests if two genomes contain extactly the same genes.
+	   Tests if two genomes contain exactly the same genes.
 	 */
-	template<typename TGenome, typename LessThan = std::less<typename TGenome::value_type>>
+	template<typename TGenome>
 	bool equals(const TGenome& a, const TGenome& b)
 	{
 		if(a.size() != b.size())
@@ -94,13 +93,50 @@ namespace ea
 			return false;
 		}
 
-		std::multiset<typename TGenome::value_type, LessThan> s0;
-		std::multiset<typename TGenome::value_type, LessThan> s1;
+		std::multiset<typename TGenome::value_type> s0;
+		std::multiset<typename TGenome::value_type> s1;
 
 		for(uint32_t i = 0; i < a.size(); i++)
 		{
 			s0.insert(a.at(i));
 			s1.insert(b.at(i));
+		}
+
+		return s0 == s1;
+	}
+
+	/**
+	   @tparam TGenome type of the genome class
+	   @param a pointer to a genome
+	   @param b pointer to a genome
+	   @return true if both genomes are equal
+	   
+	   Tests if two genomes contain exactly the same genes. The corresponding gene class
+	   must implement a less_than() method.
+	 */
+	template<typename TGenome>
+	bool equals(const TGenome* a, const TGenome* b)
+	{
+		typedef struct
+		{
+			bool operator()(typename TGenome::value_type a, typename TGenome::value_type b)
+			{
+				return a->less_than(b);
+			}
+		} LessThan;
+
+		if(a->size() != b->size())
+		{
+			return false;
+		}
+
+		std::multiset<typename TGenome::value_type, LessThan> s0;
+		std::multiset<typename TGenome::value_type, LessThan> s1;
+
+		for(uint32_t i = 0; i < a->size(); i++)
+		{
+			s0.insert(a->at(i));
+			s1.insert(b->at(i));
 		}
 
 		return s0 == s1;
