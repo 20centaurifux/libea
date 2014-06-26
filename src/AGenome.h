@@ -28,6 +28,7 @@
 #include <string>
 #include <cassert>
 #include "InputAdapter.h"
+#include "algo.h"
 
 namespace ea
 {
@@ -155,6 +156,16 @@ namespace ea
 			virtual bool index_of(const TGene gene, uint32_t &index) const = 0;
 
 			/**
+			   @return true if both genomes have the same genes
+
+			   Compares genomes.
+			 */
+			virtual bool equals(const AGenome<TGene, TDerived>* genome) const
+			{
+				return ea::equals(*this, *genome);
+			}
+
+			/**
 			   @return a string
 
 			   Returns a string representing the object.
@@ -169,7 +180,6 @@ namespace ea
 
 				return _str;
 			}
-
 
 			/**
 			   @return hash of the genome

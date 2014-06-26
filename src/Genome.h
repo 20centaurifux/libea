@@ -176,6 +176,16 @@ namespace ea
 				return false;
 			}
 
+			/**
+			   @return true if both genomes have the same genes
+
+			   Compares genomes.
+			 */
+			virtual bool equals(const Genome* genome) const
+			{
+				return ea::equals(this, genome);
+			}
+
 			void gene_modified(TGene* gene) override
 			{
 				this->modified();
