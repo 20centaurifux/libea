@@ -555,7 +555,8 @@ class BinaryGenomeTest : public CPPUNIT_NS::TestFixture
 		 */
 		void test_genome_class()
 		{
-			TestGenome g(10, &fitness);
+			TestGenome g0(10, &fitness);
+			TestGenome g1(10, &fitness);
 			int i;
 			uint32_t index;
 			bool found;
@@ -563,23 +564,23 @@ class BinaryGenomeTest : public CPPUNIT_NS::TestFixture
 			string str;
 
 			// test getter methods:
-			CPPUNIT_ASSERT_EQUAL(10u, g.size());
-			CPPUNIT_ASSERT_EQUAL(&fitness, g.get_fitness_func());
+			CPPUNIT_ASSERT_EQUAL(10u, g0.size());
+			CPPUNIT_ASSERT_EQUAL(&fitness, g0.get_fitness_func());
 
 			// set genomes:
 			for(i = 0; i < 10; i++)
 			{
-				g.copy_to(i, i % 2);
+				g0.copy_to(i, i % 2);
 			}
 
 			for(i = 0; i < 10; i++)
 			{
-				CPPUNIT_ASSERT_EQUAL((bool)(i % 2), g.at(i));
+				CPPUNIT_ASSERT_EQUAL((bool)(i % 2), g0.at(i));
 			}
 
 			// test hash & string serializaton methods:
-			hash = g.hash();
-			str = g.to_string();
+			hash = g0.hash();
+			str = g0.to_string();
 
 			CPPUNIT_ASSERT(hash != 0);
 			CPPUNIT_ASSERT(str.length() != 0);
@@ -587,31 +588,41 @@ class BinaryGenomeTest : public CPPUNIT_NS::TestFixture
 			// change genome & compare hash/string:
 			for(i = 0; i < 10; i++)
 			{
-				g.set(i, i % 3);
+				g0.set(i, i % 3);
 			}
 
 			for(i = 0; i < 10; i++)
 			{
-				CPPUNIT_ASSERT_EQUAL((bool)(i % 3), g.at(i));
+				CPPUNIT_ASSERT_EQUAL((bool)(i % 3), g0.at(i));
 			}
 
-			CPPUNIT_ASSERT(g.hash() != hash);
-			CPPUNIT_ASSERT(str.compare(g.to_string()) != 0);
+			CPPUNIT_ASSERT(g0.hash() != hash);
+			CPPUNIT_ASSERT(str.compare(g0.to_string()) != 0);
 
 			// swap two genes:
-			g.set(0, false);
-			g.set(9, true);
+			g0.set(0, false);
+			g0.set(9, true);
 
-			g.swap(0, 9);
+			g0.swap(0, 9);
 
-			CPPUNIT_ASSERT(g.at(0));
-			CPPUNIT_ASSERT(!g.at(9));
+			CPPUNIT_ASSERT(g0.at(0));
+			CPPUNIT_ASSERT(!g0.at(9));
 
 			// try to find genes:
-			found = g.index_of(true, index);
+			found = g0.index_of(true, index);
 
 			CPPUNIT_ASSERT(found);
 			CPPUNIT_ASSERT_EQUAL(0u, index);
+
+			// test equals() method:
+			CPPUNIT_ASSERT(g0.equals(&g0));
+
+			for(i = 0; i < 10; i++)
+			{
+				g1.copy_to(i, !g0.at(i));
+			}
+
+			CPPUNIT_ASSERT(!g0.equals(&g1));
 		}
 
 		void test_operators()
@@ -811,7 +822,8 @@ class GenomeTest : public CPPUNIT_NS::TestFixture
 		 */
 		void test_genome_class()
 		{
-			Genome<City> g(10, &fitness);
+			Genome<City> g0(10, &fitness);
+			Genome<City> g1(10, &fitness);
 			vector<City*> cities;
 			uint32_t i;
 			size_t hash;
@@ -827,23 +839,23 @@ class GenomeTest : public CPPUNIT_NS::TestFixture
 			}
 
 			// test getter methods:
-			CPPUNIT_ASSERT_EQUAL(10u, g.size());
-			CPPUNIT_ASSERT_EQUAL(&fitness, g.get_fitness_func());
+			CPPUNIT_ASSERT_EQUAL(10u, g0.size());
+			CPPUNIT_ASSERT_EQUAL(&fitness, g0.get_fitness_func());
 
 			// set genomes:
 			for(i = 0; i < 10; i++)
 			{
-				g.set(i, cities[i]);
+				g0.set(i, cities[i]);
 			}
 
 			for(i = 0; i < 10; i++)
 			{
-				CPPUNIT_ASSERT(!g.at(i)->less_than(cities[i]) && !cities[i]->less_than(g.at(i)));
+				CPPUNIT_ASSERT(!g0.at(i)->less_than(cities[i]) && !cities[i]->less_than(g0.at(i)));
 			}
 
 			// test hash & string serializaton methods:
-			hash = g.hash();
-			str = g.to_string();
+			hash = g0.hash();
+			str = g0.to_string();
 
 			CPPUNIT_ASSERT(hash != 0);
 			CPPUNIT_ASSERT(str.length() != 0);
@@ -852,24 +864,24 @@ class GenomeTest : public CPPUNIT_NS::TestFixture
 			for(i = 0; i < 10; i++)
 			{
 				city = RouteFactory::create_new_city(9 - i);
-				g.copy_to(i, city); /* this will delete the memory allocated for the
-				                       test cities & so we have to create new genomes
-				                       before we copy them */
+				g0.copy_to(i, city); /* this will delete the memory allocated for the
+				                        test cities & so we have to create new genomes
+				                        before we copy them */
 				delete city;
 			}
 
-			CPPUNIT_ASSERT(g.hash() != hash);
-			CPPUNIT_ASSERT(str.compare(g.to_string()) != 0);
+			CPPUNIT_ASSERT(g0.hash() != hash);
+			CPPUNIT_ASSERT(str.compare(g0.to_string()) != 0);
 
 			// swap to genes:
-			g.swap(0, 9);
+			g0.swap(0, 9);
 
-			CPPUNIT_ASSERT(!g.at(0)->get_name().compare("A"));
-			CPPUNIT_ASSERT(!g.at(9)->get_name().compare("J"));
+			CPPUNIT_ASSERT(!g0.at(0)->get_name().compare("A"));
+			CPPUNIT_ASSERT(!g0.at(9)->get_name().compare("J"));
 
 			// try to find genes:
 			city = RouteFactory::create_new_city(9);
-			found = g.index_of(city, index);
+			found = g0.index_of(city, index);
 
 			CPPUNIT_ASSERT(found);
 			CPPUNIT_ASSERT_EQUAL(9u, index);
@@ -877,11 +889,21 @@ class GenomeTest : public CPPUNIT_NS::TestFixture
 			delete city;
 
 			city = RouteFactory::create_new_city(19);
-			found = g.index_of(city, index);
+			found = g0.index_of(city, index);
 
 			CPPUNIT_ASSERT(!found);
 
 			delete city;
+
+			// test equal() method:
+			CPPUNIT_ASSERT(g0.equals(&g0));
+
+			for(i = 1; i <= 10; i++)
+			{
+				g1.set(i - 1, RouteFactory::create_new_city(i));
+			}
+
+			CPPUNIT_ASSERT(!g0.equals(&g1));
 		}
 
 		void test_operators()
