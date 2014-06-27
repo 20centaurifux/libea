@@ -57,9 +57,15 @@ namespace ea
 			uint32_t crossover_impl(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
 			{
 				uint32_t separator;
+				uint32_t max = a->size();
 
-				assert(a->size() >= 4);;
-				separator = (uint32_t)generator->get_int32(1, a->size() - 3);
+				if(max > b->size())
+				{
+					max = b->size();
+				}
+
+				assert(max >= 5);
+				separator = (uint32_t)generator->get_int32(1, max - 3);
 
 				output.append(create_child(b, a, separator));
 				output.append(create_child(a, b, separator));
@@ -74,10 +80,10 @@ namespace ea
 			{
 				uint32_t i;
 				std::shared_ptr<TGenome> individual;
-			
-				individual = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
 
-				for(i = 0; i < separator; ++i)
+				individual = std::make_shared<TGenome>(b->size(), b->get_fitness_func());
+
+				for(i = 0; i < separator; i++)
 				{
 					individual->copy_to(i, a->at(i));
 				}

@@ -60,25 +60,31 @@ namespace ea
 				uint32_t separator;
 				uint32_t i;
 				uint32_t m = 0;
+				uint32_t size = a->size();
 				std::shared_ptr<TGenome> individual;
 
-				separator = (uint32_t)generator->get_int32(1, a->size() - 2);
+				if(size > b->size())
+				{
+					size = b->size();
+				}
 
-				individual = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
+				assert(size >= 4);
 
-				for(i = 0; i < separator; ++i)
+				separator = (uint32_t)generator->get_int32(1, size - 2);
+				individual = std::make_shared<TGenome>(size, a->get_fitness_func());
+
+				for(i = 0; i < separator; i++)
 				{
 					individual->copy_to(i, a->at(i));
 				}
 
-				for(i = separator; i < individual->size(); ++i)
+				for(i = separator; i < size; i++)
 				{
 					while(gene_exists(b->at(m), individual, i))
 					{
 						m++;
+						assert(m < b->size());
 					}
-
-					assert(m < b->size());
 
 					individual->copy_to(i, b->at(m));
 				}

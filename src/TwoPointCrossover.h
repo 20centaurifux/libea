@@ -58,15 +58,20 @@ namespace ea
 			{
 				uint32_t offset0;
 				uint32_t offset1;
+				uint32_t max = a->size();
 
-				assert(a->size() >= 5);;
-				offset0 = (uint32_t)generator->get_int32(1, a->size() - 3);
+				if(max > b->size())
+				{
+					max = b->size();
+				}
 
-				assert(offset0 < b->size() - 2);
-				offset1 = (uint32_t)generator->get_int32(offset0 + 1, b->size() - 1);
+				assert(max >= 5);
 
-				output.append(create_child(b, a, offset0, offset1));
+				offset0 = (uint32_t)generator->get_int32(1, max - 3);
+				offset1 = (uint32_t)generator->get_int32(offset0 + 1, max - 1);
+
 				output.append(create_child(a, b, offset0, offset1));
+				output.append(create_child(b, a, offset0, offset1));
 
 				return 2;
 			}
@@ -87,7 +92,7 @@ namespace ea
 					individual->copy_to(i, a->at(i));
 				}
 
-				for(i = offset1; i < offset2; ++i)
+				for(i = offset1; i < offset2; i++)
 				{
 					individual->copy_to(i, b->at(i));
 				}

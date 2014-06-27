@@ -61,22 +61,28 @@ namespace ea
 				std::shared_ptr<TGenome> individual;
 				uint32_t i;
 				uint32_t m;
+				uint64_t len;
 
-				assert(a->size() > 1);
-				assert(b->size() > 1);
+				assert(a->size() >= 4);
+				assert(a->size() < INT32_MAX);
+				assert(b->size() >= 4);
+				assert(b->size() < INT32_MAX);
 
-				m = separator1 = (uint32_t)generator->get_int32(1, a->size() - 2);
-				separator2 = (uint32_t)generator->get_int32(1, a->size() - 2);
+				separator1 = (uint32_t)generator->get_int32(1, a->size() - 2);
+				separator2 = (uint32_t)generator->get_int32(1, b->size() - 2);
 
 				// create first individual:
-				individual = std::make_shared<TGenome>(separator1 + b->size() - separator2, a->get_fitness_func());
+				len = separator1 + b->size() - separator2;
+				individual = std::make_shared<TGenome>(len, a->get_fitness_func());
 
-				for(i = 0; i < separator1; ++i)
+				for(i = 0; i < separator1; i++)
 				{
 					individual->copy_to(i, a->at(i));
 				}
 
-				for(i = separator2; i < b->size(); ++i)
+				m = separator1;
+
+				for(i = separator2; i < b->size(); i++)
 				{
 					individual->copy_to(m++, b->at(i));
 				}
@@ -84,16 +90,17 @@ namespace ea
 				output.append(individual);
 
 				// create second individual:
-				individual = std::make_shared<TGenome>(separator2 + a->size() - separator1, a->get_fitness_func());
+				len = separator2 + a->size() - separator1;
+				individual = std::make_shared<TGenome>(len, a->get_fitness_func());
 
-				for(i = 0; i < separator2; ++i)
+				for(i = 0; i < separator2; i++)
 				{
 					individual->copy_to(i, b->at(i));
 				}
 
 				m = separator2;
 
-				for(i = separator1; i < a->size(); ++i)
+				for(i = separator1; i < a->size(); i++)
 				{
 					individual->copy_to(m++, a->at(i));
 				}

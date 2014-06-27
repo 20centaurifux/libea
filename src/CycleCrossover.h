@@ -71,7 +71,7 @@ namespace ea
 				bool flag = true;
 
 				assert(a->size() >= 2);
-				assert(a->size() == b->size());
+				assert(a->equals(&(*b)));
 
 				// initialize map to mark genes assigned:
 				for(uint32_t i = 0; i < a->size(); i++)

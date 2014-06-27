@@ -67,7 +67,7 @@ namespace ea
 				child0 = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
 				child1 = std::make_shared<TGenome>(a->size(), a->get_fitness_func());
 
-				for(uint32_t i = 0; i < a->size(); ++i)
+				for(uint32_t i = 0; i < a->size(); i++)
 				{
 					do
 					{

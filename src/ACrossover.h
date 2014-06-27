@@ -65,7 +65,7 @@ namespace ea
 			template<typename TOutputContainer>
 			uint32_t crossover(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, TOutputContainer &container)
 			{
-				auto adapter =  make_output_adapter<std::shared_ptr<TGenome>>(container);
+				auto adapter = make_output_adapter<std::shared_ptr<TGenome>>(container);
 
 				return crossover_impl(a, b, adapter);
 			}

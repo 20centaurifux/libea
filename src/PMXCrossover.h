@@ -24,6 +24,7 @@
 #define PMXCROSSOVER_H
 
 #include <map>
+#include <cassert>
 #include "ACrossover.h"
 
 namespace ea
@@ -59,6 +60,9 @@ namespace ea
 			{
 				uint32_t offset0;
 				uint32_t offset1;
+
+				assert(a->size() > 4);
+				assert(a->equals(&(*b)));
 
 				offset0 = generator->get_int32(0, a->size() - 3);
 				offset1 = generator->get_int32(offset0 + 1, a->size() - 1);
@@ -136,7 +140,7 @@ namespace ea
 
 				index = next_unassigned(indices, 0, size), start++;
 
-				for(i = 0; i < offset0; ++i)
+				for(i = 0; i < offset0; i++)
 				{
 					if(!assigned[(gene = parent0->at(i))])
 					{

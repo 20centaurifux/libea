@@ -71,13 +71,13 @@ namespace ea
 				uint32_t next_count[5];
 				T next_gene[5][5];
 
-				assert(a->size() == b->size());
+				assert(a->equals(&(*b)));
 
 				// initialize neighbor lists:
 				nblist = new Neighbors[a->size()];
 				std::memset(nblist, 0, a->size() * sizeof(Neighbors));
 
-				for(i = 0; i < a->size(); ++i)
+				for(i = 0; i < a->size(); i++)
 				{
 					count = 0;
 
@@ -109,7 +109,7 @@ namespace ea
 					// remove x from all neighbor lists:
 					n = nbs[x];
 
-					for(j = 0; j < n->count; ++j)
+					for(j = 0; j < n->count; j++)
 					{
 						remove_neighbor(nbs[n->genes[j]], x);
 					}
@@ -205,7 +205,7 @@ namespace ea
 				}
 				else
 				{
-					for(uint32_t i = 0; i < count; ++i)
+					for(uint32_t i = 0; i < count; i++)
 					{
 						if(!_lessthan(neighbors[i], neighbor) && !_lessthan(neighbor, neighbors[i]))
 						{
@@ -223,11 +223,11 @@ namespace ea
 
 			void remove_neighbor(Neighbors* neighbors, const T gene)
 			{
-				for(uint32_t i = 0; i < neighbors->count; ++i)
+				for(uint32_t i = 0; i < neighbors->count; i++)
 				{
 					if(!_lessthan(neighbors->genes[i], gene) && !_lessthan(gene, neighbors->genes[i]))
 					{
-						for(uint32_t m = i; m < neighbors->count - 1; ++m)
+						for(uint32_t m = i; m < neighbors->count - 1; m++)
 						{
 							neighbors->genes[m] = neighbors->genes[m + 1];
 						}
@@ -240,7 +240,7 @@ namespace ea
 
 			inline bool gene_exists(const std::shared_ptr<TGenome> &genome, const uint32_t size, const T gene)
 			{
-				for(uint32_t i = 0; i < size; ++i)
+				for(uint32_t i = 0; i < size; i++)
 				{
 					if(!_lessthan(genome->at(i), gene) && !_lessthan(gene, genome->at(i)))
 					{
