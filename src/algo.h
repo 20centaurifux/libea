@@ -117,6 +117,7 @@ namespace ea
 	template<typename TGenome>
 	bool equals(const TGenome* a, const TGenome* b)
 	{
+		// create sets:
 		typedef struct
 		{
 			bool operator()(typename TGenome::value_type a, typename TGenome::value_type b)
@@ -139,7 +140,16 @@ namespace ea
 			s1.insert(b->at(i));
 		}
 
-		return s0 == s1;
+		// compare set elements:
+		for(auto c0 = begin(s0), c1 = begin(s1); c0 != end(s0); c0++, c1++)
+		{
+			if((*c0)->less_than(*c1) || (*c1)->less_than(*c0))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
 #endif
