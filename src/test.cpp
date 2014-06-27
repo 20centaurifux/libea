@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <set>
 
 #include "PrimitiveGenome.h"
 #include "Genome.h"
@@ -77,6 +78,8 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 	CPPUNIT_TEST(test_double);
 	CPPUNIT_TEST(test_int32_seq);
 	CPPUNIT_TEST(test_double_seq);
+	CPPUNIT_TEST(test_unique_int32_seq);
+	CPPUNIT_TEST(test_unique_double_seq);
 	CPPUNIT_TEST_SUITE_END();
 
 	protected:
@@ -134,6 +137,32 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 			g.get_double_seq(9.0, 9.97, seq, 100);
 
 			for_each(begin(seq), end(seq), [](double n) { CPPUNIT_ASSERT(n >= 9.0 && n <= 9.97); });
+		}
+
+		void test_unique_int32_seq()
+		{
+			TRandom g;
+			int32_t seq[100];
+
+			g.get_unique_int32_seq(0, 99, seq, 100);
+
+			for(uint32_t i = 0; i < 100; i++)
+			{
+				auto iter = std::find(begin(seq), end(seq), i);
+				CPPUNIT_ASSERT(iter != end(seq));
+			}
+		}
+
+		void test_unique_double_seq()
+		{
+			TRandom g;
+			double seq[100];
+			set<double> set;
+
+			g.get_unique_double_seq(0, 10.0, seq, 100);
+
+			for_each(begin(seq), end(seq), [&set](double v) { set.insert(v); });
+			CPPUNIT_ASSERT_EQUAL(set.size(), (size_t)100);
 		}
 };
 
