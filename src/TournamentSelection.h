@@ -55,6 +55,7 @@ namespace ea
 			{
 				assert(P >= 0);
 				assert(P <= 100);
+				assert(Q >= 1);
 			}
 
 			~TournamentSelection() {}
@@ -69,6 +70,7 @@ namespace ea
 				static Compare compare;
 
 				assert(input.size() > Q);
+				assert(input.size() > 2);
 
 				while(size != count)
 				{
@@ -76,7 +78,7 @@ namespace ea
 					this->generator->get_int32_seq(0, input.size() - 1, enemies, Q);
 					this->generator->get_int32_seq(0, 100, prohability, Q);
 
-					for(uint32_t i = 0; i < Q; ++i)
+					for(uint32_t i = 0; i < Q; i++)
 					{
 						if(prohability[i] >= (int32_t)P && compare(input.at(enemies[i])->fitness(), input.at(index)->fitness()))
 						{

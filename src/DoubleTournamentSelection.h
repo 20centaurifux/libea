@@ -83,11 +83,11 @@ namespace ea
 					generator->get_int32_seq(0, input.size() - 1, numbers, Q);
 					generator->get_int32_seq(0, 100, prohability, Q);
 
-					for(j = 0; j < Q; ++j)
+					for(j = 0; j < Q; j++)
 					{
 						if(prohability[j] >= (int32_t)P && compare(input.at(i)->fitness(), input.at(numbers[j])->fitness()))
 						{
-							++individual.score;
+							individual.score++;
 						}
 					}
 
@@ -97,7 +97,7 @@ namespace ea
 
 				auto it = individuals.begin();
 
-				for(i = 0; i < count; ++i, ++it)
+				for(i = 0; i < count; i++, it++)
 				{
 					output.append(input.at(it->index));
 				}
