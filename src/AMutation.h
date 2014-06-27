@@ -91,6 +91,7 @@ namespace ea
 				double* numbers;
 
 				size = end - begin;
+				assert(size > 0);
 				numbers = new double[size];
 				generator->get_double_seq(0, 1, numbers, size);
 
