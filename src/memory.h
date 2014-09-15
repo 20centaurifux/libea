@@ -15,17 +15,16 @@
     General Public License v3 for more details.
  ***************************************************************************/
 /**
-   @file Observable.h
-   @brief Base class for observable classes.
+   @file memory.h
+   @brief Memory functions.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
  */
+#ifndef MEMORY_H
+#define MEMORY_H
 
-#ifndef OBSERVABLE_H
-#define OBSERVABLE_H
-
-#include <vector>
-#include <algorithm>
+#include <cstdlib>
+#include <memory>
 
 namespace ea
 {
@@ -35,57 +34,61 @@ namespace ea
 	 */
 
 	/**
-	   @class Observable
-	   @tparam T datatype of related listener class
-	   @brief Base class for observable objects. Can hold multiple listener classes.
-	 */
-	template<typename T>
-	class Observable
+	   @class IAllocator
+	   @brief Interface for basic memory functions.
+	  */
+	class IAllocator
 	{
 		public:
-			virtual ~Observable() {}
+			/**
+			   @param size number of bytes to allocate
+			   @return pointer to a block of memory
+
+			   Allocates memory.
+			 */
+			virtual void* alloc(const std::size_t size) = 0;
 
 			/**
-			   @tparam F function called for each assigned listener
+			   @param ptr memory to free
 
-			   Call a callback function for each assigned listener.
+			   Frees memory.
 			 */
-			template<typename F>
-			F for_each(F f)
+			virtual void free(void *ptr) = 0;
+	};
+
+	/**
+	   @class StdAllocator
+	   @brief A wrapper for std::malloc() amd std:free().
+	 */
+	class StdAllocator : public ea::IAllocator
+	{
+		public:
+			void* alloc(const std::size_t size)
 			{
-				std::for_each(begin(_listener), end(_listener), f);
+				void *ptr = std::malloc(size);
 
-				return f;
-			}
-
-			/**
-			   @param l a listener class
-
-			   Assigns a listener to the observable.
-			 */
-			void attach_listener(const T l)
-			{
-				_listener.push_back(l);
-			}
-
-
-			/**
-			   @param l a listener class
-
-			   Detachs a listener from the observable.
-			 */
-			void detach_listener(const T l)
-			{
-				auto pos = std::find(begin(_listener), end(_listener), l);
-
-				if(pos != _listener.end())
+				if(ptr == nullptr)
 				{
-					_listener.erase(pos);
+					throw std::bad_alloc();
 				}
+
+				return ptr;
 			}
-		
-		private:
-			std::vector<T> _listener;
+
+			void free(void *ptr)
+			{
+				std::free(ptr);
+			}
+
+			/**
+			   @return Shared pointer to a new StdAllocator
+
+			   Creates a shared pointer to a new StdAllocator.
+			  */
+			static std::shared_ptr<StdAllocator> create_shared()
+			{
+				return std::make_shared<StdAllocator>();
+			}
 	};
 
 	/**

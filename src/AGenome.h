@@ -16,209 +16,125 @@
  ***************************************************************************/
 /**
    @file AGenome.h
-   @brief Base class for genomes.
+   @brief Genome base class.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
- */
-
+   @version 0.1.0
+*/
 #ifndef AGENOME_H
 #define AGENOME_H
 
-#include <memory>
-#include <cstdint>
+#include <stdint.h>
 #include <string>
-#include <cassert>
-#include "InputAdapter.h"
+#include <algorithm>
 
 namespace ea
 {
 	/**
 	   @addtogroup Core
 	   @{
-	 */
+	*/
 
-	/**
-	    @param src a genome to copy genes from
-	    @param dst a genome to copy genes to
-	    @tparam TGenome datatype of the genome
-	  
-	    Copies a genome to another one.
-	 */
-	template<typename TGenome>
-	void copy(const TGenome& src, TGenome& dst)
+	template<typename TBase, typename TIterator>
+	void dispose(TBase& base, const TIterator& first, const TIterator& last)
 	{
-		assert(src->size() == dst->size());
-
-		for(uint32_t i = 0; i < src->size(); i++)
+		std::for_each(first, last, [&base](typename TBase::sequence_type seq)
 		{
-			dst->copy_to(i, src->at(i));
-		}
+			base.dispose(seq);
+		});
 	}
 
 	/**
-	   @class AGenome
-	   @tparam TGene gene datatype
-	   @tparam TDerived type of the derived class
-	   @brief Abstract base class for genomes.
-	 */
-	template<typename TGene, typename TDerived>
-	class AGenome
+	   @class AGenomeBase
+	   @tparam TSequence type of the sequence this class provides access to
+	   @tparam TGene type of genes stored in the sequence
+	   @brief In libea individuals are stored in sequences. All operations
+	          on sequences are provided by classes derived from AGenomeBase.
+
+	  */
+	template<typename TSequence, typename TGene>
+	class AGenomeBase
 	{
 		public:
-			/*! Datatype of stored genes. */
-			typedef TGene value_type;
+			/*! Sequence type this class can process. */
+			typedef TSequence sequence_type;
 
-			/*! Type of the fitness function related to the genome. */
-			typedef double (*FitnessFunc)(const TDerived* genome);
+			/*! Type of the genes stored in sequences of type sequence_type. */
+			typedef TGene gene_type;
+
+			virtual ~AGenomeBase() {}
+
+			/*! Size of a gene in byte.*/
+			virtual uint16_t gene_size() const = 0;
 
 			/**
-			   @param size size of the genome
-			   @param fitness a fitness function
+			   @param len length of the new sequence
+			   @return a new sequence
+
+			   Creates a new and empty sequence.
 			 */
-			AGenome(const uint32_t size, FitnessFunc fitness)
-				: _fitness_func(fitness), _size(size), _fitness_cached(false), _hash_cached(false), _str_cached(false) {}
-
-			virtual ~AGenome(void) {}
+			virtual TSequence create(const uint16_t len) = 0;
 
 			/**
-			   @return size of the genome
+			   @param sequence sequence to destroy
 
-			   Gets the size of the gnome.
+			   Destroys a sequence.
 			 */
-			uint32_t size() const { return _size; };
+			virtual void dispose(TSequence& sequence) = 0;
 
 			/**
-			   @param index a location
-			   @return a gene
-
-			   Returns gene at the given position.
-			 */
-			virtual TGene at(const uint32_t index) const = 0;
-
-			/**
-			   @return the fitness function
-
-			   Gets the fitness assigned function.
-			 */
-			FitnessFunc get_fitness_func()
-			{
-				return _fitness_func;
-			}
-
-			/**
-			   @return the fitness value of the genome
-
-			   Returns fitness of the genome. The fitness value is cached internally.
-			 */
-			double fitness()
-			{
-				if(!_fitness_cached)
-				{
-					_fitness = _fitness_func(reinterpret_cast<const TDerived*>(this));
-					_fitness_cached = true;
-				}
-
-				return _fitness;
-			}
-
-			/**
-			   @param index a position
+			   @param sequence a sequence
+			   @param offset position of a gene
 			   @param gene gene to set
 
-			   Sets the gene at the given position.
+			   Copies a gene to the given position.
 			 */
-			virtual void set(const uint32_t index, const TGene gene) = 0;
+			virtual void set(TSequence& sequence, const uint16_t offset, const TGene& gene) const = 0;
 
 			/**
-			   @param index a position
-			   @param gene gene to copy
+			   @param sequence a sequence
+			   @param offset position of a geme
+			   @return a gene
 
-			   Copies a gene to the specified position. If you store object pointers you might
-			   want to use this function to clone the object and free memory.
+			   Gets a gene.
 			 */
-			virtual void copy_to(const uint32_t index, const TGene gene) = 0;
+			virtual TGene get(const TSequence& sequence, const uint16_t offset) const = 0;
 
 			/**
-			   @param pos1 position of the first gene
-			   @param pos2 position of the second gene
+			   @param sequence a sequence
+			   @return length of the sequence
 
-			   Swaps two genes.
+			   Gets the length of a sequence.
 			 */
-			virtual void swap(const uint32_t pos1, const uint32_t pos2) = 0;
+
+			virtual uint16_t len(const TSequence& sequence) const = 0;
+			/**
+			   @param sequence a sequence
+			   @return fitness of the given sequence
+
+			   Gets fitness of a sequence.
+			 */
+
+			virtual float fitness(const TSequence& sequence) = 0;
 
 			/**
-			   @param gene gene to search
-			   @param index reference to uint32_t to store the found index
-			   @return true if gene could be found
+			   @param sequence a sequence
+			   @return hash of the sequence
 
-			   Searches for a gene.
+			   Gets hash of a sequence.
 			 */
-			virtual bool index_of(const TGene gene, uint32_t &index) const = 0;
+			virtual size_t hash(const TSequence& sequence) = 0;
 
 			/**
-			   @return a string
+			   @param a a sequence
+			   @param b another sequence
+			   @return This method returns zero if the two sequences are identical, otherwise
+			           it returns the difference between the first two differing bytes (if both
+			           sequences have the same length). Zero-length sequences are always equal.
+				   If a's length is less than b's the result is -1, otherwise 1.
 
-			   Returns a string representing the object.
+			   Compares two sequences.
 			 */
-			std::string to_string()
-			{
-				if(!_str_cached)
-				{
-					_str = to_string_impl();
-					_str_cached = true;
-				}
-
-				return _str;
-			}
-
-
-			/**
-			   @return hash of the genome
-
-			   Returns hash of the genome. The hash value is cached internally.
-			 */
-			size_t hash()
-			{
-				if(!_hash_cached)
-				{
-					_hash = hash_impl();
-					_hash_cached = true;
-				}
-
-				return _hash;
-			}
-
-		protected:
-			/**
-			   @return hash of the genome
-
-			   Returns hash of the genome.
-			 */
-			virtual size_t hash_impl() = 0;
-
-			/**
-			   @return a string
-
-			   Returns a string representing the object.
-			 */
-			virtual std::string to_string_impl() = 0;
-
-			/*! Called from derived class to reset cached fitness & hash value. */
-			void modified()
-			{
-				_fitness_cached = false;
-				_hash_cached = false;
-				_str_cached = false;
-			}
-
-		private:
-			FitnessFunc _fitness_func;
-			uint32_t _size;
-			bool _fitness_cached;
-			double _fitness;
-			bool _hash_cached;
-			size_t _hash;
-			bool _str_cached;
-			std::string _str;
+			virtual int cmp(const TSequence& a, const TSequence& b) const = 0;
 	};
 
 	/**

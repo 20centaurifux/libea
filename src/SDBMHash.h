@@ -18,7 +18,7 @@
    @file SDBMHash.h
    @brief SDBM hash algorithm.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
-   @version 0.1.0
+   @version 0.2.0
  */
 
 #ifndef SDBMHASH_H

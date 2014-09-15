@@ -18,7 +18,7 @@
    @file AHash.h
    @brief Base class for hash algorithms.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
-   @version 0.1.0
+   @version 0.2.0
  */
 
 #ifndef AHASH_H
@@ -36,11 +36,11 @@ namespace ea
 	   @{
 	 */
 
-	/*! Helper to copy a generic to the buffer. */
-	#define AHASH_APPEND(from, size)          \
-		assert(size <= 8);                \
-		memcpy(_buffer, from, size); \
-		append(_buffer, size);            \
+	/*! Helper to copy data to the buffer. */
+	#define AHASH_APPEND(from, size)   \
+		assert(size <= 8);             \
+		memcpy(_buffer, from, size);   \
+		append(_buffer, size);         \
 		return *this;
 
 	/**
@@ -55,7 +55,7 @@ namespace ea
 			/**
 			   @param value value to append
 			   @return reference to the hash algorithm
-			   
+
 			   Appends int32_t value to buffer.
 			 */
 			AHash& operator<<(const int32_t value)
@@ -66,7 +66,7 @@ namespace ea
 			/**
 			   @param value value to append
 			   @return reference to the hash algorithm
-			   
+
 			   Appends uint32_t value to buffer.
 			 */
 			AHash& operator<<(const uint32_t value)
@@ -77,7 +77,7 @@ namespace ea
 			/**
 			   @param value value to append
 			   @return reference to the hash algorithm
-			   
+
 			   Appends float value to buffer.
 			 */
 			AHash& operator<<(const float value)
@@ -88,7 +88,7 @@ namespace ea
 			/**
 			   @param value value to append
 			   @return reference to the hash algorithm
-			   
+
 			   Appends double value to buffer.
 			 */
 			AHash& operator<<(const double value)
@@ -99,18 +99,7 @@ namespace ea
 			/**
 			   @param value value to append
 			   @return reference to the hash algorithm
-			   
-			   Appends double value to buffer.
-			 */
-			AHash& operator<<(const size_t value)
-			{
-				AHASH_APPEND(&value, sizeof(size_t));
-			}
 
-			/**
-			   @param value value to append
-			   @return reference to the hash algorithm
-			   
 			   Appends bool value to buffer.
 			 */
 			AHash& operator<<(const bool value)
@@ -121,7 +110,7 @@ namespace ea
 			/**
 			   @param value value to append
 			   @return reference to the hash algorithm
-			   
+
 			   Appends char value to buffer.
 			 */
 			AHash& operator<<(const char value)
@@ -135,10 +124,10 @@ namespace ea
 			/**
 			   @param value value to append
 			   @return reference to the hash algorithm
-			   
+
 			   Appends string value to buffer.
 			 */
-			AHash& operator<<(const std::string value)
+			AHash& operator<<(const std::string& value)
 			{
 				append(value.c_str(), value.size());
 
@@ -161,7 +150,7 @@ namespace ea
 			/**
 			   @return hash hash value
 
-			   Calculates the hash value of the buffer.
+			   Calculates the hash of the buffer.
 			 */
 			virtual size_t hash() = 0;
 
