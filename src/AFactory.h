@@ -23,6 +23,9 @@
 #ifndef AFACTORY_H
 #define AFACTORY_H
 
+#include <stdint.h>
+#include "OutputAdapter.h"
+
 namespace ea
 {
 	/**
@@ -40,16 +43,14 @@ namespace ea
 	{
 		public:
 			/**
-			   @tparam TIterator type of the used output operator
 			   @param count number of sequences to create
 			   @param iterator an output operator
 			 */
-			template<typename TIterator>
-			void create_population(uint32_t count, TIterator& iterator)
+			void create_population(uint32_t count, IOutputAdapter<TSequence>& adapter)
 			{
 				for(uint32_t i = 0; i < count; i++)
 				{
-					iterator++ = create_sequence();
+					adapter.push(create_sequence());
 				}
 			}
 
