@@ -25,6 +25,7 @@
 
 #include <cassert>
 #include "ACrossover.h"
+#include "ARandomNumberGenerator.h"
 
 namespace ea
 {
@@ -35,77 +36,70 @@ namespace ea
 		@{
 	 */
 
-	/**
-	   @class CutAndSpliceCrossover
-	   @tparam TGenome type of the genome class
-	   @brief Implementation of the cut-and-splice crossover operator.
-	 */
-	template<typename TGenome>
-	class CutAndSpliceCrossover : public ACrossover<TGenome>
+	template<typename TGenomeBase, typename TRandom>
+	class CutAndSpliceCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
-			using ACrossover<TGenome>::crossover;
+			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			/**
-			   @param rnd_generator instance of a random number generator
-			 */
-			CutAndSpliceCrossover(std::shared_ptr<ARandomNumberGenerator> rnd_generator) : ACrossover<TGenome>(rnd_generator) {}
-
-			virtual ~CutAndSpliceCrossover() {};
-
-		protected:
-			uint32_t crossover_impl(const std::shared_ptr<TGenome> &a, const std::shared_ptr<TGenome> &b, IOutputAdapter<std::shared_ptr<TGenome>> &output) override
+			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
-				uint32_t separator1;
-				uint32_t separator2;
-				std::shared_ptr<TGenome> individual;
-				uint32_t i;
+				assert(_base.len(a) > 1);
+				assert(_base.len(b) > 1);
+
+				uint32_t sep1;
+				uint32_t sep2;
 				uint32_t m;
+				uint32_t i;
 
-				assert(a->size() > 1);
-				assert(b->size() > 1);
-
-				m = separator1 = (uint32_t)generator->get_int32(1, a->size() - 2);
-				separator2 = (uint32_t)generator->get_int32(1, a->size() - 2);
+				m = sep1 = (uint32_t)_rnd.get_int32(1, _base.len(a) - 2);
+				sep2 = (uint32_t)_rnd.get_int32(1, _base.len(a) - 2);
 
 				// create first individual:
-				individual = std::make_shared<TGenome>(separator1 + b->size() - separator2, a->get_fitness_func());
+				auto individual = _base.create(sep1 + _base.len(b) - sep2);
 
-				for(i = 0; i < separator1; ++i)
+				for(i = 0; i < sep1; i++)
 				{
-					individual->copy_to(i, a->at(i));
+					_base.set(individual, i, _base.get(a, i));
 				}
 
-				for(i = separator2; i < b->size(); ++i)
+				for(i = sep2; i < _base.len(b); i++)
 				{
-					individual->copy_to(m++, b->at(i));
+					_base.set(individual, m++, _base.get(b, i));
 				}
 
-				output.append(individual);
+				output.push(individual);
 
 				// create second individual:
-				individual = std::make_shared<TGenome>(separator2 + a->size() - separator1, a->get_fitness_func());
+				individual = _base.create(sep2 + _base.len(a) - sep1);
 
-				for(i = 0; i < separator2; ++i)
+				for(i = 0; i < sep2; i++)
 				{
-					individual->copy_to(i, b->at(i));
+					_base.set(individual, i, _base.get(b, i));
 				}
 
-				m = separator2;
+				m = sep2;
 
-				for(i = separator1; i < a->size(); ++i)
+				for(i = sep1; i < _base.len(a); i++)
 				{
-					individual->copy_to(m++, a->at(i));
+					_base.set(individual, m++, _base.get(a, i));
 				}
 
-				output.append(individual);
+				output.push(individual);
 
 				return 2;
 			}
 
-		protected:
-			using ACrossover<TGenome>::generator;
+		private:
+			static TGenomeBase _base;
+			static TRandom _rnd;
 	};
+
+	template<typename TGenomeBase, typename TRandom>
+	TGenomeBase CutAndSpliceCrossover<TGenomeBase, TRandom>::_base;
+
+	template<typename TGenomeBase, typename TRandom>
+	TRandom CutAndSpliceCrossover<TGenomeBase, TRandom>::_rnd;
 
 	/**
 		   @}
