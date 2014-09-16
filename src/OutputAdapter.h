@@ -16,7 +16,7 @@
  ***************************************************************************/
 /**
    @file OutputAdapter.h
-   @brief Adapter classes used to add items to wrapped containers.
+   @brief Adapters used to write items to wrapped containers.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
@@ -24,6 +24,8 @@
 #define OUTPUT_ADAPTER_H
 
 #include <vector>
+#include <iterator>
+#include <memory>
 
 namespace ea
 {
@@ -35,7 +37,7 @@ namespace ea
 	/**
 	   @class IOutputAdapter
 	   @tparam T datatype of items stored in the wrapped container
-	   @brief Interface for adapter classes used to append data to a container.
+	   @brief Interface for adapter classes used to write items into a container.
 	 */
 	template<typename T>
 	class IOutputAdapter
@@ -48,47 +50,35 @@ namespace ea
 
 			   Inserts a value into a container.
 			 */
-			virtual void append(T item) = 0;
+			virtual void push(T item) = 0;
 	};
 
 	/**
-	   @class BackInsertOutputAdapter
+	   @class STLOutputAdapter
 	   @tparam T datatype of items stored in the wrapped container
-	   @tparam TContainer datatype of the wrapped container
-	   @brief An IOutputAdapter wrapping a container. The container needs to provide a push_back() function.
+	   @tparam TIterator an iterator compatible to STL's output iterator
+	   @brief An IOutputAdapter wrapping an iterator compatible to STL's output iterator.
 	 */
-	template<typename T, typename TContainer>
-	class BackInsertOutputAdapter : public IOutputAdapter<T>
+	template<typename T, typename TIterator>
+	class STLOutputAdapter : public IOutputAdapter<T>
 	{
 		private:
-			TContainer &_container;
+			TIterator& _iterator;
 
 		public:
 			/**
 			   @param container a container to wrap
 			 */
-			BackInsertOutputAdapter(TContainer &container) : _container(container) {}
+			STLOutputAdapter(TIterator& iterator) : _iterator(iterator) {}
 
-			void append(T item) override
+			void push(T item) override
 			{
-				_container.push_back(item);
+				*_iterator++ = item;
 			}
 	};
-
-	/**
-	   @param container a container
-	   @tparam T datatype of items stored in the specified container
-	   @tparam TContainer datatype of a container
-	   @return a BackInsertOutputAdapter
-
-	   Helper function to create BackInsertOutputAdapters.
-	 */
-	template<typename T, typename TContainer>
-	BackInsertOutputAdapter<T, TContainer> make_output_adapter(TContainer &container)
-	{
-		return BackInsertOutputAdapter<T, TContainer>(container);
-	}
-
+	
+	template<typename TSequence>
+	using STLVectorAdapter = STLOutputAdapter<TSequence, std::back_insert_iterator<std::vector<TSequence>>>;
 	/**
 	   @}
 	 */
