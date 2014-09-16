@@ -34,6 +34,11 @@ namespace ea
 	   @{
 	*/
 
+	/**
+	   @tparam TBase a genome base class
+	   @tparam TIterator an iterator
+	   @brief Disposes all given genomes.
+	 */
 	template<typename TBase, typename TIterator>
 	void dispose(TBase& base, const TIterator& first, const TIterator& last)
 	{

@@ -67,7 +67,7 @@ namespace ea
 
 		public:
 			/**
-			   @param container a container to wrap
+			   @param iterator a STL iterator to wrap
 			 */
 			STLOutputAdapter(TIterator& iterator) : _iterator(iterator) {}
 
@@ -76,7 +76,12 @@ namespace ea
 				*_iterator++ = item;
 			}
 	};
-	
+
+	/**
+	   \typedef STLVectorAdapter
+	   \tparam TSequence type of the sequence stored in a std::vector
+	   \brief A STLOutputAdapter wrapping a std::back_insert_iterator created from a std::vector.
+	 */
 	template<typename TSequence>
 	using STLVectorAdapter = STLOutputAdapter<TSequence, std::back_insert_iterator<std::vector<TSequence>>>;
 	/**

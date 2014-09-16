@@ -98,6 +98,11 @@ namespace ea
 		public:
 			PrimitiveGenomeBase() : allocator(StdAllocator::create_shared()) {}
 
+			/**
+			   @param allocator a memory allocator
+
+			   Creates a new PrimitiveGenomeBase instance with an assigned allocator.
+			 */
 			PrimitiveGenomeBase(std::shared_ptr<IAllocator> allocator) : allocator(allocator) {}
 
 			virtual ~PrimitiveGenomeBase() {}

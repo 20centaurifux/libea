@@ -36,13 +36,14 @@ namespace ea
 
 	/**
 	   @class ACrossover
-	   @tparam TGenome type of the genome class
+	   @tparam TGenomeBase type of a genome base class
 	   @brief Abstract base class for crossover operators.
 	 */
 	template<typename TGenomeBase>
 	class ACrossover
 	{
 		public:
+			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
 			~ACrossover() {}
@@ -50,8 +51,7 @@ namespace ea
 			/**
 			   @param a a genome
 			   @param b a genome
-			   @param container a container used to store the generated genomes
-			   @tparam TOutputContainer type of the specified container
+			   @param output an output adapter
 			   @return number of generated children
 
 			   Combines two genomes.

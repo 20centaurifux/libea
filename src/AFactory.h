@@ -44,13 +44,13 @@ namespace ea
 		public:
 			/**
 			   @param count number of sequences to create
-			   @param iterator an output operator
+			   @param output an output operator
 			 */
-			void create_population(uint32_t count, IOutputAdapter<TSequence>& adapter)
+			void create_population(uint32_t count, IOutputAdapter<TSequence>& output)
 			{
 				for(uint32_t i = 0; i < count; i++)
 				{
-					adapter.push(create_sequence());
+					output.push(create_sequence());
 				}
 			}
 

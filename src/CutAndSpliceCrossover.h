@@ -36,10 +36,17 @@ namespace ea
 		@{
 	 */
 
+	/**
+	   @class CutAndSpliceCrossover
+	   @tparam TGenomeBase a genome base class
+	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
+	   @brief Implementation of the cut-and-splice crossover operator.
+	 */
 	template<typename TGenomeBase, typename TRandom>
 	class CutAndSpliceCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
+			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
