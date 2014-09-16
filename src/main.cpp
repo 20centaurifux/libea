@@ -1,8 +1,13 @@
 #include <iostream>
-#include "PrimitiveGenome.h"
 #include "AFactory.h"
 #include <vector>
 #include <algorithm>
+
+#include "PrimitiveGenome.h"
+#include "ACrossover.h"
+#include "OutputAdapter.h"
+#include "CutAndSpliceCrossover.h"
+#include "AnsiRandomNumberGenerator.h"
 
 typedef ea::CachedSequence<uint32_t> UInt32_Seq;
 
@@ -50,22 +55,58 @@ class UInt32_SeqFactory : ea::AFactory<UInt32_Seq*>
 		}
 };
 
+template<typename TGenomeBase>
+class Foo : ea::ACrossover<TGenomeBase>
+{
+	public:
+		typedef typename TGenomeBase::sequence_type sequence_type;
+
+		uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
+		{
+			TGenomeBase foo;
+
+			output.push(foo.create(10));
+			return 0;
+		}
+};
+
 int main(int argc, char* argv[])
 {
-	UInt32_SeqFactory factory;
+	//UInt32_SeqFactory factory;
 
 	std::vector<UInt32_Seq*> population;
-
 	auto inserter = std::back_inserter(population);
+	ea::STLVectorAdapter<UInt32_Seq*> adapter(inserter);
 
-	factory.create_population(10, inserter);
+	UInt32_Seq* a = base.create(10);
+	UInt32_Seq* b = base.create(10);
 
-	std::for_each(begin(population), end(population), [](UInt32_Seq* seq)
+	for(uint32_t i = 0; i < 10; i++)
 	{
-		std::cout << base.len(seq) << std::endl;
-	});
+		base.set(a, i, i);
+		base.set(b, i, i + 100);
+	}
 
-	ea::dispose(base, begin(population), end(population));
+	//factory.create_population(10, adapter);
+
+	ea::CutAndSpliceCrossover<UInt32_GenomeBase, ea::AnsiRandomNumberGenerator> c;
+
+	c.crossover(a, b, adapter);
+
+
+//	std::for_each(begin(population), end(population), [](UInt32_Seq* seq)
+//	{
+//		std::cout << base.len(seq) << std::endl;
+//	});
+//
+//	Foo<UInt32_GenomeBase> c;
+//
+//	UInt32_Seq* a = population.at(0);
+//	UInt32_Seq* b = population.at(0);
+//
+//	c.crossover(a, b, adapter);
+//
+//	ea::dispose(base, begin(population), end(population));
 
 	return 0;
 }
