@@ -140,6 +140,15 @@ namespace ea
 			   Compares two sequences.
 			 */
 			virtual int cmp(const TSequence& a, const TSequence& b) const = 0;
+
+			/**
+			   @param seq a sequence
+			   @param search a gene to search
+			   @return index of the found gene or -1
+
+			   Searches a gene in a sequence.
+			 */
+			virtual int32_t index_of(const TSequence& seq, const TGene& search) const = 0;
 	};
 
 	/**

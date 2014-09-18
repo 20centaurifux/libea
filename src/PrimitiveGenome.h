@@ -184,6 +184,19 @@ namespace ea
 				return memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
 			}
 
+			int32_t index_of(TSequence* const& seq, const typename TSequence::gene_type& search) const
+			{
+				for(uint32_t i = 0; i < seq->len; i++)
+				{
+					if(seq->genes[i] == search)
+					{
+						return i;
+					}
+				}
+
+				return -1;
+			}
+
 		protected:
 			/*! Fitness function. */
 			static F fitness_func;
