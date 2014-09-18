@@ -45,7 +45,7 @@ namespace ea
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
 	   @brief Implementation of the cycle crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom, typename LessThan = std::less<typename TGenomeBase::gene_type>>
+	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	class CycleCrossover : public ACrossover<TGenomeBase>
 	{
 		public:
