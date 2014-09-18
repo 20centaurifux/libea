@@ -7,6 +7,7 @@
 #include "ACrossover.h"
 #include "OutputAdapter.h"
 #include "CutAndSpliceCrossover.h"
+#include "CycleCrossover.h"
 #include "AnsiRandomNumberGenerator.h"
 
 typedef ea::CachedSequence<uint32_t> UInt32_Seq;
@@ -70,6 +71,16 @@ class Foo : ea::ACrossover<TGenomeBase>
 		}
 };
 
+void dump(const UInt32_Seq* seq)
+{
+	for(uint32_t i = 0; i < seq->len; i++)
+	{
+		std::cout << seq->genes[i] << " ";
+	}
+
+	std::cout << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
 	//UInt32_SeqFactory factory;
@@ -81,17 +92,41 @@ int main(int argc, char* argv[])
 	UInt32_Seq* a = base.create(10);
 	UInt32_Seq* b = base.create(10);
 
-	for(uint32_t i = 0; i < 10; i++)
-	{
-		base.set(a, i, i);
-		base.set(b, i, i + 100);
-	}
+	base.set(a, 0, 8);
+	base.set(a, 1, 4);
+	base.set(a, 2, 7);
+	base.set(a, 3, 3);
+	base.set(a, 4, 6);
+	base.set(a, 5, 2);
+	base.set(a, 6, 5);
+	base.set(a, 7, 1);
+	base.set(a, 8, 9);
+	base.set(a, 9, 0);
+
+	base.set(b, 0, 0);
+	base.set(b, 1, 1);
+	base.set(b, 2, 2);
+	base.set(b, 3, 3);
+	base.set(b, 4, 4);
+	base.set(b, 5, 5);
+	base.set(b, 6, 6);
+	base.set(b, 7, 7);
+	base.set(b, 8, 8);
+	base.set(b, 9, 9);
 
 	//factory.create_population(10, adapter);
 
-	ea::CutAndSpliceCrossover<UInt32_GenomeBase, ea::AnsiRandomNumberGenerator> c;
+	ea::CycleCrossover<UInt32_GenomeBase, ea::AnsiRandomNumberGenerator> c;
 
 	c.crossover(a, b, adapter);
+
+	dump(a);
+	dump(b);
+
+	std::for_each(begin(population), end(population), [](const UInt32_Seq* seq)
+	{
+		dump(seq);
+	});
 
 
 //	std::for_each(begin(population), end(population), [](UInt32_Seq* seq)
