@@ -8,6 +8,7 @@
 #include "OutputAdapter.h"
 #include "CutAndSpliceCrossover.h"
 #include "CycleCrossover.h"
+#include "EdgeRecombinationCrossover.h"
 #include "AnsiRandomNumberGenerator.h"
 
 typedef ea::CachedSequence<uint32_t> UInt32_Seq;
@@ -116,7 +117,7 @@ int main(int argc, char* argv[])
 
 	//factory.create_population(10, adapter);
 
-	ea::CycleCrossover<UInt32_GenomeBase, ea::AnsiRandomNumberGenerator> c;
+	ea::EdgeRecombinationCrossover<UInt32_GenomeBase, ea::AnsiRandomNumberGenerator> c;
 
 	c.crossover(a, b, adapter);
 
