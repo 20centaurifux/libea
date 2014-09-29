@@ -16,7 +16,7 @@
  ***************************************************************************/
 /**
    @file OnePointCrossover.h
-   @brief Implementation of the two-point crossover operator.
+   @brief Implementation of the one-point crossover operator.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
@@ -40,7 +40,7 @@ namespace ea
 	   @class OnePointCrossover
 	   @tparam TGenomeBase a genome base class
 	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
-	   @brief Implementation of the two-point crossover operator.
+	   @brief Implementation of the one-point crossover operator.
 	 */
 	template<typename TGenomeBase, typename TRandom>
 	class OnePointCrossover : ea::ACrossover<TGenomeBase>
