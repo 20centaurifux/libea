@@ -51,16 +51,13 @@ namespace ea
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
-				assert(_base.len(a) > 1);
-				assert(_base.len(b) > 1);
+				uint32_t m, i, sep1, sep2;
 
-				uint32_t sep1;
-				uint32_t sep2;
-				uint32_t m;
-				uint32_t i;
+				assert(_base.len(a) > 2);
+				assert(_base.len(b) > 2);
 
 				m = sep1 = (uint32_t)_rnd.get_int32(1, _base.len(a) - 2);
-				sep2 = (uint32_t)_rnd.get_int32(1, _base.len(a) - 2);
+				sep2 = (uint32_t)_rnd.get_int32(1, _base.len(b) - 2);
 
 				// create first individual:
 				auto individual = _base.create(sep1 + _base.len(b) - sep2);
