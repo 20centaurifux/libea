@@ -105,7 +105,7 @@ namespace ea
 				for(i = offset0; i <= offset1; i++)
 				{
 					gene = _base.get(a, i);
-					_base.set(child, gene, i);
+					_base.set(child, i, gene);
 					assigned[gene] = true;
 				}
 
@@ -177,7 +177,6 @@ namespace ea
 
 				return 0;
 			}
-
 	};
 
 	template<typename TGenomeBase, typename TRandom, typename LessThan>
