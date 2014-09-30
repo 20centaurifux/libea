@@ -16,12 +16,12 @@
  ***************************************************************************/
 /**
    @file UniformCrossover.h
-   @brief Implementation of the two-point crossover operator.
+   @brief Implementation of the uniform crossover operator.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
-#ifndef uNIFORMCROSSOVER_H
-#define uNIFORMCROSSOVER_H
+#ifndef UNIFORMCROSSOVER_H
+#define UNIFORMCROSSOVER_H
 
 #include <cassert>
 #include <algorithm>
@@ -44,7 +44,7 @@ namespace ea
 	   @tparam TGenomeBase a genome base class
 	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @tparam N Ratio between two parents
-	   @brief Implementation of the two-point crossover operator.
+	   @brief Implementation of the uniform crossover operator.
 	 */
 	template<typename TGenomeBase, typename TRandom, const int32_t N = 2>
 	class UniformCrossover : ea::ACrossover<TGenomeBase>

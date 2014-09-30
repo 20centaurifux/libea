@@ -16,7 +16,7 @@
  ***************************************************************************/
 /**
    @file PMXCrossover.h
-   @brief Implementation of the two-point crossover operator.
+   @brief Implementation of the PMX crossover operator.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
@@ -44,7 +44,7 @@ namespace ea
 	   @tparam TGenomeBase a genome base class
 	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
-	   @brief Implementation of the two-point crossover operator.
+	   @brief Implementation of the PMX crossover operator.
 	 */
 	template<typename TGenomeBase, typename TRandom, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	class PMXCrossover : ea::ACrossover<TGenomeBase>
