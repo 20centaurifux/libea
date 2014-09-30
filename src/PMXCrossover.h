@@ -167,7 +167,7 @@ namespace ea
 
 			inline uint32_t next_unassigned(const bool* indices, const uint32_t first, const uint32_t last) const
 			{
-				for(uint32_t i = first; i < last; ++i)
+				for(uint32_t i = first; i < last; i++)
 				{
 					if(!indices[i])
 					{
