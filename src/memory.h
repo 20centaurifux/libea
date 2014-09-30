@@ -65,7 +65,7 @@ namespace ea
 		public:
 			void* alloc(const std::size_t size)
 			{
-				void *ptr = std::malloc(size);
+				void* ptr = std::malloc(size);
 
 				if(ptr == nullptr)
 				{

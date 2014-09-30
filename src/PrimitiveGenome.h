@@ -23,6 +23,7 @@
 #ifndef GENOME_H
 #define GENOME_H
 
+#include <cstring>
 #include "AGenome.h"
 #include "SDBMHash.h"
 #include "memory.h"
@@ -31,9 +32,10 @@ namespace ea
 {
 	/**
 	   @class PrimitiveGenomeHashFunc
-	   @tparam TGene gene datatype
-	   @brief Default functor calculating a hash for sequences derived
-			   from Sequence.
+	   @tparam TSequence sequence datatype
+	   @tparam H an hash algorithm
+	   @brief Default functor calculating an hash for sequences derived
+	          from Sequence.
 	 */
 	template<typename TSequence, typename H = SDBMHash>
 	class PrimitiveGenomeHashFunc
@@ -43,53 +45,53 @@ namespace ea
 			   @param sequence a sequence
 			   @return hash of a sequence
 
-			   Default functor calculating a hash for sequences derived
+			   Default functor calculating an hash for sequences derived
 			   from Sequence.
 			 */
 			size_t operator()(const TSequence* const sequence) const
 			{
 				assert(sequence != nullptr);
 
-				hash_funcer.reset();
+				hash_func.reset();
 
 				for(auto i = 0; i < sequence->len; i++)
 				{
-					hash_funcer << sequence->genes[i];
+					hash_func << sequence->genes[i];
 				}
 
-				return hash_funcer.hash();
+				return hash_func.hash();
 			}
 
 		private:
-			static H hash_funcer;
+			static H hash_func;
 	};
 
 	template<typename TSequence, typename H>
-	H PrimitiveGenomeHashFunc<TSequence, H>::hash_funcer;
+	H PrimitiveGenomeHashFunc<TSequence, H>::hash_func;
 
 	/**
 	   @struct Sequence
 	   @tparam TGene gene datatype
-	   @brief A simple sequence holding data length.
+	   @brief A sequence holding data length.
 	  */
 	template<typename TGene>
 	struct Sequence
 	{
-		/*! Datatype of the stored genes. */
+		/*! Datatype of stored genes. */
 		typedef TGene gene_type;
 
 		/*! Number of stored genes. */
 		uint16_t len;
 		/*! Dynamic array holding genes. */
-		TGene *genes;
+		TGene* genes;
 	};
 
 	/**
 	   @class PrimitiveGenomeBase
-	   @tparam TGene type of the genes
+	   @tparam TGene type of genes
 	   @tparam F a fitness function
 	   @tparam H an hash function
-	   @tparam TSequence sequence type (only used internally)
+	   @tparam TSequence sequence type (this parameter is only used internally)
 	   @brief A genome base class providing access to sequences of datatype Sequence.
 	 */
 	template<typename TGene, typename F, typename H = PrimitiveGenomeHashFunc<Sequence<TGene>>, typename TSequence = Sequence<TGene>>
@@ -114,8 +116,8 @@ namespace ea
 				auto genes = (uint32_t*)allocator->alloc(sizeof(typename TSequence::gene_type) * len);
 				auto sequence = (TSequence*)allocator->alloc(sizeof(TSequence));
 
-				memset(sequence, 0, sizeof(TSequence));
-				memset(genes, 0, len * sizeof(typename TSequence::gene_type));
+				std::memset(sequence, 0, sizeof(TSequence));
+				std::memset(genes, 0, len * sizeof(typename TSequence::gene_type));
 
 				sequence->len = len;
 				sequence->genes = genes;
@@ -181,7 +183,7 @@ namespace ea
 					return 1;
 				}
 
-				return memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
+				return std::memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
 			}
 
 			int32_t index_of(TSequence* const& seq, const typename TSequence::gene_type& search) const
@@ -200,8 +202,10 @@ namespace ea
 		protected:
 			/*! Fitness function. */
 			static F fitness_func;
+
 			/*! Hash function. */
 			static H hash_func;
+
 			/*! An allocator. */
 			std::shared_ptr<IAllocator> allocator;
 	};
@@ -220,10 +224,9 @@ namespace ea
 		PSEQ_FLAG_HASH_SET = 2
 	};
 
-
 	/**
 	   @tparam TGene gene datatype
-	   @brief This sequence can cache fitness and hash.
+	   @brief This sequence can additionally cache fitness and hash values.
 	  */
 	template<typename TGene>
 	struct CachedSequence : Sequence<TGene>
@@ -238,7 +241,7 @@ namespace ea
 
 	/**
 	   @class CachedPrimitiveGenomeBase
-	   @tparam TGene type of the genes
+	   @tparam TGene type of genes
 	   @tparam F a fitness function
 	   @tparam H an hash function
 	   @brief A genome base class providing access to sequences of datatype CachedSequence.

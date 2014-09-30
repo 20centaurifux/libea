@@ -37,10 +37,10 @@ namespace ea
 	 */
 
 	/*! Helper to copy data to the buffer. */
-	#define AHASH_APPEND(from, size)   \
-		assert(size <= 8);             \
-		memcpy(_buffer, from, size);   \
-		append(_buffer, size);         \
+	#define AHASH_APPEND(from, size)     \
+		assert(size <= 8);           \
+		memcpy(_buffer, from, size); \
+		append(_buffer, size);       \
 		return *this;
 
 	/**

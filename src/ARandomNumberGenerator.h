@@ -38,7 +38,7 @@ namespace ea
 
 	/**
 	   @class ARandomNumberGenerator
-	   @brief Abstract base class for all random number generators.
+	   @brief Abstract base class for random number generators.
 	 */
 	class ARandomNumberGenerator
 	{

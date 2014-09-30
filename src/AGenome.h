@@ -37,7 +37,7 @@ namespace ea
 	/**
 	   @tparam TBase a genome base class
 	   @tparam TIterator an iterator
-	   @brief Disposes all given genomes.
+	   @brief Disposes all genomes.
 	 */
 	template<typename TBase, typename TIterator>
 	void dispose(TBase& base, const TIterator& first, const TIterator& last)
@@ -50,11 +50,10 @@ namespace ea
 
 	/**
 	   @class AGenomeBase
-	   @tparam TSequence type of the sequence this class provides access to
-	   @tparam TGene type of genes stored in the sequence
-	   @brief In libea individuals are stored in sequences. All operations
-	          on sequences are provided by classes derived from AGenomeBase.
-
+	   @tparam TSequence the genome base class provides access to sequences of this type
+	   @tparam TGene datatype of genes
+	   @brief In libea individuals are stored in sequences. Any operation
+	          on sequences is provided by a class derived from AGenomeBase.
 	  */
 	template<typename TSequence, typename TGene>
 	class AGenomeBase
@@ -91,16 +90,16 @@ namespace ea
 			   @param offset position of a gene
 			   @param gene gene to set
 
-			   Copies a gene to the given position.
+			   Writes a gene to a sequence.
 			 */
 			virtual void set(TSequence& sequence, const uint16_t offset, const TGene& gene) const = 0;
 
 			/**
 			   @param sequence a sequence
-			   @param offset position of a geme
+			   @param offset position of the gene to get
 			   @return a gene
 
-			   Gets a gene.
+			   Reads a gene from a sequence.
 			 */
 			virtual TGene get(const TSequence& sequence, const uint16_t offset) const = 0;
 
@@ -114,9 +113,9 @@ namespace ea
 			virtual uint16_t len(const TSequence& sequence) const = 0;
 			/**
 			   @param sequence a sequence
-			   @return fitness of the given sequence
+			   @return fitness of the sequence
 
-			   Gets fitness of a sequence.
+			   Calculates the fitness of a sequence.
 			 */
 
 			virtual float fitness(const TSequence& sequence) = 0;
@@ -125,7 +124,7 @@ namespace ea
 			   @param sequence a sequence
 			   @return hash of the sequence
 
-			   Gets hash of a sequence.
+			   Gets the hash of a sequence.
 			 */
 			virtual size_t hash(const TSequence& sequence) = 0;
 
@@ -133,7 +132,7 @@ namespace ea
 			   @param a a sequence
 			   @param b another sequence
 			   @return This method returns zero if the two sequences are identical, otherwise
-			           it returns the difference between the first two differing bytes (if both
+			           it returns the difference between the first two differing genes (if both
 			           sequences have the same length). Zero-length sequences are always equal.
 				   If a's length is less than b's the result is -1, otherwise 1.
 
@@ -146,7 +145,7 @@ namespace ea
 			   @param search a gene to search
 			   @return index of the found gene or -1
 
-			   Searches a gene in a sequence.
+			   Searches for a gene in a sequence.
 			 */
 			virtual int32_t index_of(const TSequence& seq, const TGene& search) const = 0;
 	};

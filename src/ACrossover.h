@@ -49,12 +49,12 @@ namespace ea
 			~ACrossover() {}
 
 			/**
-			   @param a a genome
-			   @param b a genome
+			   @param a a sequence
+			   @param b a sequence
 			   @param output an output adapter
 			   @return number of generated children
 
-			   Combines two genomes.
+			   Combines two sequences.
 			 */
 			virtual uint32_t crossover(const sequence_type& a, const sequence_type& b, IOutputAdapter<sequence_type>& output) = 0;
 	};

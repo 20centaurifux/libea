@@ -65,9 +65,9 @@ namespace ea
 	/**
 	   @tparam TGenomeBase a genome base class
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
-	   @return true if given sequence is a multi-set
+	   @return true if both sequences are equal.
 
-	   Tests if a sequence is a multi-set.
+	   Tests if two sequences are qual. The sequences have to be multi-sets.
 	  */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	bool set_equals(const typename TGenomeBase::sequence_type& a, const typename TGenomeBase::sequence_type& b)
@@ -100,4 +100,3 @@ namespace ea
 	 */
 }
 #endif
-
