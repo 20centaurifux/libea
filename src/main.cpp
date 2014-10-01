@@ -12,7 +12,10 @@
 #include "TwoPointCrossover.h"
 #include "OnePointCrossover.h"
 #include "PMXCrossover.h"
+#include "UniformCrossover.h"
+#include "OrderedCrossover.h"
 #include "AnsiRandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 
 typedef ea::CachedSequence<uint32_t> UInt32_Seq;
 
@@ -120,7 +123,9 @@ int main(int argc, char* argv[])
 
 	//factory.create_population(10, adapter);
 
-	ea::PMXCrossover<UInt32_GenomeBase, ea::AnsiRandomNumberGenerator> c;
+	//ea::TR1UniformDistribution<std::mt19937_64> r;
+
+	ea::OrderedCrossover<UInt32_GenomeBase, ea::TR1UniformDistribution<std::mt19937_64>> c;
 
 	c.crossover(a, b, adapter);
 

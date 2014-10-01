@@ -30,6 +30,7 @@
 #include <sstream>
 #include <cstring>
 #include <limits>
+#include <mutex>
 #include "ARandomNumberGenerator.h"
 
 namespace ea
@@ -52,15 +53,29 @@ namespace ea
 		public:
 			TR1UniformDistribution()
 			{
-				_engine.seed(time(nullptr));
-				memset(&_last_int32_dist, 0, sizeof(_last_int32_dist));
-				memset(&_last_double_dist, 0, sizeof(_last_double_dist));
+				#ifdef THREAD_SAFE
+				std::lock_guard<std::mutex> lock(_mutex);
+
+				if(!_seeded)
+				{
+					_engine.seed(time(nullptr));
+					_seeded = true;
+
+					memset(&_last_int32_dist, 0, sizeof(_last_int32_dist));
+					memset(&_last_double_dist, 0, sizeof(_last_double_dist));
+				}
+				#else
+					_engine.seed(time(nullptr));
+
+					memset(&_last_int32_dist, 0, sizeof(_last_int32_dist));
+					memset(&_last_double_dist, 0, sizeof(_last_double_dist));
+				#endif
 			}
 
 			virtual ~TR1UniformDistribution()
 			{
-				destroy_cache(_int32_cache);
-				destroy_cache(_double_cache);
+				//destroy_cache(_int32_cache);
+				//destroy_cache(_double_cache);
 			}
 
 			int32_t get_int32() override
@@ -75,21 +90,37 @@ namespace ea
 
 			int32_t get_int32(const int32_t min, const int32_t max) override
 			{
+				#ifdef THREAD_SAFE
+				std::lock_guard<std::mutex> lock(_mutex);
+				#endif
+
 				return (*get_distribution<std::uniform_int_distribution<int32_t>>(min, max, _int32_cache, _last_int32_dist))(_engine);
 			}
 
 			double get_double(const double min, const double max) override
 			{
+				#ifdef THREAD_SAFE
+				std::lock_guard<std::mutex> lock(_mutex);
+				#endif
+
 				return (*get_distribution<std::uniform_real_distribution<double>>(min, max, _double_cache, _last_double_dist))(_engine);
 			}
 
 			void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
 			{
+				#ifdef THREAD_SAFE
+				std::lock_guard<std::mutex> lock(_mutex);
+				#endif
+
 				generate_sequence(get_distribution<std::uniform_int_distribution<int32_t>>(min, max, _int32_cache, _last_int32_dist), numbers, length);
 			}
 
 			void get_double_seq(const double min, const double max, double* numbers, const int32_t length) override
 			{
+				#ifdef THREAD_SAFE
+				std::lock_guard<std::mutex> lock(_mutex);
+				#endif
+
 				generate_sequence(get_distribution<std::uniform_real_distribution<double>>(min, max, _double_cache, _last_double_dist), numbers, length);
 			}
 
@@ -112,17 +143,23 @@ namespace ea
 				TDistribuion* distribution;
 			};
 
-			std::ostringstream _sstream;
-			TEngine _engine; 
-			std::map<std::string, std::uniform_int_distribution<int32_t>*> _int32_cache;
-			std::map<std::string, std::uniform_real_distribution<double>*> _double_cache;
-			std::uniform_int_distribution<int32_t> _int32_distribution;
-			std::uniform_real_distribution<double> _double_distribution;
-			struct LastDist<int32_t, std::uniform_int_distribution<int32_t>> _last_int32_dist;
-			struct LastDist<double, std::uniform_real_distribution<double>> _last_double_dist;
+			static TEngine _engine;
+
+			#ifdef THREAD_SAFE
+			static std::mutex _mutex;
+			static bool _seeded;
+			#endif
+
+			static std::ostringstream _sstream;
+			static std::map<std::string, std::uniform_int_distribution<int32_t>*> _int32_cache;
+			static std::map<std::string, std::uniform_real_distribution<double>*> _double_cache;
+			static std::uniform_int_distribution<int32_t> _int32_distribution;
+			static std::uniform_real_distribution<double> _double_distribution;
+			static struct LastDist<int32_t, std::uniform_int_distribution<int32_t>> _last_int32_dist;
+			static struct LastDist<double, std::uniform_real_distribution<double>> _last_double_dist;
 
 			template<typename TDistribution, typename T>
-			TDistribution *get_distribution(const T min, const T max, std::map<std::string, TDistribution*>& cache, struct LastDist<T, TDistribution> &last_dist)
+			static TDistribution* get_distribution(const T min, const T max, std::map<std::string, TDistribution*>& cache, struct LastDist<T, TDistribution> &last_dist)
 			{
 				TDistribution* distribution;
 				std::string key;
@@ -161,7 +198,7 @@ namespace ea
 			}
 
 			template<typename T, typename TDistribution>
-			void generate_sequence(TDistribution* distribution, T* numbers, const int32_t length)
+			static void generate_sequence(TDistribution* distribution, T* numbers, const int32_t length)
 			{
 				assert(numbers != nullptr);
 				assert(length > 0);
@@ -173,7 +210,7 @@ namespace ea
 			}
 
 			template<typename TDistribution>
-			void destroy_cache(std::map<std::string, TDistribution*>& cache)
+			static void destroy_cache(std::map<std::string, TDistribution*>& cache)
 			{
 				for(auto d : cache)
 				{
@@ -181,6 +218,38 @@ namespace ea
 				}
 			}
 	};
+
+	template<typename TEngine>
+	TEngine TR1UniformDistribution<TEngine>::_engine;
+
+	#ifdef THREAD_SAFE
+	template<typename TEngine>
+	std::mutex TR1UniformDistribution<TEngine>::_mutex;
+
+	template<typename TEngine>
+	bool TR1UniformDistribution<TEngine>::_seeded = false;
+	#endif
+
+	template<typename TEngine>
+	std::ostringstream TR1UniformDistribution<TEngine>::_sstream;
+
+	template<typename TEngine>
+	std::map<std::string, std::uniform_int_distribution<int32_t>*> TR1UniformDistribution<TEngine>::_int32_cache;
+
+	template<typename TEngine>
+	std::map<std::string, std::uniform_real_distribution<double>*> TR1UniformDistribution<TEngine>::_double_cache;
+
+	template<typename TEngine>
+	std::uniform_int_distribution<int32_t> TR1UniformDistribution<TEngine>::_int32_distribution;
+
+	template<typename TEngine>
+	std::uniform_real_distribution<double> TR1UniformDistribution<TEngine>::_double_distribution;
+
+	template<typename TEngine>
+	struct TR1UniformDistribution<TEngine>::LastDist<int32_t, std::uniform_int_distribution<int32_t>> TR1UniformDistribution<TEngine>::_last_int32_dist;
+
+	template<typename TEngine>
+	struct TR1UniformDistribution<TEngine>::LastDist<double, std::uniform_real_distribution<double>> TR1UniformDistribution<TEngine>::_last_double_dist;
 
 	/**
 	   	@}
