@@ -26,8 +26,11 @@
 #include <cassert>
 #include <algorithm>
 #include <map>
+#include <memory>
+#include <random>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 #include "algorithms.h"
 
 namespace ea
@@ -42,16 +45,22 @@ namespace ea
 	/**
 	   @class UniformCrossover
 	   @tparam TGenomeBase a genome base class
-	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @tparam N Ratio between two parents
 	   @brief Implementation of the uniform crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom, const int32_t N = 2>
+	template<typename TGenomeBase, const int32_t N = 2>
 	class UniformCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
+
+			UniformCrossover()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+			}
+
+			UniformCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
@@ -71,7 +80,7 @@ namespace ea
 				{
 					do
 					{
-						rnd = _rnd.get_int32();
+						rnd = _rnd->get_int32();
 					} while(!rnd);
 
 					if(rnd % N)
@@ -94,14 +103,11 @@ namespace ea
 
 		private:
 			static TGenomeBase _base;
-			static TRandom _rnd;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-	template<typename TGenomeBase, typename TRandom, const int32_t N>
-	TGenomeBase UniformCrossover<TGenomeBase, TRandom, N>::_base;
-
-	template<typename TGenomeBase, typename TRandom, const int32_t N>
-	TRandom UniformCrossover<TGenomeBase, TRandom, N>::_rnd;
+	template<typename TGenomeBase, const int32_t N>
+	TGenomeBase UniformCrossover<TGenomeBase, N>::_base;
 
 	/**
 		   @}
