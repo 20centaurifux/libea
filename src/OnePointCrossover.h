@@ -24,8 +24,11 @@
 #define ONEPOINTCROSSOVER_H
 
 #include <cassert>
+#include <memory>
+#include <random>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 
 namespace ea
 {
@@ -39,13 +42,19 @@ namespace ea
 	/**
 	   @class OnePointCrossover
 	   @tparam TGenomeBase a genome base class
-	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @brief Implementation of the one-point crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom>
+	template<typename TGenomeBase>
 	class OnePointCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
+			OnePointCrossover()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+			}
+
+			OnePointCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
@@ -54,7 +63,7 @@ namespace ea
 				uint32_t separator;
 
 				assert(_base.len(a) >= 4);
-				separator = (uint32_t)_rnd.get_int32(1, _base.len(a) - 3);
+				separator = (uint32_t)_rnd->get_int32(1, _base.len(a) - 3);
 
 				output.push(create_child(b, a, separator));
 				output.push(create_child(a, b, separator));
@@ -64,7 +73,7 @@ namespace ea
 
 		private:
 			static TGenomeBase _base;
-			static TRandom _rnd;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
 			sequence_type create_child(const sequence_type& a, const sequence_type& b , const uint32_t separator)
 			{
@@ -87,11 +96,8 @@ namespace ea
 			}
 	};
 
-	template<typename TGenomeBase, typename TRandom>
-	TGenomeBase OnePointCrossover<TGenomeBase, TRandom>::_base;
-
-	template<typename TGenomeBase, typename TRandom>
-	TRandom OnePointCrossover<TGenomeBase, TRandom>::_rnd;
+	template<typename TGenomeBase>
+	TGenomeBase OnePointCrossover<TGenomeBase>::_base;
 
 	/**
 		   @}
