@@ -26,8 +26,11 @@
 #include <cassert>
 #include <algorithm>
 #include <map>
+#include <memory>
+#include <random>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 #include "algorithms.h"
 
 namespace ea
@@ -42,14 +45,20 @@ namespace ea
 	/**
 	   @class PMXCrossover
 	   @tparam TGenomeBase a genome base class
-	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
 	   @brief Implementation of the PMX crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom, typename LessThan = std::less<typename TGenomeBase::gene_type>>
+	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	class PMXCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
+			PMXCrossover()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+			}
+
+			PMXCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
@@ -64,8 +73,8 @@ namespace ea
 				assert(_base.len(a) >= 4);
 				assert(set_equals<TGenomeBase>(a, b));
 
-				offset0 = _rnd.get_int32(0, _base.len(a) - 3);
-				offset1 = _rnd.get_int32(offset0 + 1, _base.len(a) - 1);
+				offset0 = _rnd->get_int32(0, _base.len(a) - 3);
+				offset1 = _rnd->get_int32(offset0 + 1, _base.len(a) - 1);
 
 				output.push(crossover(a, b, offset0, offset1));
 				output.push(crossover(b, a, offset0, offset1));
@@ -75,7 +84,7 @@ namespace ea
 
 		private:
 			static TGenomeBase _base;
-			static TRandom _rnd;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
 			sequence_type crossover(const sequence_type& a, const sequence_type& b, const uint32_t offset0, const uint32_t offset1) const
 			{
@@ -179,11 +188,8 @@ namespace ea
 			}
 	};
 
-	template<typename TGenomeBase, typename TRandom, typename LessThan>
-	TGenomeBase PMXCrossover<TGenomeBase, TRandom, LessThan>::_base;
-
-	template<typename TGenomeBase, typename TRandom, typename LessThan>
-	TRandom PMXCrossover<TGenomeBase, TRandom, LessThan>::_rnd;
+	template<typename TGenomeBase, typename LessThan>
+	TGenomeBase PMXCrossover<TGenomeBase, LessThan>::_base;
 
 	/**
 		   @}
