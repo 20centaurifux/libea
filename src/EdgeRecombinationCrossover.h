@@ -25,8 +25,12 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
+#include <random>
 #include "ACrossover.h"
 #include "algorithms.h"
+#include "ARandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 
 namespace ea
 {
@@ -40,11 +44,10 @@ namespace ea
 	/**
 	   @class EdgeRecombinationCrossover
 	   @tparam TGenomeBase a genome base class
-	   @tparam TRandom a random number generator
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
 	   @brief Implementation of the cycle crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom, typename LessThan = std::less<typename TGenomeBase::gene_type>>
+	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	class EdgeRecombinationCrossover : public ACrossover<TGenomeBase>
 	{
 		public:
@@ -53,6 +56,13 @@ namespace ea
 
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
+
+			EdgeRecombinationCrossover()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+			}
+
+			EdgeRecombinationCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
@@ -91,7 +101,7 @@ namespace ea
 				auto child = _base.create(len);
 
 				// get initial gene:
-				x = _generator.get_int32(0, 1) ? _base.get(a, 0) : _base.get(b, 0);
+				x = _rnd->get_int32(0, 1) ? _base.get(a, 0) : _base.get(b, 0);
 
 				for(;;)
 				{
@@ -133,7 +143,7 @@ namespace ea
 								}
 								else
 								{
-									x = next_gene[j][_generator.get_int32(0, next_count[j] - 1)];
+									x = next_gene[j][_rnd->get_int32(0, next_count[j] - 1)];
 								}
 
 								break;
@@ -144,7 +154,7 @@ namespace ea
 					{
 						do
 						{
-							x = _base.get(a, _generator.get_int32(0,len - 1));
+							x = _base.get(a, _rnd->get_int32(0,len - 1));
 						} while(gene_exists(child, child_i, x));
 					}
 				}
@@ -165,10 +175,10 @@ namespace ea
 				uint32_t count;
 			} Neighbors;
 
-			LessThan _lessthan;
+			static TGenomeBase _base;
+			static LessThan _less_than;
 
-			TGenomeBase _base;
-			TRandom _generator;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
 			void add_neighbors(const sequence_type& individual, const uint32_t index, gene_type neighbors[4], uint32_t& count)
 			{
@@ -208,7 +218,7 @@ namespace ea
 				{
 					for(uint32_t i = 0; i < count; i++)
 					{
-						if(!_lessthan(neighbors[i], neighbor) && !_lessthan(neighbor, neighbors[i]))
+						if(!_less_than(neighbors[i], neighbor) && !_less_than(neighbor, neighbors[i]))
 						{
 							found = true;
 							break;
@@ -226,7 +236,7 @@ namespace ea
 			{
 				for(uint32_t i = 0; i < neighbors->count; i++)
 				{
-					if(!_lessthan(neighbors->genes[i], gene) && !_lessthan(gene, neighbors->genes[i]))
+					if(!_less_than(neighbors->genes[i], gene) && !_less_than(gene, neighbors->genes[i]))
 					{
 						for(uint32_t m = i; m < neighbors->count - 1; m++)
 						{
@@ -243,7 +253,7 @@ namespace ea
 			{
 				for(uint32_t i = 0; i < size; i++)
 				{
-					if(!_lessthan(_base.get(genome, i), gene) && !_lessthan(gene, _base.get(genome, i)))
+					if(!_less_than(_base.get(genome, i), gene) && !_less_than(gene, _base.get(genome, i)))
 					{
 						return true;
 					}
@@ -252,6 +262,12 @@ namespace ea
 				return false;
 			}
 	};
+
+	template<typename TGenomeBase, typename LessThan>
+	TGenomeBase EdgeRecombinationCrossover<TGenomeBase, LessThan>::_base;
+
+	template<typename TGenomeBase, typename LessThan>
+	LessThan EdgeRecombinationCrossover<TGenomeBase, LessThan>::_less_than;
 
 	/**
 		   @}
