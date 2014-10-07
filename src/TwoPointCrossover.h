@@ -24,8 +24,11 @@
 #define TWOPOINTCROSSOVER_H
 
 #include <cassert>
+#include <memory>
+#include <random>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 
 namespace ea
 {
@@ -39,13 +42,19 @@ namespace ea
 	/**
 	   @class TwoPointCrossover
 	   @tparam TGenomeBase a genome base class
-	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @brief Implementation of the two-point crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom>
+	template<typename TGenomeBase>
 	class TwoPointCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
+			TwoPointCrossover()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+			}
+
+			TwoPointCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
@@ -55,10 +64,10 @@ namespace ea
 				uint32_t offset1;
 
 				assert(_base.len(a) >= 5);
-				offset0 = (uint32_t)_rnd.get_int32(1, _base.len(a) - 3);
+				offset0 = (uint32_t)_rnd->get_int32(1, _base.len(a) - 3);
 
 				assert(offset0 < _base.len(b) - 2);
-				offset1 = (uint32_t)_rnd.get_int32(offset0 + 1, _base.len(b) - 1);
+				offset1 = (uint32_t)_rnd->get_int32(offset0 + 1, _base.len(b) - 1);
 
 				output.push(create_child(b, a, offset0, offset1));
 				output.push(create_child(a, b, offset0, offset1));
@@ -68,7 +77,7 @@ namespace ea
 
 		private:
 			static TGenomeBase _base;
-			static TRandom _rnd;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
 			sequence_type create_child(const sequence_type& a, const sequence_type& b , const uint32_t offset1, const uint32_t offset2) const
 			{
@@ -96,11 +105,8 @@ namespace ea
 			}
 	};
 
-	template<typename TGenomeBase, typename TRandom>
-	TGenomeBase TwoPointCrossover<TGenomeBase, TRandom>::_base;
-
-	template<typename TGenomeBase, typename TRandom>
-	TRandom TwoPointCrossover<TGenomeBase, TRandom>::_rnd;
+	template<typename TGenomeBase>
+	TGenomeBase TwoPointCrossover<TGenomeBase>::_base;
 
 	/**
 		   @}
