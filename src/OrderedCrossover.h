@@ -24,8 +24,11 @@
 #define ORDEREDCROSSOVER_H
 
 #include <cassert>
+#include <memory>
+#include <random>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 #include "algorithms.h"
 
 namespace ea
@@ -40,11 +43,10 @@ namespace ea
 	/**
 	   @class OrderedCrossover
 	   @tparam TGenomeBase a genome base class
-	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
 	   @brief Implementation of the ordered crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom, typename LessThan = std::less<typename TGenomeBase::gene_type>>
+	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	class OrderedCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
@@ -54,12 +56,19 @@ namespace ea
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
 
+			OrderedCrossover()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+			}
+
+			OrderedCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
 				assert(set_equals<TGenomeBase>(a, b));
 
 				uint32_t len = _base.len(a);
-				uint32_t separator = (uint32_t)_rnd.get_int32(1, len - 2);
+				uint32_t separator = (uint32_t)_rnd->get_int32(1, len - 2);
 				auto individual = _base.create(len);
 
 				uint32_t i;
@@ -89,15 +98,15 @@ namespace ea
 
 		private:
 			static TGenomeBase _base;
-			static TRandom _rnd;
+			static LessThan _less_than;
 
-			LessThan less_than;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
 			inline bool gene_exists(const gene_type& gene, const sequence_type& individual, const uint32_t len)
 			{
 				for(uint32_t i = 0; i < len; i++)
 				{
-					if(!less_than(gene, _base.get(individual, i)) && !less_than(_base.get(individual, i), gene))
+					if(!_less_than(gene, _base.get(individual, i)) && !_less_than(_base.get(individual, i), gene))
 					{
 						return true;
 					}
@@ -107,11 +116,11 @@ namespace ea
 			}
 	};
 
-	template<typename TGenomeBase, typename TRandom, typename LessThan>
-	TGenomeBase OrderedCrossover<TGenomeBase, TRandom, LessThan>::_base;
+	template<typename TGenomeBase, typename LessThan>
+	TGenomeBase OrderedCrossover<TGenomeBase, LessThan>::_base;
 
-	template<typename TGenomeBase, typename TRandom, typename LessThan>
-	TRandom OrderedCrossover<TGenomeBase, TRandom, LessThan>::_rnd;
+	template<typename TGenomeBase, typename LessThan>
+	LessThan OrderedCrossover<TGenomeBase, LessThan>::_less_than;
 
 	/**
 		   @}
