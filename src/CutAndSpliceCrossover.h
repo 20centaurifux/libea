@@ -24,8 +24,11 @@
 #define CUTANDSPLICECROSSOVER_H
 
 #include <cassert>
+#include <memory>
+#include <random>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
+#include "TR1UniformDistribution.h"
 
 namespace ea
 {
@@ -39,15 +42,21 @@ namespace ea
 	/**
 	   @class CutAndSpliceCrossover
 	   @tparam TGenomeBase a genome base class
-	   @tparam TRandom random number generator inherited from ARandomNumberGenerator
 	   @brief Implementation of the cut-and-splice crossover operator.
 	 */
-	template<typename TGenomeBase, typename TRandom>
+	template<typename TGenomeBase>
 	class CutAndSpliceCrossover : ea::ACrossover<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
+
+			CutAndSpliceCrossover()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+			}
+
+			CutAndSpliceCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
@@ -56,8 +65,8 @@ namespace ea
 				assert(_base.len(a) > 2);
 				assert(_base.len(b) > 2);
 
-				m = sep1 = (uint32_t)_rnd.get_int32(1, _base.len(a) - 2);
-				sep2 = (uint32_t)_rnd.get_int32(1, _base.len(b) - 2);
+				m = sep1 = (uint32_t)_rnd->get_int32(1, _base.len(a) - 2);
+				sep2 = (uint32_t)_rnd->get_int32(1, _base.len(b) - 2);
 
 				// create first individual:
 				auto individual = _base.create(sep1 + _base.len(b) - sep2);
@@ -96,14 +105,11 @@ namespace ea
 
 		private:
 			static TGenomeBase _base;
-			static TRandom _rnd;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-	template<typename TGenomeBase, typename TRandom>
-	TGenomeBase CutAndSpliceCrossover<TGenomeBase, TRandom>::_base;
-
-	template<typename TGenomeBase, typename TRandom>
-	TRandom CutAndSpliceCrossover<TGenomeBase, TRandom>::_rnd;
+	template<typename TGenomeBase>
+	TGenomeBase CutAndSpliceCrossover<TGenomeBase>::_base;
 
 	/**
 		   @}
