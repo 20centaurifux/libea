@@ -41,13 +41,13 @@ namespace ea
 	   @brief Abstract base class for selection operators.
 	 */
 	template<typename TGenomeBase>
-	class IIndexxSelection
+	class IIndexSelection
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			~IIndexxSelection() {}
+			~IIndexSelection() {}
 
 			/**
 			   @param input a population
@@ -56,7 +56,7 @@ namespace ea
 
 			   Combines two genomes.
 			 */
-			virtual void select(IInputAdapter<sequence_type>& input, const uint32_t count, IOutputAdapter<int32_t>& output) = 0;
+			virtual void select(IInputAdapter<sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) = 0;
 	};
 }
 #endif
