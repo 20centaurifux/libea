@@ -26,6 +26,7 @@
 #include <cassert>
 #include <memory>
 #include <random>
+#include <limits>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
 #include "TR1UniformDistribution.h"
@@ -65,14 +66,19 @@ namespace ea
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
-				assert(set_equals<TGenomeBase>(a, b));
-
-				uint32_t len = _base.len(a);
-				uint32_t separator = (uint32_t)_rnd->get_int32(1, len - 2);
-				auto individual = _base.create(len);
-
+				uint32_t len;
+				uint32_t separator;
 				uint32_t i;
 				uint32_t m = 0;
+
+				assert(set_equals<TGenomeBase>(a, b));
+				assert(_base.len(a) > 2);
+				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
+
+				len = _base.len(a);
+				separator = _rnd->get_int32(1, len - 2);
+
+				auto individual = _base.create(len);
 
 				for(i = 0; i < separator; i++)
 				{

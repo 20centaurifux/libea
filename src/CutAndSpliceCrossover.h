@@ -26,9 +26,11 @@
 #include <cassert>
 #include <memory>
 #include <random>
+#include <limits>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
 #include "TR1UniformDistribution.h"
+#include "algorithms.h"
 
 namespace ea
 {
@@ -60,16 +62,21 @@ namespace ea
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
-				uint32_t m, i, sep1, sep2;
+				uint32_t m, i, sep1, sep2, len;
 
 				assert(_base.len(a) > 2);
+				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
 				assert(_base.len(b) > 2);
+				assert(_base.len(b) < std::numeric_limits<int32_t>::max());
 
-				m = sep1 = (uint32_t)_rnd->get_int32(1, _base.len(a) - 2);
-				sep2 = (uint32_t)_rnd->get_int32(1, _base.len(b) - 2);
+				m = sep1 = _rnd->get_int32(1, _base.len(a) - 2);
+				sep2 = _rnd->get_int32(1, _base.len(b) - 2);
 
 				// create first individual:
-				auto individual = _base.create(sep1 + _base.len(b) - sep2);
+				len = chk_add(sep1, (uint32_t)_base.len(b));
+				len = chk_sub(len, sep2);
+
+				auto individual = _base.create(len);
 
 				for(i = 0; i < sep1; i++)
 				{
@@ -84,7 +91,10 @@ namespace ea
 				output.push(individual);
 
 				// create second individual:
-				individual = _base.create(sep2 + _base.len(a) - sep1);
+				len = chk_add(sep2, (uint32_t)_base.len(a));
+				len = chk_sub(len, sep1);
+
+				individual = _base.create(len);
 
 				for(i = 0; i < sep2; i++)
 				{

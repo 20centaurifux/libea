@@ -45,7 +45,7 @@ namespace ea
 	   @class EdgeRecombinationCrossover
 	   @tparam TGenomeBase a genome base class
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
-	   @brief Implementation of the cycle crossover operator.
+	   @brief Implementation of the edge recombination crossover operator.
 	 */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	class EdgeRecombinationCrossover : public ACrossover<TGenomeBase>
@@ -66,14 +66,15 @@ namespace ea
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
-				assert(set_equals<TGenomeBase>(a, b));
-
 				Neighbors* nblist;
 				std::map<gene_type, Neighbors*, LessThan> nbs;
 				uint32_t count, len, i;
 				int32_t index;
 
 				len = _base.len(a);
+
+				assert(len > 0);
+				assert(set_equals<TGenomeBase>(a, b));
 
 				// initialize neighbor lists:
 				nblist = new Neighbors[len];

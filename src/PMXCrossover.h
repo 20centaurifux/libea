@@ -70,7 +70,7 @@ namespace ea
 				uint32_t offset0;
 				uint32_t offset1;
 
-				assert(_base.len(a) >= 4);
+				assert(_base.len(a) > 3);
 				assert(set_equals<TGenomeBase>(a, b));
 
 				offset0 = _rnd->get_int32(0, _base.len(a) - 3);

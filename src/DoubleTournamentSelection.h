@@ -26,7 +26,10 @@
 #include <set>
 #include <cassert>
 #include <memory>
+#include <limits>
 #include "IIndexSelection.h"
+#include "TR1UniformDistribution.h"
+#include "algorithms.h"
 
 namespace ea
 {
@@ -52,11 +55,16 @@ namespace ea
 			/**
 			   @param rnd_generator instance of a random number generator
 			 */
-			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
-				: _rnd(rnd)
+			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd)
 			{
 				assert(P >= 0);
 				assert(P <= 100);
+				assert(Q >= 1);
+			}
+
+			DoubleTournamentSelection()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
 			}
 
 			~DoubleTournamentSelection() {}
@@ -64,41 +72,51 @@ namespace ea
 			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output)
 			{
 				std::multiset<_Individual, _CompareIndividuals> individuals;
-				uint32_t i = 0;
+				uint32_t i;
 				uint32_t j;
 				_Individual individual;
 				static Compare compare;
-				int32_t numbers[Q];
+				int32_t* challengers;
+				int32_t enemies[Q];
 				int32_t prohability[Q];
 
-				assert(input.size() > Q);
+				assert(input.size() > 1);
+				assert(input.size() < std::numeric_limits<int32_t>::max());
 
-				while(!input.end())
+				challengers = new int32_t[count];
+				_rnd->get_int32_seq(0, input.size() - 1, challengers, count);
+
+				for(i = 0; i < count; i++)
 				{
-					individual.index = i;
+					individual.index = challengers[i];
 					individual.score = 0;
 
-					_rnd->get_int32_seq(0, input.size() - 1, numbers, Q);
+					_rnd->get_int32_seq(0, input.size() - 1, enemies, Q);
 					_rnd->get_int32_seq(0, 100, prohability, Q);
 
-					for(j = 0; j < Q; ++j)
+					float f0 = _base.fitness(input.at(challengers[i]));
+					ASSERT_FP_NORMALITY(f0);
+
+					for(j = 0; j < Q; j++)
 					{
-						if(prohability[j] >= (int32_t)P && compare(_base.fitness(input.at(i)), _base.fitness(input.at(numbers[j]))))
+						float f1 = _base.fitness(input.at(enemies[j]));
+						ASSERT_FP_NORMALITY(f1);
+
+						if(prohability[j] >= P && compare(f0, f1))
 						{
 							individual.score++;
 						}
 					}
 
 					individuals.insert(individual);
-					input.next(), i++;
 				}
 
-				auto it = individuals.begin();
-
-				for(i = 0; i < count; i++, it++)
+				std::for_each(begin(individuals), end(individuals), [&output](const _Individual& individual)
 				{
-					output.push(it->index);
-				}
+					output.push(individual.index);
+				});
+
+				delete[] challengers;
 			}
 		private:
 			static TGenomeBase _base;
@@ -121,5 +139,10 @@ namespace ea
 
 	template<typename TGenomeBase, typename Compare, const uint32_t Q, const uint32_t P>
 	TGenomeBase DoubleTournamentSelection<TGenomeBase, Compare, Q, P>::_base;
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

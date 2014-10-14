@@ -57,10 +57,6 @@ namespace ea
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
 			{
-				assert(_base.len(a) >= 2);
-				assert(_base.len(b) == _base.len(a));
-				assert(set_equals<TGenomeBase>(a, b));
-
 				std::map<gene_type, bool, LessThan> assigned; /* dictionary used to test if a gene
 				                                                 is assigned */
 				std::vector<std::vector<gene_type>*> cycles;  // vector containing the generated cycles
@@ -70,6 +66,9 @@ namespace ea
 				uint32_t index = 0;
 				gene_type gene;
 				std::vector<gene_type>* cycle;
+
+				assert(_base.len(a) >= 2);
+				assert(set_equals<TGenomeBase>(a, b));
 
 				// initialize dictionary:
 				for(uint32_t i = 0; i < len; i++)
@@ -103,7 +102,7 @@ namespace ea
 						next_gene(a, b, index, gene);
 					}
 
-					// check if we have inserted all exisiting genes:
+					// check if we have inserted all existing genes:
 					if(count != len)
 					{
 						// find next unassigned gene:
@@ -125,7 +124,7 @@ namespace ea
 				sequence_type child0 = _base.create(len);
 				sequence_type child1 = _base.create(len);
 
-				for(auto iter = cycles.begin(); iter != cycles.end(); iter++)
+				for(auto iter : cycles)
 				{
 					for(uint32_t m = 0; m < len; m++)
 					{
@@ -157,7 +156,6 @@ namespace ea
 			}
 
 		private:
-			/// @cond INTERNAL
 			TGenomeBase _base;
 
 			inline bool next_gene(const sequence_type& a, const sequence_type& b, uint32_t& index, gene_type& gene) const
@@ -191,7 +189,6 @@ namespace ea
 			{
 				return std::search_n(cycle->begin(), cycle->end(), 1, gene, _equals) != cycle->end();
 			}
-			/// @endcond
 	};
 
 	/**

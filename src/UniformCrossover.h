@@ -67,7 +67,6 @@ namespace ea
 				sequence_type child0;
 				sequence_type child1;
 				int32_t rnd;
-
 				uint32_t len = _base.len(a);
 
 				assert(len > N);

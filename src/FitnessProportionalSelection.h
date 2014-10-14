@@ -352,5 +352,10 @@ namespace ea
 				return 0;
 			}
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

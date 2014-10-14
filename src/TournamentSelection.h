@@ -76,7 +76,7 @@ namespace ea
 					_rnd->get_int32_seq(0, input.size() - 1, enemies, Q);
 					_rnd->get_int32_seq(0, 100, prohability, Q);
 
-					for(uint32_t i = 0; i < Q; ++i)
+					for(uint32_t i = 0; i < Q; i++)
 					{
 						if(prohability[i] >= (int32_t)P && compare(_base.fitness(input.at(enemies[i])), _base.fitness(input.at(index))))
 						{

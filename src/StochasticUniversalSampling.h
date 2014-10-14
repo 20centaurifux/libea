@@ -116,5 +116,10 @@ namespace ea
 
 	template<typename TGenomeBase>
 	TGenomeBase StochasticUniversalSampling<TGenomeBase>::_base;
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

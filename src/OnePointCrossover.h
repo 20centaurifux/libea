@@ -26,6 +26,7 @@
 #include <cassert>
 #include <memory>
 #include <random>
+#include <limits>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
 #include "TR1UniformDistribution.h"
@@ -63,7 +64,9 @@ namespace ea
 				uint32_t separator;
 
 				assert(_base.len(a) >= 4);
-				separator = (uint32_t)_rnd->get_int32(1, _base.len(a) - 3);
+				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
+
+				separator = _rnd->get_int32(1, _base.len(a) - 3);
 
 				output.push(create_child(b, a, separator));
 				output.push(create_child(a, b, separator));

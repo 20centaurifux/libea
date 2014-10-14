@@ -16,6 +16,13 @@
 #include "OrderedCrossover.h"
 #include "AnsiRandomNumberGenerator.h"
 #include "TR1UniformDistribution.h"
+#include "InputAdapter.h"
+#include "IIndexSelection.h"
+#include "FittestSelection.h"
+#include "TournamentSelection.h"
+#include "DoubleTournamentSelection.h"
+#include "StochasticUniversalSampling.h"
+#include "FitnessProportionalSelection.h"
 
 typedef ea::CachedSequence<uint32_t> UInt32_Seq;
 
@@ -100,15 +107,15 @@ int main(int argc, char* argv[])
 	UInt32_Seq* b = base.create(10);
 
 	base.set(a, 0, 8);
-	base.set(a, 1, 4);
-	base.set(a, 2, 7);
-	base.set(a, 3, 3);
-	base.set(a, 4, 6);
-	base.set(a, 5, 2);
-	base.set(a, 6, 5);
-	base.set(a, 7, 1);
-	base.set(a, 8, 9);
-	base.set(a, 9, 0);
+	base.set(a, 1, 9);
+	base.set(a, 2, 10);
+	base.set(a, 3, 11);
+	base.set(a, 4, 12);
+	base.set(a, 5, 13);
+	base.set(a, 6, 14);
+	base.set(a, 7, 15);
+	base.set(a, 8, 16);
+	base.set(a, 9, 17);
 
 	base.set(b, 0, 0);
 	base.set(b, 1, 1);
@@ -123,20 +130,38 @@ int main(int argc, char* argv[])
 
 	//factory.create_population(10, adapter);
 
-	//ea::TR1UniformDistribution<std::mt19937_64> r;
+	std::shared_ptr<ea::ARandomNumberGenerator> r = std::make_shared<ea::TR1UniformDistribution<std::mt19937_64>>();
 
-	ea::OrderedCrossover<UInt32_GenomeBase, ea::TR1UniformDistribution<std::mt19937_64>> c;
+	ea::TwoPointCrossover<UInt32_GenomeBase> c(r);
 
 	c.crossover(a, b, adapter);
 
 	dump(a);
 	dump(b);
 
-	std::for_each(begin(population), end(population), [](const UInt32_Seq* seq)
+	std::cout << std::endl;
+
+	std::for_each(begin(population), end(population), [](UInt32_Seq* seq)
 	{
 		dump(seq);
+		std::cout << base.fitness(seq) << std::endl << std::endl;
 	});
 
+
+	std::vector<uint32_t> indexes;
+	auto iinserter = std::back_inserter(indexes);
+	ea::STLVectorAdapter<uint32_t> aadapter(iinserter);
+
+	auto input = ea::make_input_adapter<UInt32_Seq*>(population);
+
+	ea::DoubleTournamentSelection<UInt32_GenomeBase> sel(r);
+
+	sel.select(input, 20, aadapter);
+
+	std::for_each(begin(indexes), end(indexes), [](uint32_t index)
+	{
+		std::cout << index << std::endl;
+	});
 
 //	std::for_each(begin(population), end(population), [](UInt32_Seq* seq)
 //	{

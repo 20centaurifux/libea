@@ -26,6 +26,7 @@
 #include <cassert>
 #include <memory>
 #include <random>
+#include <limits>
 #include "ACrossover.h"
 #include "ARandomNumberGenerator.h"
 #include "TR1UniformDistribution.h"
@@ -64,10 +65,14 @@ namespace ea
 				uint32_t offset1;
 
 				assert(_base.len(a) >= 5);
-				offset0 = (uint32_t)_rnd->get_int32(1, _base.len(a) - 3);
+				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
 
-				assert(offset0 < _base.len(b) - 2);
-				offset1 = (uint32_t)_rnd->get_int32(offset0 + 1, _base.len(b) - 1);
+				offset0 = _rnd->get_int32(1, _base.len(a) - 3);
+
+				assert(_base.len(b) > offset0 + 2);
+				assert(_base.len(b) < std::numeric_limits<int32_t>::max());
+
+				offset1 = _rnd->get_int32(offset0 + 1, _base.len(b) - 1);
 
 				output.push(create_child(b, a, offset0, offset1));
 				output.push(create_child(a, b, offset0, offset1));
