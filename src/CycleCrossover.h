@@ -156,7 +156,6 @@ namespace ea
 			}
 
 		private:
-			/// @cond INTERNAL
 			TGenomeBase _base;
 
 			inline bool next_gene(const sequence_type& a, const sequence_type& b, uint32_t& index, gene_type& gene) const
@@ -174,6 +173,7 @@ namespace ea
 				return false;
 			}
 
+			/// @cond INTERNAL
 			struct
 			{
 				bool operator()(const gene_type& a, const gene_type& b)
@@ -185,12 +185,12 @@ namespace ea
 					LessThan _lessthan;
 
 			} _equals;
+			/// @endcond
 
 			inline bool contains(typename std::vector<gene_type>* cycle, const gene_type& gene)
 			{
 				return std::search_n(cycle->begin(), cycle->end(), 1, gene, _equals) != cycle->end();
 			}
-			/// @endcond
 	};
 
 	/**

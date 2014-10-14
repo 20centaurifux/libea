@@ -58,5 +58,10 @@ namespace ea
 			 */
 			virtual uint32_t crossover(const sequence_type& a, const sequence_type& b, IOutputAdapter<sequence_type>& output) = 0;
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

@@ -94,8 +94,12 @@ namespace ea
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-
 	template<typename TGenomeBase, typename Compare, const uint32_t Q, const uint32_t P>
 	TGenomeBase TournamentSelection<TGenomeBase, Compare, Q, P>::_base;
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

@@ -28,6 +28,13 @@ using namespace std;
 
 namespace ea
 {
+	/**
+	   @addtogroup Core
+	   @{
+	   	@addtogroup Random
+	   	@{
+	 */
+
 	int32_t ARandomNumberGenerator::get_int32(const int32_t min, const int32_t max)
 	{
 		uint32_t range = max - min + 1;
@@ -80,4 +87,9 @@ namespace ea
 	{
 		get_unique_seq<double, double (ARandomNumberGenerator::*)(const double, const double)>(min, max, numbers, length, &ARandomNumberGenerator::get_double);
 	}
+
+	/**
+		   @}
+	   @}
+	 */
 }

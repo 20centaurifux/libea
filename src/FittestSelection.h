@@ -74,9 +74,9 @@ namespace ea
 			~FittestSelection() {}
 
 		private:
-			/// @cond INTERNAL
 			static TGenomeBase _base;
 
+			/// @cond INTERNAL
 			typedef struct
 			{
 				uint32_t index;

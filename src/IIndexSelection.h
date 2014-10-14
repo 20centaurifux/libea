@@ -58,5 +58,10 @@ namespace ea
 			 */
 			virtual void select(IInputAdapter<sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) = 0;
 	};
+
+	/**
+		   @}
+	   @}
+	 */
 }
 #endif

@@ -31,6 +31,11 @@
 namespace ea
 {
 	/**
+	   @addtogroup Core
+	   @{
+	*/
+
+	/**
 	   @class PrimitiveGenomeHashFunc
 	   @tparam TSequence sequence datatype
 	   @tparam H an hash algorithm
@@ -288,5 +293,9 @@ namespace ea
 			using PrimitiveGenomeBase<TGene, F, H, CachedSequence<TGene>>::fitness_func;
 			using PrimitiveGenomeBase<TGene, F, H, CachedSequence<TGene>>::hash_func;
 	};
+
+	/**
+	   @}
+	 */
 }
 #endif

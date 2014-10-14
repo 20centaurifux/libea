@@ -84,6 +84,7 @@ namespace ea
 	 */
 	template<typename TSequence>
 	using STLVectorAdapter = STLOutputAdapter<TSequence, std::back_insert_iterator<std::vector<TSequence>>>;
+
 	/**
 	   @}
 	 */
