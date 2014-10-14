@@ -55,7 +55,7 @@ namespace ea
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
+			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				std::map<gene_type, bool, LessThan> assigned; /* dictionary used to test if a gene
 				                                                 is assigned */

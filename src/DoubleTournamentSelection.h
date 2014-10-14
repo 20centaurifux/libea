@@ -69,7 +69,7 @@ namespace ea
 
 			~DoubleTournamentSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output)
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
 			{
 				std::multiset<_Individual, _CompareIndividuals> individuals;
 				uint32_t i;

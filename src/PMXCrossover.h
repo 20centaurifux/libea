@@ -68,7 +68,7 @@ namespace ea
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
+			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				uint32_t offset0;
 				uint32_t offset1;

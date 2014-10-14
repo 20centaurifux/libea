@@ -67,7 +67,7 @@ namespace ea
 			 */
 			EdgeRecombinationCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
+			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				Neighbors* nblist;
 				std::map<gene_type, Neighbors*, LessThan> nbs;

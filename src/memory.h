@@ -63,7 +63,7 @@ namespace ea
 	class StdAllocator : public ea::IAllocator
 	{
 		public:
-			void* alloc(const std::size_t size)
+			void* alloc(const std::size_t size) override
 			{
 				void* ptr = std::malloc(size);
 
@@ -75,7 +75,7 @@ namespace ea
 				return ptr;
 			}
 
-			void free(void *ptr)
+			void free(void *ptr) override
 			{
 				std::free(ptr);
 			}

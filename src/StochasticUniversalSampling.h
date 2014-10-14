@@ -53,7 +53,7 @@ namespace ea
 
 			~StochasticUniversalSampling() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output)
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
 			{
 				double* sums;
 				uint32_t i = 0;

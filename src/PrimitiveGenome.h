@@ -114,9 +114,9 @@ namespace ea
 
 			virtual ~PrimitiveGenomeBase() {}
 
-			inline uint16_t gene_size() const { return sizeof(TSequence); }
+			inline uint16_t gene_size() const override { return sizeof(TSequence); }
 
-			TSequence* create(const uint16_t len)
+			TSequence* create(const uint16_t len) override
 			{
 				auto genes = (uint32_t*)allocator->alloc(sizeof(typename TSequence::gene_type) * len);
 				auto sequence = (TSequence*)allocator->alloc(sizeof(TSequence));
@@ -130,7 +130,7 @@ namespace ea
 				return sequence;
 			}
 
-			void dispose(TSequence*& sequence)
+			void dispose(TSequence*& sequence) override
 			{
 				if(sequence == nullptr)
 				{
@@ -145,36 +145,36 @@ namespace ea
 				allocator->free(sequence);
 			}
 
-			virtual inline void set(TSequence*& sequence, const uint16_t offset, const typename TSequence::gene_type& gene) const
+			virtual inline void set(TSequence*& sequence, const uint16_t offset, const typename TSequence::gene_type& gene) const override
 			{
 				assert(sequence != nullptr && offset < sequence->len);
 
 				sequence->genes[offset] = gene;
 			}
 
-			typename TSequence::gene_type get(TSequence* const& sequence, const uint16_t offset) const
+			typename TSequence::gene_type get(TSequence* const& sequence, const uint16_t offset) const override
 			{
 				assert(sequence != nullptr && offset < sequence->len);
 
 				return sequence->genes[offset];
 			}
 
-			uint16_t len(TSequence* const& sequence) const
+			uint16_t len(TSequence* const& sequence) const override
 			{
 				return sequence->len;
 			}
 
-			virtual float fitness(TSequence* const& sequence)
+			virtual float fitness(TSequence* const& sequence) override
 			{
 				return fitness_func(sequence);
 			}
 
-			virtual size_t hash(TSequence* const& sequence)
+			virtual size_t hash(TSequence* const& sequence) override
 			{
 				return hash_func(sequence);
 			}
 
-			int cmp(TSequence* const& a, TSequence* const& b) const
+			int cmp(TSequence* const& a, TSequence* const& b) const override
 			{
 				assert(a != nullptr && b != nullptr);
 
@@ -191,7 +191,7 @@ namespace ea
 				return std::memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
 			}
 
-			int32_t index_of(TSequence* const& seq, const typename TSequence::gene_type& search) const
+			int32_t index_of(TSequence* const& seq, const typename TSequence::gene_type& search) const override
 			{
 				for(uint32_t i = 0; i < seq->len; i++)
 				{
@@ -257,7 +257,7 @@ namespace ea
 		public:
 			virtual ~CachedPrimitiveGenomeBase() {}
 
-			size_t hash(CachedSequence<TGene>* const& sequence) const
+			size_t hash(CachedSequence<TGene>* const& sequence) override
 			{
 				// test if hash has already been calculated:
 				if(sequence->flags & PSEQ_FLAG_HASH_SET)
@@ -273,7 +273,7 @@ namespace ea
 				return sequence->hash;
 			}
 
-			float fitness(CachedSequence<TGene>* const& sequence)
+			float fitness(CachedSequence<TGene>* const& sequence) override
 			{
 				// test if fitness has already been calculated:
 				if(sequence->flags & PSEQ_FLAG_FITNESS_SET)

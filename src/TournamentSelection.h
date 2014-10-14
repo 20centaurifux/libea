@@ -60,7 +60,7 @@ namespace ea
 
 			~TournamentSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output)
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
 			{
 				uint32_t index;
 				uint32_t size = 0;

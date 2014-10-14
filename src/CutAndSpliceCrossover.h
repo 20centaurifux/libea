@@ -63,7 +63,7 @@ namespace ea
 			 */
 			CutAndSpliceCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output)
+			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				uint32_t m, i, sep1, sep2, len;
 

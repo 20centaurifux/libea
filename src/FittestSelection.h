@@ -47,7 +47,7 @@ namespace ea
 	class FittestSelection : public IIndexSelection<TGenomeBase>
 	{
 		public:
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output)
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
 			{
 				std::multiset<_Individual, _CompareIndividuals> individuals;
 				_Individual individual;
