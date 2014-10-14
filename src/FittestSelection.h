@@ -74,6 +74,7 @@ namespace ea
 			~FittestSelection() {}
 
 		private:
+			/// @cond INTERNAL
 			static TGenomeBase _base;
 
 			typedef struct
@@ -91,6 +92,7 @@ namespace ea
 					return cmp(a.fitness, b.fitness);
 				}
 			} _CompareIndividuals;
+			/// @endcond
 	};
 
 	template<typename TGenomeBase, typename Compare>

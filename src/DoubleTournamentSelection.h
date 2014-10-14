@@ -53,7 +53,7 @@ namespace ea
 	{
 		public:
 			/**
-			   @param rnd_generator instance of a random number generator
+			   @param rnd instance of a random number generator
 			 */
 			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd)
 			{
@@ -118,7 +118,9 @@ namespace ea
 
 				delete[] challengers;
 			}
+
 		private:
+			/// @cond INTERNAL
 			static TGenomeBase _base;
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
@@ -135,6 +137,7 @@ namespace ea
 					return a.score > b.score;
 				}
 			} _CompareIndividuals;
+			/// @endcond
 	};
 
 	template<typename TGenomeBase, typename Compare, const uint32_t Q, const uint32_t P>

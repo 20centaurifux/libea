@@ -156,6 +156,7 @@ namespace ea
 			}
 
 		private:
+			/// @cond INTERNAL
 			TGenomeBase _base;
 
 			inline bool next_gene(const sequence_type& a, const sequence_type& b, uint32_t& index, gene_type& gene) const
@@ -189,6 +190,7 @@ namespace ea
 			{
 				return std::search_n(cycle->begin(), cycle->end(), 1, gene, _equals) != cycle->end();
 			}
+			/// @endcond
 	};
 
 	/**

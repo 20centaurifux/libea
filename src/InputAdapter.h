@@ -84,7 +84,7 @@ namespace ea
 	};
 
 	/**
-	   @class RandomAccessInputAdapter
+	   @class STLRandomAccessInputAdapter
 	   @tparam T datatype of items stored in the wrapped container
 	   @tparam TContainer datatype of the container
 	   @brief IInputAdapter wrapping a container. The container has to provide a random_access_iterator.

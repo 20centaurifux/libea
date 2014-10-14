@@ -47,7 +47,7 @@ namespace ea
 	{
 		public:
 			/**
-			   @param rnd_generator instance of a random number generator
+			   @param rnd instance of a random number generator
 			 */
 			StochasticUniversalSampling(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 

@@ -36,7 +36,7 @@ namespace ea
 	 */
 
 	/**
-	   @class IIndexxSelection
+	   @class IIndexSelection
 	   @tparam TGenome type of the genome class
 	   @brief Abstract base class for selection operators.
 	 */

@@ -180,7 +180,7 @@ namespace ea
 	{
 		public:
 			/**
-			   @param rnd_generator instance of a random number generator
+			   @param rnd instance of a random number generator
 			 */
 			AlignedFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 				: FitnessProportionalSelection<TGenomeBase>(rnd) {}
@@ -255,7 +255,7 @@ namespace ea
 			using FitnessProportionalSelection<TGenomeBase>::rnd;
 
 			/**
-			   @param rnd_generator instance of a random number generator
+			   @param rnd instance of a random number generator
 			 */
 			MinimizingFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 				: FitnessProportionalSelection<TGenomeBase>(rnd) {}

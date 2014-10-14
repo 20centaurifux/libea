@@ -57,6 +57,9 @@ namespace ea
 				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
 			}
 
+			/**
+			   @param rnd instance of a random number generator
+			 */
 			PMXCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
 			/*! Datatype of sequences provided by TGenomeBase. */
