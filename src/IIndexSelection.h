@@ -37,7 +37,7 @@ namespace ea
 
 	/**
 	   @class IIndexSelection
-	   @tparam TGenome type of the genome class
+	   @tparam TGenomeBase a genome base class
 	   @brief Abstract base class for selection operators.
 	 */
 	template<typename TGenomeBase>
