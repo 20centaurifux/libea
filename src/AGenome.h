@@ -148,6 +148,21 @@ namespace ea
 			   Searches for a gene in a sequence.
 			 */
 			virtual int32_t index_of(const TSequence& seq, const TGene& search) const = 0;
+
+			virtual TSequence copy(const TSequence& sequence)
+			{
+				TSequence dst;
+				uint16_t l = len(sequence);
+
+				dst = create(l);
+
+				for(uint16_t i = 0; i < l; i++)
+				{
+					set(dst, i, get(sequence, i));
+				}
+
+				return dst;
+			}
 	};
 
 	/**
