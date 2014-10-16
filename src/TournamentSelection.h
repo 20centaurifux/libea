@@ -55,6 +55,7 @@ namespace ea
 			TournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 				: _rnd(rnd)
 			{
+				assert(rnd != nullptr);
 				assert(P >= 1 && P <= 100);
 			}
 

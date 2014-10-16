@@ -55,8 +55,9 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd)
+			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 			{
+				assert(rnd != nullptr);
 				assert(P >= 1 && P <= 100);
 				assert(Q >= 1);
 			}

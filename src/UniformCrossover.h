@@ -63,7 +63,11 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			UniformCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+			UniformCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{

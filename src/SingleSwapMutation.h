@@ -57,7 +57,11 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			SingleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+			SingleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd)
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			virtual ~SingleSwapMutation() {}
 

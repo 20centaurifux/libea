@@ -50,7 +50,11 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			StochasticUniversalSampling(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+			StochasticUniversalSampling(std::shared_ptr<ARandomNumberGenerator> rnd)
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			~StochasticUniversalSampling() {}
 

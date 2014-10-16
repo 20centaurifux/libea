@@ -57,7 +57,12 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			SingleBitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+			SingleBitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd)
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
+
 			virtual ~SingleBitStringMutation() {}
 
 			void mutate(sequence_type& sequence) override

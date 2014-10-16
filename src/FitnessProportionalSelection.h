@@ -55,7 +55,11 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			FitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd) : rnd(rnd) {}
+			FitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			~FitnessProportionalSelection() {}
 
@@ -184,7 +188,10 @@ namespace ea
 			   @param rnd instance of a random number generator
 			 */
 			AlignedFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
-				: FitnessProportionalSelection<TGenomeBase>(rnd) {}
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			~AlignedFitnessProportionalSelection() {}
 
@@ -259,7 +266,10 @@ namespace ea
 			   @param rnd instance of a random number generator
 			 */
 			MinimizingFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
-				: FitnessProportionalSelection<TGenomeBase>(rnd) {}
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			~MinimizingFitnessProportionalSelection() {}
 

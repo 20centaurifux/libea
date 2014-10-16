@@ -110,7 +110,11 @@ namespace ea
 
 			   Creates a new PrimitiveGenomeBase instance with an assigned allocator.
 			 */
-			PrimitiveGenomeBase(std::shared_ptr<IAllocator> allocator) : allocator(allocator) {}
+			PrimitiveGenomeBase(std::shared_ptr<IAllocator> allocator)
+			{
+				assert(allocator != nullptr);
+				this.allocator = allocator;
+			}
 
 			virtual ~PrimitiveGenomeBase() {}
 

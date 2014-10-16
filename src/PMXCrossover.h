@@ -60,7 +60,11 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			PMXCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+			PMXCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;

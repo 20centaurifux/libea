@@ -58,7 +58,11 @@ namespace ea
 			/**
 			   @param rnd instance of a random number generator
 			 */
-			BitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
+			BitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd)
+			{
+				assert(rnd != nullptr);
+				_rnd = rnd;
+			}
 
 			virtual ~BitStringMutation() {}
 
