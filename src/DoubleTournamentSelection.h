@@ -57,8 +57,7 @@ namespace ea
 			 */
 			DoubleTournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd)
 			{
-				assert(P >= 0);
-				assert(P <= 100);
+				assert(P >= 1 && P <= 100);
 				assert(Q >= 1);
 			}
 
@@ -92,7 +91,7 @@ namespace ea
 					individual.score = 0;
 
 					_rnd->get_int32_seq(0, input.size() - 1, enemies, Q);
-					_rnd->get_int32_seq(0, 100, prohability, Q);
+					_rnd->get_int32_seq(1, 100, prohability, Q);
 
 					float f0 = _base.fitness(input.at(challengers[i]));
 					ASSERT_FP_NORMALITY(f0);
@@ -102,7 +101,7 @@ namespace ea
 						float f1 = _base.fitness(input.at(enemies[j]));
 						ASSERT_FP_NORMALITY(f1);
 
-						if(prohability[j] >= P && compare(f0, f1))
+						if(prohability[j] <= P && compare(f0, f1))
 						{
 							individual.score++;
 						}

@@ -55,8 +55,7 @@ namespace ea
 			TournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 				: _rnd(rnd)
 			{
-				assert(P >= 0);
-				assert(P <= 100);
+				assert(P >= 1 && P <= 100);
 			}
 
 			~TournamentSelection() {}
@@ -75,11 +74,11 @@ namespace ea
 				{
 					index = _rnd->get_int32(0, input.size() - 1);
 					_rnd->get_int32_seq(0, input.size() - 1, enemies, Q);
-					_rnd->get_int32_seq(0, 100, prohability, Q);
+					_rnd->get_int32_seq(1, 100, prohability, Q);
 
 					for(uint32_t i = 0; i < Q; i++)
 					{
-						if(prohability[i] >= (int32_t)P && compare(_base.fitness(input.at(enemies[i])), _base.fitness(input.at(index))))
+						if(prohability[i] <= P && compare(_base.fitness(input.at(enemies[i])), _base.fitness(input.at(index))))
 						{
 							index = enemies[i];
 						}
