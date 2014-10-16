@@ -23,9 +23,9 @@
 #ifndef SINGLESWAPMUTATION_H
 #define SINGLESWAPMUTATION_H
 
+#include "AMutation.h"
 #include <memory>
 #include <cassert>
-#include <limits>
 #include "TR1UniformDistribution.h"
 
 namespace ea
@@ -85,4 +85,3 @@ namespace ea
 	 */
 }
 #endif
-

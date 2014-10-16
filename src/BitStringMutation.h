@@ -23,8 +23,9 @@
 #ifndef BITSTRINGMUTATION_H
 #define BITSTRINGMUTATION_H
 
-#include "AMutation.h"
 #include <memory>
+#include <cassert>
+#include "AMutation.h"
 #include "TR1UniformDistribution.h"
 
 namespace ea

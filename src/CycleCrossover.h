@@ -124,7 +124,7 @@ namespace ea
 				sequence_type child0 = _base.create(len);
 				sequence_type child1 = _base.create(len);
 
-				for(auto iter : cycles)
+				for(auto iter = begin(cycles); iter != end(cycles); iter++)
 				{
 					for(uint32_t m = 0; m < len; m++)
 					{

@@ -26,6 +26,7 @@
 #include <cassert>
 #include <memory>
 #include "IIndexSelection.h"
+#include "ARandomNumberGenerator.h"
 
 namespace ea
 {

@@ -24,6 +24,8 @@
 #define SINGLEBITSTRINGMUTATION_H
 
 #include <memory>
+#include <cassert>
+#include "AMutation.h"
 #include "TR1UniformDistribution.h"
 
 namespace ea

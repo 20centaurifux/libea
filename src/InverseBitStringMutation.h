@@ -23,6 +23,7 @@
 #ifndef INVERSEBITSTRINGMUTATION_H
 #define INVERSEBITSTRINGMUTATION_H
 
+#include <stdint.h>
 #include "AMutation.h"
 
 namespace ea

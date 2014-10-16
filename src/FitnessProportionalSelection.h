@@ -30,6 +30,7 @@
 #include <cstdlib>
 #include <memory>
 #include "IIndexSelection.h"
+#include "ARandomNumberGenerator.h"
 #include "algorithms.h"
 
 namespace ea
@@ -68,7 +69,7 @@ namespace ea
 				sums = new double[input.size()];
 
 				cumulate(sums, input);
-				select(input, sums, count, output);
+				select_genomes(input, sums, count, output);
 
 				delete[] sums;
 			}
@@ -107,7 +108,7 @@ namespace ea
 
 			   Selects genomes respecting the cumulated fitness values.
 			 */
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const double* sums, const uint32_t count, IOutputAdapter<uint32_t>& output) const
+			void select_genomes(IInputAdapter<typename TGenomeBase::sequence_type>& input, const double* sums, const uint32_t count, IOutputAdapter<uint32_t>& output) const
 			{
 				double* numbers;
 				double max;
@@ -171,7 +172,7 @@ namespace ea
 
 	/**
 	   @class AlignedFitnessProportionalSelection
-	   @tparam TGenomeBase genome base cöass
+	   @tparam TGenomeBase genome base class
 	   @brief Implementation of fitness-proportional selection. This operator aligns
 	          fitness values and can be used with positive and negative numbers.
 	 */
@@ -205,7 +206,7 @@ namespace ea
 				sums = new double[input.size()];
 
 				this->cumulate(sums, input, align);
-				this->select(input, sums, count, output);
+				this->select_genomes(input, sums, count, output);
 
 				delete[] sums;
 			}

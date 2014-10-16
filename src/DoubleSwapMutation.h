@@ -25,7 +25,7 @@
 
 #include <memory>
 #include <cassert>
-#include <limits>
+#include "AMutation.h"
 #include "TR1UniformDistribution.h"
 
 namespace ea
