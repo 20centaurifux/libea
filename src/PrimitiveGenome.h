@@ -118,7 +118,7 @@ namespace ea
 
 			TSequence* create(const uint16_t len) override
 			{
-				auto genes = (uint32_t*)allocator->alloc(sizeof(typename TSequence::gene_type) * len);
+				auto genes = (TGene*)allocator->alloc(sizeof(typename TSequence::gene_type) * len);
 				auto sequence = (TSequence*)allocator->alloc(sizeof(TSequence));
 
 				std::memset(sequence, 0, sizeof(TSequence));
