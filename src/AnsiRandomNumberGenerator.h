@@ -83,8 +83,6 @@ namespace ea
 				return (double)RAND_MAX;
 			}
 
-
-
 		private:
 			#ifdef THREAD_SAFE
 			static std::mutex _mutex;
