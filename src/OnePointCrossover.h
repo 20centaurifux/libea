@@ -51,7 +51,7 @@ namespace ea
 		public:
 			OnePointCrossover()
 			{
-				_rnd = std::make_shared<TR1UniformDistribution<std::mt19937_64>>();
+				_rnd = std::make_shared<TR1UniformDistribution<>>();
 			}
 
 			/**

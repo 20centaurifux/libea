@@ -1,7 +1,9 @@
 /// @cond INTERNAL
 
-#include "UniformCrossover.h"
+#include "SingleBitStringMutation.h"
 #include "PrimitiveGenome.h"
+#include "TR1UniformDistribution.h"
+#include "AnsiRandomNumberGenerator.h"
 
 #include <iostream>
 #include <vector>
@@ -53,8 +55,11 @@ int main(int argc, char* argv[])
 
 	dump(seq);
 
-	ea::UniformCrossover<GenomeBase> c(nullptr);
+	ea::SingleBitStringMutation<GenomeBase> m;
 
+	auto child = m.create_child(seq);
+
+	dump(child);
 
 //	//UInt32_SeqFactory factory;
 //
