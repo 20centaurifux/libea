@@ -22,8 +22,8 @@
 
 #include <assert.h>
 #include <cmath>
-#include "ARandomNumberGenerator.h"
-#include "algorithms.h"
+#include "ARandomNumberGenerator.hpp"
+#include "algorithms.hpp"
 
 using namespace std;
 

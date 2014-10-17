@@ -1,10 +1,10 @@
 /// @cond INTERNAL
 
-#include "SingleBitStringMutation.h"
-#include "PrimitiveGenome.h"
-#include "TR1UniformDistribution.h"
-#include "AnsiRandomNumberGenerator.h"
+#include "SingleBitStringMutation.hpp"
+#include "PrimitiveGenome.hpp"
+#include "AnsiRandomNumberGenerator.hpp"
 
+#include <memory>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -55,7 +55,8 @@ int main(int argc, char* argv[])
 
 	dump(seq);
 
-	ea::SingleBitStringMutation<GenomeBase> m;
+	auto r = std::make_shared<ea::AnsiRandomNumberGenerator>();
+	ea::SingleBitStringMutation<GenomeBase> m(r);
 
 	auto child = m.create_child(seq);
 

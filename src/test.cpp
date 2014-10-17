@@ -11,8 +11,8 @@
 #include <set>
 #include <algorithm>
 
-#include "AnsiRandomNumberGenerator.h"
-#include "TR1UniformDistribution.h"
+#include "AnsiRandomNumberGenerator.hpp"
+#include "TR1UniformDistribution.hpp"
 
 using namespace std;
 using namespace CPPUNIT_NS;
