@@ -46,22 +46,33 @@ namespace ea
 
 		assert(max > min);
 
-		assert_subtraction(max, min);
-		range = max - min;
+		/* the distribution algorithm assumes that the minimum number returned by
+		   get_int32() is zero */
+		assert(get_min_int32() == 0 && get_max_int32() > 0);
 
-		scale = get_max_int32() / range;
+		assert_subtraction(max, min);
+		range = max - min + 1; /* [min, max] is a closed interval, the length of the corresponding
+		                          set is max - min + 1 (the interval [-1, 1] has the set {-1, 0, 1},
+		                          for example) */
+
+		scale = (get_max_int32() + 1) / range; /* get_int32() can return get_max_int32() + 1
+		                                          different numbers */
 		assert(scale > 0);
 
 		limit = scale * range;
+
+		// test if range exceeds the limit:
 		assert(range <= limit);
 
+		// find random number within range:
 		do
 		{
-			rnd = abs(get_int32());
+			rnd = get_int32();
 		} while(rnd >= limit);
 
 		result = (int32_t)rnd / scale + min;
 
+		// additional boundary check:
 		assert(result >= min && result <= max);
 
 		return result;
@@ -69,11 +80,18 @@ namespace ea
 
 	double ARandomNumberGenerator::get_double(const double min, const double max)
 	{
-		double rnd_max = get_max_double() + 1.0;
-		double range = max - min;
+		double range;
 		double result;
 
-		result = abs(get_double()) / rnd_max * range + min;
+		assert(max > min);
+
+		// assume that the minimum number returned by get_double() is zero:
+		assert(get_min_double() == 0.0 && get_max_double() > 0.0);
+
+		range = max - min;
+		result = get_double() / get_max_double() * range + min;
+
+		// additional boundary check:
 		assert(result >= min && result <= max);
 
 		return result;
