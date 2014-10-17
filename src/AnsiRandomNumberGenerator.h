@@ -24,7 +24,6 @@
 #define ANSIRANDOMNUMBERGENERATOR_H
 
 #include <ctime>
-#include <mutex>
 #include "ARandomNumberGenerator.h"
 
 namespace ea
@@ -48,29 +47,23 @@ namespace ea
 
 			AnsiRandomNumberGenerator()
 			{
-				#ifdef THREAD_SAFE
-				std::lock_guard<std::mutex> lock(_mutex);
-
 				if(!_seeded)
 				{
 					srand(time(nullptr));
 					_seeded = true;
 				}
-				#else
-				srand(time(nullptr));
-				#endif
 			}
 
 			~AnsiRandomNumberGenerator() {}
 
 			int32_t get_int32() override
 			{
-				return rand_re();
+				return rand();
 			}
 
 			double get_double() override
 			{
-				return (double)rand_re();
+				return (double)rand();
 			}
 
 			inline int32_t get_max_int32() const override
@@ -94,28 +87,10 @@ namespace ea
 			}
 
 		private:
-			#ifdef THREAD_SAFE
-			static std::mutex _mutex;
 			static bool _seeded;
-
-			inline int32_t rand_re()
-			{
-				std::lock_guard<std::mutex> lock(_mutex);
-
-				return rand();
-			}
-			#else
-			inline int32_t rand_re()
-			{
-				return rand();
-			}
-			#endif
 	};
 
-	#ifdef THREAD_SAFE
-	std::mutex AnsiRandomNumberGenerator::_mutex;
 	bool AnsiRandomNumberGenerator::_seeded = false;
-	#endif
 
 	/**
 	   	@}
