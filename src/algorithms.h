@@ -174,8 +174,8 @@ namespace ea
 
 	/*! Macro to test if a substraction overflows. */
 	#define ASSERT_SUBTRACTION(T, a, b) \
-		assert(!((b > 0 && a < (std::numeric_limits<double>::min() + b)) || \
-		         (b < 0 && a > (std::numeric_limits<double>::max() + b))));
+		assert(!((b > 0 && a < (std::numeric_limits<T>::min() + b)) || \
+		         (b < 0 && a > (std::numeric_limits<T>::max() + b))));
 
 	/**
 	   \tparam T type of terms to test
