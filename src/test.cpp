@@ -58,9 +58,12 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 				int32_t operator()(int32_t min, int32_t max) { return g.get_int32(min, max); }
 			} GetInt32;
 
+			test_range<int32_t, GetInt32>(g.get_min_int32(), g.get_max_int32());
+			test_range<int32_t, GetInt32>(g.get_min_int32(), g.get_min_int32() + 1);
+			test_range<int32_t, GetInt32>(g.get_max_int32() - 1, g.get_max_int32());
+			test_range<int32_t, GetInt32>(-10, 0);
+			test_range<int32_t, GetInt32>(0, 10);
 			test_range<int32_t, GetInt32>(-10, 10);
-			test_range<int32_t, GetInt32>(-2000000, -1999999);
-			test_range<int32_t, GetInt32>(5, 10);
 		}
 
 		void test_double()
