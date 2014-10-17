@@ -78,9 +78,19 @@ namespace ea
 				return RAND_MAX;
 			}
 
+			inline int32_t get_min_int32() const override
+			{
+				return 0;
+			}
+
 			double get_max_double() const override
 			{
 				return (double)RAND_MAX;
+			}
+
+			double get_min_double() const override
+			{
+				return 0.0;
 			}
 
 		private:

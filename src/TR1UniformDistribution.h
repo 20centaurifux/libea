@@ -29,7 +29,6 @@
 #include <string>
 #include <sstream>
 #include <cstring>
-#include <limits>
 #include "ARandomNumberGenerator.h"
 
 namespace ea
@@ -100,12 +99,22 @@ namespace ea
 
 			inline int32_t get_max_int32() const override
 			{
-				return std::numeric_limits<int32_t>::max();
+				return _int32_distribution.max();
+			}
+
+			inline int32_t get_min_int32() const override
+			{
+				return _int32_distribution.min();
 			}
 
 			double get_max_double() const override
 			{
-				return std::numeric_limits<double>::max();
+				return _double_distribution.max();
+			}
+
+			double get_min_double() const override
+			{
+				return _double_distribution.min();
 			}
 
 		private:

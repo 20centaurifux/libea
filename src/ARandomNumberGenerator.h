@@ -124,9 +124,19 @@ namespace ea
 			virtual int32_t get_max_int32() const = 0;
 
 			/**
-			   @return The maximum value the get_int32() method can return.
+			   @return The maximum value the get_double() method can return.
 			 */
 			virtual double get_max_double() const = 0;
+
+			/**
+			   @return The minimum value the get_int32() method can return.
+			 */
+			virtual int32_t get_min_int32() const = 0;
+
+			/**
+			   @return The minimum value the get_double() method can return.
+			 */
+			virtual double get_min_double() const = 0;
 
 		private:
 			template<typename T, typename F>

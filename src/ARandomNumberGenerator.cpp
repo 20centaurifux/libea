@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <cmath>
 #include "ARandomNumberGenerator.h"
+#include "algorithms.h"
 
 using namespace std;
 
@@ -37,13 +38,22 @@ namespace ea
 
 	int32_t ARandomNumberGenerator::get_int32(const int32_t min, const int32_t max)
 	{
-		uint32_t range = max - min + 1;
-		uint32_t scale = (get_max_int32() + 1u) / range;
-		uint32_t limit = scale * range;
+		uint32_t range;
+		uint32_t scale;
+		uint32_t limit;
 		uint32_t rnd;
 		int32_t result;
 
-		assert(scale != 0);
+		assert(max > min);
+
+		assert_subtraction(max, min);
+		range = max - min;
+
+		scale = get_max_int32() / range;
+		assert(scale > 0);
+
+		limit = scale * range;
+		assert(range <= limit);
 
 		do
 		{
@@ -51,6 +61,7 @@ namespace ea
 		} while(rnd >= limit);
 
 		result = (int32_t)rnd / scale + min;
+
 		assert(result >= min && result <= max);
 
 		return result;
