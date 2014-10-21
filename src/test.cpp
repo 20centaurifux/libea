@@ -334,19 +334,11 @@ class Int32Factory
 typedef ea::PrimitiveGenomeBase<int32_t, SumFitness<ea::Sequence<int32_t>>> PrimitiveInt32GenomeBase;
 typedef GenomeBaseTest<PrimitiveInt32GenomeBase, Int32Factory> PrimitiveInt32GenomeBaseTest;
 
-CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
+typedef ea::CachedPrimitiveGenomeBase<int32_t, SumFitness<ea::CachedSequence<int32_t>>> CachedPrimitiveInt32GenomeBase;
+typedef GenomeBaseTest<CachedPrimitiveInt32GenomeBase, Int32Factory> CachedPrimitiveInt32GenomeBaseTest;
 
-/*
-template<typename TGenomeBase>
-class Int32GenomeBaseTest : public GenomeBaseTest<TGenomeBase>
-{
-	protected:
-		virtual int32_t *create_genes(const size_t size)
-		{
-			return nullptr;
-		}
-};
-*/
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
 
 //Int32GenomeBaseTest<ea::PrimitiveGenomeBase<int32_t, SumFitness<ea::Sequence<int32_t>>> foo;
 
