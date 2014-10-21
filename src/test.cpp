@@ -220,10 +220,9 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 					// test index_of method:
 					test_index_of(sequences[i], genes[i], size, not_in_set);
 
-					// compare hashes:
-					CPPUNIT_ASSERT(_base.hash(sequences[0]) != _base.hash(sequences[1]));
-
 					// compare sequences:
+					CPPUNIT_ASSERT(_base.hash(sequences[0]) != _base.hash(sequences[1]));
+					CPPUNIT_ASSERT(_base.fitness(sequences[0]) != _base.fitness(sequences[1]));
 					CPPUNIT_ASSERT(_base.cmp(sequences[0], sequences[1]) != 0);
 
 					// copy first sequence:
@@ -233,15 +232,19 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 					CPPUNIT_ASSERT(_base.len(sequences[0]) == _base.len(clone));
 					CPPUNIT_ASSERT(_base.cmp(sequences[0], clone) == 0);
 					CPPUNIT_ASSERT(_base.hash(sequences[0]) == _base.hash(clone));
+					CPPUNIT_ASSERT(_base.fitness(sequences[0]) == _base.fitness(clone));
 
 					// change clone & compare it again to parent sequence:
-					auto gene = _base.get(clone, 0);
-					_base.set(clone, 0, _base.get(clone, size - 1));
-					_base.set(clone, size - 1, gene);
+					auto a = _base.get(clone, 0);
+					auto b = _base.get(clone, size - 1);
+
+					_base.set(clone, size - 1, a);
+					_base.set(clone, 0, b);
 
 					CPPUNIT_ASSERT(_base.len(sequences[0]) == _base.len(clone));
 					CPPUNIT_ASSERT(_base.cmp(sequences[0], clone) != 0);
 					CPPUNIT_ASSERT(_base.hash(sequences[0]) != _base.hash(clone));
+					CPPUNIT_ASSERT(_base.fitness(sequences[0]) != _base.fitness(clone));
 
 					// destroy clone:
 					_base.dispose(clone);
@@ -283,19 +286,19 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 };
 
 template<typename TSequence>
-class SumFitness
+class TestFitness
 {
 	public:
 		float operator()(const TSequence* const& seq) const
 		{
-			float sum = 0;
+			float f = 0;
 
 			for(auto i = 0; i < seq->len; i++)
 			{
-				sum += seq->genes[i];
+				f += seq->genes[i] * i;
 			}
 
-			return sum;
+			return f;
 		}
 };
 
@@ -331,16 +334,54 @@ class Int32Factory
 		ea::TR1UniformDistribution<> _rnd;
 };
 
-typedef ea::PrimitiveGenomeBase<int32_t, SumFitness<ea::Sequence<int32_t>>> PrimitiveInt32GenomeBase;
+class DoubleFactory
+{
+	public:
+		void generate_differing_gene_sets(double* genes[2], uint32_t size, double& not_in_set)
+		{
+			uint32_t i;
+			uint32_t sep;
+
+			genes[0] = new double[size];
+			_rnd.get_unique_double_seq(0, size - 1, genes[0], size);
+
+			genes[1] = new double[size];
+
+			sep = size / 2;
+
+			for(i = 0; i < sep; i++)
+			{
+				genes[1][i] = genes[0][i + sep];
+			}
+
+			for(i = sep; i < size; i++)
+			{
+				genes[1][i] = genes[0][i - sep];
+			}
+
+			not_in_set = size;
+		}
+
+	private:
+		ea::TR1UniformDistribution<> _rnd;
+};
+
+typedef ea::PrimitiveGenomeBase<int32_t, TestFitness<ea::Sequence<int32_t>>> PrimitiveInt32GenomeBase;
 typedef GenomeBaseTest<PrimitiveInt32GenomeBase, Int32Factory> PrimitiveInt32GenomeBaseTest;
 
-typedef ea::CachedPrimitiveGenomeBase<int32_t, SumFitness<ea::CachedSequence<int32_t>>> CachedPrimitiveInt32GenomeBase;
+typedef ea::CachedPrimitiveGenomeBase<int32_t, TestFitness<ea::CachedSequence<int32_t>>> CachedPrimitiveInt32GenomeBase;
 typedef GenomeBaseTest<CachedPrimitiveInt32GenomeBase, Int32Factory> CachedPrimitiveInt32GenomeBaseTest;
+
+typedef ea::PrimitiveGenomeBase<double, TestFitness<ea::Sequence<double>>> PrimitiveDoubleGenomeBase;
+typedef GenomeBaseTest<PrimitiveDoubleGenomeBase, DoubleFactory> PrimitiveDoubleGenomeBaseTest;
+
+typedef ea::CachedPrimitiveGenomeBase<double, TestFitness<ea::Sequence<double>>> CachedPrimitiveDoubleGenomeBase;
+typedef GenomeBaseTest<CachedPrimitiveDoubleGenomeBase, DoubleFactory> CachedPrimitiveDoubleGenomeBaseTest;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
-
-//Int32GenomeBaseTest<ea::PrimitiveGenomeBase<int32_t, SumFitness<ea::Sequence<int32_t>>> foo;
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
 
 int main(int argc, char* argv[])
 {
