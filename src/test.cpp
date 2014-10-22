@@ -175,6 +175,7 @@ typedef RandomNumberGeneratorTest<ea::TR1UniformDistribution<mt19937_64>> TR1Uni
 /*
  *	genome tests:
  */
+#include <sstream>
 #include "PrimitiveGenome.hpp"
 
 template<typename TGenomeBase, typename Factory>
@@ -302,6 +303,26 @@ class TestFitness
 		}
 };
 
+template<typename TSequence>
+class TestStringFitness
+{
+	public:
+		float operator()(const TSequence* const& seq) const
+		{
+			float f = 0;
+
+			for(auto i = 0; i < seq->len; i++)
+			{
+				for(char c : seq->genes[i])
+				{
+					f += i * c;
+				}
+			}
+
+			return f;
+		}
+};
+
 class Int32Factory
 {
 	public:
@@ -366,6 +387,30 @@ class DoubleFactory
 		ea::TR1UniformDistribution<> _rnd;
 };
 
+class StringFactory
+{
+	public:
+		void generate_differing_gene_sets(string* genes[2], uint32_t size, string& not_in_set)
+		{
+			genes[0] = new string[size];
+			genes[1] = new string[size];
+
+			for(uint32_t i = 0; i < size; i++)
+			{
+				std::ostringstream sstream;
+
+				sstream << "[gene-" << i << "]";
+				std::string gene = sstream.str();
+
+				genes[0][i] = gene;
+				genes[1][size - i - 1] = gene;
+			}
+
+			not_in_set = "[not in set]";
+		}
+};
+
+
 typedef ea::PrimitiveGenomeBase<int32_t, TestFitness<ea::Sequence<int32_t>>> PrimitiveInt32GenomeBase;
 typedef GenomeBaseTest<PrimitiveInt32GenomeBase, Int32Factory> PrimitiveInt32GenomeBaseTest;
 
@@ -378,10 +423,17 @@ typedef GenomeBaseTest<PrimitiveDoubleGenomeBase, DoubleFactory> PrimitiveDouble
 typedef ea::CachedPrimitiveGenomeBase<double, TestFitness<ea::Sequence<double>>> CachedPrimitiveDoubleGenomeBase;
 typedef GenomeBaseTest<CachedPrimitiveDoubleGenomeBase, DoubleFactory> CachedPrimitiveDoubleGenomeBaseTest;
 
+typedef ea::PrimitiveGenomeBase<std::string,
+	TestStringFitness<ea::Sequence<std::string>>,
+	ea::PrimitiveGenomeHashFunc<ea::Sequence<std::string>>,
+	ea::StringSequenceCmp<ea::Sequence<std::string>>> PrimitiveStringGenomeBase;
+typedef GenomeBaseTest<PrimitiveStringGenomeBase, StringFactory> PrimitiveStringGenomeBaseTest;
+
 CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
 
 int main(int argc, char* argv[])
 {
