@@ -51,7 +51,7 @@ namespace ea
 			   @return hash of a sequence
 
 			   Default functor calculating an hash for sequences derived
-			   from Sequence.
+			   from ea::Sequence.
 			 */
 			size_t operator()(const TSequence* const sequence) const
 			{
@@ -75,6 +75,44 @@ namespace ea
 	H PrimitiveGenomeHashFunc<TSequence, H>::hash_func;
 
 	/**
+	   @class PrimitiveGenomeStringHashFunc
+	   @tparam TSequence sequence datatype
+	   @tparam H an hash algorithm
+	   @brief Functor calculating an hash for sequences derived
+	          from ea::Sequence having genes of type std::string.
+	 */
+	template<typename TSequence, typename H = SDBMHash>
+	class PrimitiveGenomeStringHashFunc
+	{
+		public:
+			/**
+			   @param sequence a sequence
+			   @return hash of a sequence
+
+			   Compares each gene with std::string::compare method.
+			 */
+			size_t operator()(const TSequence* const sequence) const
+			{
+				assert(sequence != nullptr);
+
+				hash_func.reset();
+
+				for(auto i = 0; i < sequence->len; i++)
+				{
+					hash_func << sequence->genes[i].c_str();
+				}
+
+				return hash_func.hash();
+			}
+
+		private:
+			static H hash_func;
+	};
+
+	template<typename TSequence, typename H>
+	H PrimitiveGenomeStringHashFunc<TSequence, H>::hash_func;
+
+	/**
 	   @struct Sequence
 	   @tparam TGene gene datatype
 	   @brief A sequence holding data length.
@@ -92,14 +130,105 @@ namespace ea
 	};
 
 	/**
+	   @class DirectSequenceCmp
+	   @tparam TSequence sequence datatype
+	   @brief Functor comparing two sequences. Genes are compared
+	          using std::memcmp.
+	 */
+	template<typename TSequence>
+	class DirectSequenceCmp
+	{
+		public:
+			/**
+			   @param a a sequence
+			   @param b a sequence
+			   @return This method returns zero if the two sequences are identical, otherwise
+			           it returns the difference between the first two differing genes (if both
+			           sequences have the same length). Zero-length sequences are always equal.
+				   If a's length is less than b's the result is -1, otherwise 1.
+
+			   Compares genes using std::memcmp.
+			 */
+			int operator()(TSequence* const& a, TSequence* const& b) const
+			{
+				assert(a != nullptr && b != nullptr);
+
+				if(a->len < b->len)
+				{
+					return -1;
+				}
+
+				if(a->len > b->len)
+				{
+					return 1;
+				}
+
+				return std::memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
+			}
+	};
+
+	/**
+	   @class StringSequenceCmp
+	   @tparam TSequence sequence datatype
+	   @brief Functor comparing two sequences. Genes are compared
+	          using std::string::compare.
+	 */
+	template<typename TSequence>
+	class StringSequenceCmp
+	{
+		public:
+			/**
+			   @param a a sequence
+			   @param b a sequence
+			   @return This method returns zero if the two sequences are identical, otherwise
+			           it returns the difference between the first two differing genes (if both
+			           sequences have the same length). Zero-length sequences are always equal.
+				   If a's length is less than b's the result is -1, otherwise 1.
+
+			   Compares genes using std::string::compare.
+			 */
+			int operator()(TSequence* const& a, TSequence* const& b) const
+			{
+				assert(a != nullptr && b != nullptr);
+
+				if(a->len < b->len)
+				{
+					return -1;
+				}
+
+				if(a->len > b->len)
+				{
+					return 1;
+				}
+
+				for(uint32_t i = 0; i < a->len; i++)
+				{
+					int result = a->genes[i].compare(b->genes[i]);
+
+					if(result)
+					{
+						return result;
+					}
+				}
+
+				return 0;
+			}
+	};
+
+	/**
 	   @class PrimitiveGenomeBase
 	   @tparam TGene type of genes
 	   @tparam F a fitness function
 	   @tparam H an hash function
+	   @tparam Cmp functor to compare sequences
 	   @tparam TSequence sequence type (this parameter is only used internally)
 	   @brief A genome base class providing access to sequences of datatype Sequence.
 	 */
-	template<typename TGene, typename F, typename H = PrimitiveGenomeHashFunc<Sequence<TGene>>, typename TSequence = Sequence<TGene>>
+	template<typename TGene,
+	         typename F,
+	         typename H = PrimitiveGenomeHashFunc<Sequence<TGene>>,
+	         typename Cmp = DirectSequenceCmp<Sequence<TGene>>,
+	         typename TSequence = Sequence<TGene>>
 	class PrimitiveGenomeBase : public AGenomeBase<TSequence*, TGene>
 	{
 		public:
@@ -125,8 +254,11 @@ namespace ea
 				auto genes = (TGene*)allocator->alloc(sizeof(typename TSequence::gene_type) * len);
 				auto sequence = (TSequence*)allocator->alloc(sizeof(TSequence));
 
-				std::memset(sequence, 0, sizeof(TSequence));
-				std::memset(genes, 0, len * sizeof(typename TSequence::gene_type));
+				new(genes) typename TSequence::gene_type[len];
+				new(sequence) TSequence;
+
+				//std::memset(sequence, 0, sizeof(TSequence));
+				//std::memset(genes, 0, len * sizeof(typename TSequence::gene_type));
 
 				sequence->len = len;
 				sequence->genes = genes;
@@ -147,6 +279,8 @@ namespace ea
 				}
 
 				allocator->free(sequence);
+
+				// @TODO call destructor
 			}
 
 			virtual inline void set(TSequence*& sequence, const uint16_t offset, const typename TSequence::gene_type& gene) const override
@@ -180,19 +314,9 @@ namespace ea
 
 			int cmp(TSequence* const& a, TSequence* const& b) const override
 			{
-				assert(a != nullptr && b != nullptr);
+				static Cmp cmp;
 
-				if(a->len < b->len)
-				{
-					return -1;
-				}
-
-				if(a->len > b->len)
-				{
-					return 1;
-				}
-
-				return std::memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
+				return cmp(a, b);
 			}
 
 			int32_t index_of(TSequence* const& seq, const typename TSequence::gene_type& search) const override
@@ -219,11 +343,11 @@ namespace ea
 			std::shared_ptr<IAllocator> allocator;
 	};
 
-	template<typename TGene, typename F, typename H, typename TSequence>
-	F PrimitiveGenomeBase<TGene, F, H, TSequence>::fitness_func;
+	template<typename TGene, typename F, typename H, typename Cmp, typename TSequence>
+	F PrimitiveGenomeBase<TGene, F, H, Cmp, TSequence>::fitness_func;
 
-	template<typename TGene, typename F, typename H, typename TSequence>
-	H PrimitiveGenomeBase<TGene, F, H, TSequence>::hash_func;
+	template<typename TGene, typename F, typename H, typename Cmp, typename TSequence>
+	H PrimitiveGenomeBase<TGene, F, H, Cmp, TSequence>::hash_func;
 
 	enum
 	{
@@ -253,10 +377,14 @@ namespace ea
 	   @tparam TGene type of genes
 	   @tparam F a fitness function
 	   @tparam H an hash function
+	   @tparam Cmp functor to compare sequences
 	   @brief A genome base class providing access to sequences of datatype CachedSequence.
 	 */
-	template<typename TGene, typename F, typename H = PrimitiveGenomeHashFunc<CachedSequence<TGene>>>
-	class CachedPrimitiveGenomeBase : public PrimitiveGenomeBase<TGene, F, H, CachedSequence<TGene>>
+	template<typename TGene,
+	         typename F,
+	         typename H = PrimitiveGenomeHashFunc<CachedSequence<TGene>>,
+	         typename Cmp = DirectSequenceCmp<CachedSequence<TGene>>>
+	class CachedPrimitiveGenomeBase : public PrimitiveGenomeBase<TGene, F, H, Cmp, CachedSequence<TGene>>
 	{
 		public:
 			virtual ~CachedPrimitiveGenomeBase() {}
@@ -293,9 +421,17 @@ namespace ea
 				return sequence->fitness;
 			}
 
+			inline void set(CachedSequence<TGene>*& sequence, const uint16_t offset, TGene& gene) const
+			{
+				assert(sequence != nullptr && offset < sequence->len);
+
+				sequence->flags = 0;
+				sequence->genes[offset] = gene;
+			}
+
 		protected:
-			using PrimitiveGenomeBase<TGene, F, H, CachedSequence<TGene>>::fitness_func;
-			using PrimitiveGenomeBase<TGene, F, H, CachedSequence<TGene>>::hash_func;
+			using PrimitiveGenomeBase<TGene, F, H, Cmp, CachedSequence<TGene>>::fitness_func;
+			using PrimitiveGenomeBase<TGene, F, H, Cmp, CachedSequence<TGene>>::hash_func;
 	};
 
 	template<typename TSequence>
