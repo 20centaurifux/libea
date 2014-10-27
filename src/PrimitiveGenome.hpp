@@ -257,9 +257,6 @@ namespace ea
 				new(genes) typename TSequence::gene_type[len];
 				new(sequence) TSequence;
 
-				//std::memset(sequence, 0, sizeof(TSequence));
-				//std::memset(genes, 0, len * sizeof(typename TSequence::gene_type));
-
 				sequence->len = len;
 				sequence->genes = genes;
 
@@ -275,12 +272,12 @@ namespace ea
 
 				if(sequence->genes)
 				{
+					sequence->genes->~TGene();
 					allocator->free(sequence->genes);
 				}
 
+				sequence->~TSequence();
 				allocator->free(sequence);
-
-				// @TODO call destructor
 			}
 
 			virtual inline void set(TSequence*& sequence, const uint16_t offset, const typename TSequence::gene_type& gene) const override
