@@ -421,7 +421,7 @@ namespace ea
 				return sequence->fitness;
 			}
 
-			inline void set(CachedSequence<TGene>*& sequence, const uint16_t offset, TGene& gene) const
+			inline void set(CachedSequence<TGene>*& sequence, const uint16_t offset, const TGene& gene) const override
 			{
 				assert(sequence != nullptr && offset < sequence->len);
 
