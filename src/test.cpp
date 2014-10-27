@@ -11,15 +11,151 @@
 #include <set>
 #include <algorithm>
 
+#include "AnsiRandomNumberGenerator.hpp"
+#include "TR1UniformDistribution.hpp"
+#include <sstream>
+#include "PrimitiveGenome.hpp"
+
 using namespace std;
 using namespace CPPUNIT_NS;
 
 /*
+ *	classes shared by test cases:
+ */
+
+// fitness functor templates
+template<typename TSequence>
+class TestFitness
+{
+	public:
+		float operator()(const TSequence* const& seq) const
+		{
+			float f = 0;
+
+			for(auto i = 0; i < seq->len; i++)
+			{
+				f += seq->genes[i] * i;
+			}
+
+			return f;
+		}
+};
+
+template<typename TSequence>
+class TestStringFitness
+{
+	public:
+		float operator()(const TSequence* const& seq) const
+		{
+			float f = 0;
+
+			for(auto i = 0; i < seq->len; i++)
+			{
+				for(char c : seq->genes[i])
+				{
+					f += i * c;
+				}
+			}
+
+			return f;
+		}
+};
+
+/*
+ * factory classes
+ *   -generate_differing_gene_sets() is required by GenomeBaseTest
+ */
+class Int32Factory
+{
+	public:
+		void generate_differing_gene_sets(int32_t* genes[2], uint32_t size, int32_t& not_in_set)
+		{
+			uint32_t i;
+			uint32_t sep;
+
+			genes[0] = new int32_t[size];
+			_rnd.get_unique_int32_seq(0, size - 1, genes[0], size);
+
+			genes[1] = new int32_t[size];
+
+			sep = size / 2;
+
+			for(i = 0; i < sep; i++)
+			{
+				genes[1][i] = genes[0][i + sep];
+			}
+
+			for(i = sep; i < size; i++)
+			{
+				genes[1][i] = genes[0][i - sep];
+			}
+
+			not_in_set = size;
+		}
+
+	private:
+		ea::TR1UniformDistribution<> _rnd;
+};
+
+class DoubleFactory
+{
+	public:
+		void generate_differing_gene_sets(double* genes[2], uint32_t size, double& not_in_set)
+		{
+			uint32_t i;
+			uint32_t sep;
+
+			genes[0] = new double[size];
+			_rnd.get_unique_double_seq(0, size - 1, genes[0], size);
+
+			genes[1] = new double[size];
+
+			sep = size / 2;
+
+			for(i = 0; i < sep; i++)
+			{
+				genes[1][i] = genes[0][i + sep];
+			}
+
+			for(i = sep; i < size; i++)
+			{
+				genes[1][i] = genes[0][i - sep];
+			}
+
+			not_in_set = size;
+		}
+
+	private:
+		ea::TR1UniformDistribution<> _rnd;
+};
+
+class StringFactory
+{
+	public:
+		void generate_differing_gene_sets(string* genes[2], uint32_t size, string& not_in_set)
+		{
+			genes[0] = new string[size];
+			genes[1] = new string[size];
+
+			for(uint32_t i = 0; i < size; i++)
+			{
+				std::ostringstream sstream;
+
+				sstream << "[gene-" << i << "]";
+				std::string gene = sstream.str();
+
+				genes[0][i] = gene;
+				genes[1][size - i - 1] = gene;
+			}
+
+			not_in_set = "[not in set]";
+		}
+};
+
+
+/*
  *	test random number generators:
  */
-#include "AnsiRandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
-
 template<typename TRandom>
 class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 {
@@ -169,15 +305,12 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 typedef RandomNumberGeneratorTest<ea::AnsiRandomNumberGenerator> AnsiRandomNumberGeneratorTest;
 typedef RandomNumberGeneratorTest<ea::TR1UniformDistribution<mt19937_64>> TR1UniformDistributionTest;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
 
 /*
  *	genome tests:
  */
-#include <sstream>
-#include "PrimitiveGenome.hpp"
-
 template<typename TGenomeBase, typename Factory>
 class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 {
@@ -226,26 +359,26 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 					CPPUNIT_ASSERT(_base.fitness(sequences[0]) != _base.fitness(sequences[1]));
 					CPPUNIT_ASSERT(_base.cmp(sequences[0], sequences[1]) != 0);
 
-					// copy first sequence:
-					auto clone = _base.copy(sequences[0]);
+					// copy sequence:
+					auto clone = _base.copy(sequences[1]);
 
 					// compare sequence with clone:
-					CPPUNIT_ASSERT(_base.len(sequences[0]) == _base.len(clone));
-					CPPUNIT_ASSERT(_base.cmp(sequences[0], clone) == 0);
-					CPPUNIT_ASSERT(_base.hash(sequences[0]) == _base.hash(clone));
-					CPPUNIT_ASSERT(_base.fitness(sequences[0]) == _base.fitness(clone));
+					CPPUNIT_ASSERT(_base.len(sequences[1]) == _base.len(clone));
+					CPPUNIT_ASSERT(_base.cmp(sequences[1], clone) == 0);
+					CPPUNIT_ASSERT(_base.hash(sequences[1]) == _base.hash(clone));
+					CPPUNIT_ASSERT(_base.fitness(sequences[1]) == _base.fitness(clone));
 
-					// change clone & compare it again to parent sequence:
+					// change clone & compare it again to sequence:
 					auto a = _base.get(clone, 0);
 					auto b = _base.get(clone, size - 1);
 
 					_base.set(clone, size - 1, a);
 					_base.set(clone, 0, b);
 
-					CPPUNIT_ASSERT(_base.len(sequences[0]) == _base.len(clone));
-					CPPUNIT_ASSERT(_base.cmp(sequences[0], clone) != 0);
-					CPPUNIT_ASSERT(_base.hash(sequences[0]) != _base.hash(clone));
-					CPPUNIT_ASSERT(_base.fitness(sequences[0]) != _base.fitness(clone));
+					CPPUNIT_ASSERT(_base.len(sequences[1]) == _base.len(clone));
+					CPPUNIT_ASSERT(_base.cmp(sequences[1], clone) != 0);
+					CPPUNIT_ASSERT(_base.hash(sequences[1]) != _base.hash(clone));
+					CPPUNIT_ASSERT(_base.fitness(sequences[1]) != _base.fitness(clone));
 
 					// destroy clone:
 					_base.dispose(clone);
@@ -285,131 +418,6 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 			CPPUNIT_ASSERT(_base.index_of(sequence, not_in_sequence) == -1);
 		}
 };
-
-template<typename TSequence>
-class TestFitness
-{
-	public:
-		float operator()(const TSequence* const& seq) const
-		{
-			float f = 0;
-
-			for(auto i = 0; i < seq->len; i++)
-			{
-				f += seq->genes[i] * i;
-			}
-
-			return f;
-		}
-};
-
-template<typename TSequence>
-class TestStringFitness
-{
-	public:
-		float operator()(const TSequence* const& seq) const
-		{
-			float f = 0;
-
-			for(auto i = 0; i < seq->len; i++)
-			{
-				for(char c : seq->genes[i])
-				{
-					f += i * c;
-				}
-			}
-
-			return f;
-		}
-};
-
-class Int32Factory
-{
-	public:
-		void generate_differing_gene_sets(int32_t* genes[2], uint32_t size, int32_t& not_in_set)
-		{
-			uint32_t i;
-			uint32_t sep;
-
-			genes[0] = new int32_t[size];
-			_rnd.get_unique_int32_seq(0, size - 1, genes[0], size);
-
-			genes[1] = new int32_t[size];
-
-			sep = size / 2;
-
-			for(i = 0; i < sep; i++)
-			{
-				genes[1][i] = genes[0][i + sep];
-			}
-
-			for(i = sep; i < size; i++)
-			{
-				genes[1][i] = genes[0][i - sep];
-			}
-
-			not_in_set = size;
-		}
-
-	private:
-		ea::TR1UniformDistribution<> _rnd;
-};
-
-class DoubleFactory
-{
-	public:
-		void generate_differing_gene_sets(double* genes[2], uint32_t size, double& not_in_set)
-		{
-			uint32_t i;
-			uint32_t sep;
-
-			genes[0] = new double[size];
-			_rnd.get_unique_double_seq(0, size - 1, genes[0], size);
-
-			genes[1] = new double[size];
-
-			sep = size / 2;
-
-			for(i = 0; i < sep; i++)
-			{
-				genes[1][i] = genes[0][i + sep];
-			}
-
-			for(i = sep; i < size; i++)
-			{
-				genes[1][i] = genes[0][i - sep];
-			}
-
-			not_in_set = size;
-		}
-
-	private:
-		ea::TR1UniformDistribution<> _rnd;
-};
-
-class StringFactory
-{
-	public:
-		void generate_differing_gene_sets(string* genes[2], uint32_t size, string& not_in_set)
-		{
-			genes[0] = new string[size];
-			genes[1] = new string[size];
-
-			for(uint32_t i = 0; i < size; i++)
-			{
-				std::ostringstream sstream;
-
-				sstream << "[gene-" << i << "]";
-				std::string gene = sstream.str();
-
-				genes[0][i] = gene;
-				genes[1][size - i - 1] = gene;
-			}
-
-			not_in_set = "[not in set]";
-		}
-};
-
 
 typedef ea::PrimitiveGenomeBase<int32_t, TestFitness<ea::Sequence<int32_t>>> PrimitiveInt32GenomeBase;
 typedef GenomeBaseTest<PrimitiveInt32GenomeBase, Int32Factory> PrimitiveInt32GenomeBaseTest;
