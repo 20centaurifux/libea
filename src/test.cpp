@@ -9,12 +9,14 @@
 
 #include <random>
 #include <set>
+#include <vector>
 #include <algorithm>
 
 #include "AnsiRandomNumberGenerator.hpp"
 #include "TR1UniformDistribution.hpp"
 #include <sstream>
 #include "PrimitiveGenome.hpp"
+#include "FittestSelection.hpp"
 
 using namespace std;
 using namespace CPPUNIT_NS;
@@ -64,6 +66,7 @@ class TestStringFitness
 /*
  * factory classes
  *   -generate_differing_gene_sets() is required by GenomeBaseTest
+ *   -generate_gene_set() is required by SelectionOperatorTest
  */
 class Int32Factory
 {
@@ -91,6 +94,11 @@ class Int32Factory
 			}
 
 			not_in_set = size;
+		}
+
+		void generate_gene_set(int32_t* genes, const int32_t len)
+		{
+			_rnd.get_unique_int32_seq(0, len - 1, genes, len);
 		}
 
 	private:
@@ -442,6 +450,75 @@ CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
+
+/*
+ *	selection operators:
+ */
+template<typename TGenomeBase, typename TFactory, typename TSelection>
+class SelectionOperatorTest : public CPPUNIT_NS::TestFixture
+{
+	typedef SelectionOperatorTest<TGenomeBase, TFactory, TSelection> SelectionOperatorTestCaseType;
+	CPPUNIT_TEST_SUITE(SelectionOperatorTestCaseType);
+	CPPUNIT_TEST(test_selection);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_selection()
+		{
+			TFactory f;
+			TGenomeBase base;
+			TSelection sel;
+			typename TGenomeBase::gene_type genes[10];
+			std::vector<typename TGenomeBase::sequence_type> population;
+
+			// create population:
+			for(uint32_t i = 0; i < 100; i++)
+			{
+				auto seq = base.create(10);
+				f.generate_gene_set(genes, 10);
+
+				for(uint32_t j = 0; j < 10; j++)
+				{
+					base.set(seq, j, genes[j]);
+				}
+
+				population.push_back(seq);
+			}
+
+			// create input adapter for population vector:
+			auto input = ea::make_input_adapter(population);
+
+			// create index vector & corresponding output adapter:
+			std::vector<uint32_t> indexes;
+			auto inserter = std::back_inserter(indexes);
+			ea::STLVectorAdapter<uint32_t> output(inserter);
+
+			// select genomes:
+			sel.select(input, 80, output);
+
+			// test selection:
+			CPPUNIT_ASSERT(indexes.size() == 80);
+
+			std::for_each(begin(indexes), end(indexes), [](const uint32_t index)
+			{
+				CPPUNIT_ASSERT(index >= 0 && index < 100);
+			});
+
+			// cleanup:
+			ea::dispose(base, begin(population), end(population));
+		}
+};
+
+typedef SelectionOperatorTest<PrimitiveInt32GenomeBase,
+        Int32Factory,
+        ea::FittestSelection<PrimitiveInt32GenomeBase>> FittestPrimitiveInt32GenomeBaseSelection;
+
+typedef SelectionOperatorTest<CachedPrimitiveInt32GenomeBase,
+        Int32Factory,
+        ea::FittestSelection<CachedPrimitiveInt32GenomeBase>> FittestCachedPrimitiveInt32GenomeBaseSelection;
+
+CPPUNIT_TEST_SUITE_REGISTRATION(FittestPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(FittestCachedPrimitiveInt32GenomeBaseSelection);
 
 int main(int argc, char* argv[])
 {
