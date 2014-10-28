@@ -85,12 +85,11 @@ namespace ea
 
 	/**
 	   @class STLRandomAccessInputAdapter
-	   @tparam T datatype of items stored in the wrapped container
 	   @tparam TContainer datatype of the container
 	   @brief IInputAdapter wrapping a container. The container has to provide a random_access_iterator.
 	 */
-	template<typename T, typename TContainer>
-	class STLRandomAccessInputAdapter : public IInputAdapter<T>
+	template<typename TContainer> // @TODO
+	class STLRandomAccessInputAdapter : public IInputAdapter<typename TContainer::value_type>
 	{
 		public:
 			/**
@@ -129,14 +128,14 @@ namespace ea
 				return _size;
 			}
 
-			T at(const uint32_t index) override
+			typename TContainer::value_type at(const uint32_t index) override
 			{
 				return *(_begin + index);
 			}
 
-			T current() override
+			typename TContainer::value_type current() override
 			{
-				return *_iter;
+				return* _iter;
 			}
 
 		private:
@@ -148,16 +147,15 @@ namespace ea
 
 	/**
 	   @param container a container
-	   @tparam T datatype of items stored in the given container
 	   @tparam TContainer datatype of a container
 	   @return a RandomAccessInputAdapter
 
 	   Helper function to create a RandomAccessInputAdapter.
 	 */
-	template<typename T, typename TContainer>
-	STLRandomAccessInputAdapter<T, TContainer> make_input_adapter(TContainer &container)
+	template<typename TContainer>
+	STLRandomAccessInputAdapter<TContainer> make_input_adapter(TContainer &container)
 	{
-		return STLRandomAccessInputAdapter<T, TContainer>(begin(container), end(container));
+		return STLRandomAccessInputAdapter<TContainer>(begin(container), end(container));
 	}
 
 	/**
