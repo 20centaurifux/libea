@@ -330,8 +330,8 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 typedef RandomNumberGeneratorTest<ea::AnsiRandomNumberGenerator> AnsiRandomNumberGeneratorTest;
 typedef RandomNumberGeneratorTest<ea::TR1UniformDistribution<mt19937_64>> TR1UniformDistributionTest;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
 
 /*
  *	genome tests:
@@ -444,29 +444,30 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
-typedef ea::PrimitiveGenomeBase<int32_t, TestFitness<ea::Sequence<int32_t>>> PrimitiveInt32GenomeBase;
+typedef ea::Int32PGenomeBase<TestFitness<ea::Sequence<int32_t>>> PrimitiveInt32GenomeBase;
 typedef GenomeBaseTest<PrimitiveInt32GenomeBase, Int32Factory> PrimitiveInt32GenomeBaseTest;
 
-typedef ea::CachedPrimitiveGenomeBase<int32_t, TestFitness<ea::CachedSequence<int32_t>>> CachedPrimitiveInt32GenomeBase;
+typedef ea::Int32CPGenomeBase<TestFitness<ea::CSequence<int32_t>>> CachedPrimitiveInt32GenomeBase;
 typedef GenomeBaseTest<CachedPrimitiveInt32GenomeBase, Int32Factory> CachedPrimitiveInt32GenomeBaseTest;
 
-typedef ea::PrimitiveGenomeBase<double, TestFitness<ea::Sequence<double>>> PrimitiveDoubleGenomeBase;
+typedef ea::DoublePGenomeBase<TestFitness<ea::Sequence<double>>> PrimitiveDoubleGenomeBase;
 typedef GenomeBaseTest<PrimitiveDoubleGenomeBase, DoubleFactory> PrimitiveDoubleGenomeBaseTest;
 
-typedef ea::CachedPrimitiveGenomeBase<double, TestFitness<ea::Sequence<double>>> CachedPrimitiveDoubleGenomeBase;
+typedef ea::DoubleCPGenomeBase<TestFitness<ea::Sequence<double>>> CachedPrimitiveDoubleGenomeBase;
 typedef GenomeBaseTest<CachedPrimitiveDoubleGenomeBase, DoubleFactory> CachedPrimitiveDoubleGenomeBaseTest;
 
-typedef ea::PrimitiveGenomeBase<std::string,
-	TestStringFitness<ea::Sequence<std::string>>,
-	ea::PrimitiveGenomeHashFunc<ea::Sequence<std::string>>,
-	ea::StringSequenceCmp<ea::Sequence<std::string>>> PrimitiveStringGenomeBase;
+typedef ea::StringPGenomeBase<TestStringFitness<ea::Sequence<std::string>>> PrimitiveStringGenomeBase;
 typedef GenomeBaseTest<PrimitiveStringGenomeBase, StringFactory> PrimitiveStringGenomeBaseTest;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
+typedef ea::StringCPGenomeBase<TestStringFitness<ea::Sequence<std::string>>> CachedPrimitiveStringGenomeBase;
+typedef GenomeBaseTest<CachedPrimitiveStringGenomeBase, StringFactory> CachedPrimitiveStringGenomeBaseTest;
+
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
 
 /*
  *	selection operators:

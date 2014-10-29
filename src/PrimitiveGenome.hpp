@@ -15,7 +15,7 @@
     General Public License v3 for more details.
  ***************************************************************************/
 /**
-   @file PrimitiveGenome.hpp
+   @file PGenome.hpp
    @brief Default genome base classes.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
@@ -36,22 +36,23 @@ namespace ea
 	*/
 
 	/**
-	   @class PrimitiveGenomeHashFunc
+	   @class PGenomeHashFunc
 	   @tparam TSequence sequence datatype
 	   @tparam H an hash algorithm
-	   @brief Default functor calculating an hash for sequences derived
+	   @brief Default functor calculating an hash value for sequences derived
 	          from Sequence.
 	 */
 	template<typename TSequence, typename H = SDBMHash>
-	class PrimitiveGenomeHashFunc
+	class PGenomeHashFunc
 	{
 		public:
 			/**
 			   @param sequence a sequence
-			   @return hash of a sequence
+			   @return hash value of a sequence
 
-			   Default functor calculating an hash for sequences derived
-			   from ea::Sequence.
+			   Default functor calculating an hash value for sequences derived
+			   from ea::Sequence. It writes the data of each gene to the stream of
+		           the given hash algorithm.
 			 */
 			size_t operator()(const TSequence* const sequence) const
 			{
@@ -72,24 +73,28 @@ namespace ea
 	};
 
 	template<typename TSequence, typename H>
-	H PrimitiveGenomeHashFunc<TSequence, H>::hash_func;
+	H PGenomeHashFunc<TSequence, H>::hash_func;
 
 	/**
-	   @class PrimitiveGenomeStringHashFunc
+	   @class PGenomeIteratingHashFunc
 	   @tparam TSequence sequence datatype
 	   @tparam H an hash algorithm
-	   @brief Functor calculating an hash for sequences derived
-	          from ea::Sequence having genes of type std::string.
+	   @brief Functor calculating an hash for sequences derived from ea::Sequence.
+	          This functor is recommended if genes are enumerable. It iterates
+	          each gene and writes the elements to the stream of the given hash
+	          algorithm.
 	 */
 	template<typename TSequence, typename H = SDBMHash>
-	class PrimitiveGenomeStringHashFunc
+	class PGenomeIteratingHashFunc
 	{
 		public:
 			/**
 			   @param sequence a sequence
-			   @return hash of a sequence
+			   @return hash value of a sequence
 
-			   Compares each gene with std::string::compare method.
+			   Functor calculating an hash value for sequences derived from
+		           ea::Sequence. It iterates all genes of the given sequence
+			   and writes the data to the stream of the given hash algorithm.
 			 */
 			size_t operator()(const TSequence* const sequence) const
 			{
@@ -99,7 +104,7 @@ namespace ea
 
 				for(auto i = 0; i < sequence->len; i++)
 				{
-					hash_func << sequence->genes[i].c_str();
+					hash_func << sequence->genes[i];
 				}
 
 				return hash_func.hash();
@@ -110,7 +115,7 @@ namespace ea
 	};
 
 	template<typename TSequence, typename H>
-	H PrimitiveGenomeStringHashFunc<TSequence, H>::hash_func;
+	H PGenomeIteratingHashFunc<TSequence, H>::hash_func;
 
 	/**
 	   @struct Sequence
@@ -168,13 +173,13 @@ namespace ea
 	};
 
 	/**
-	   @class StringSequenceCmp
+	   @class SequenceStrCmp
 	   @tparam TSequence sequence datatype
 	   @brief Functor comparing two sequences. Genes are compared
 	          using std::string::compare.
 	 */
 	template<typename TSequence>
-	class StringSequenceCmp
+	class SequenceStrCmp
 	{
 		public:
 			/**
@@ -216,7 +221,7 @@ namespace ea
 	};
 
 	/**
-	   @class PrimitiveGenomeBase
+	   @class PGenomeBase
 	   @tparam TGene type of genes
 	   @tparam F a fitness function
 	   @tparam H an hash function
@@ -226,26 +231,26 @@ namespace ea
 	 */
 	template<typename TGene,
 	         typename F,
-	         typename H = PrimitiveGenomeHashFunc<Sequence<TGene>>,
+	         typename H = PGenomeHashFunc<Sequence<TGene>>,
 	         typename Cmp = DirectSequenceCmp<Sequence<TGene>>,
 	         typename TSequence = Sequence<TGene>>
-	class PrimitiveGenomeBase : public AGenomeBase<TSequence*, TGene>
+	class PGenomeBase : public AGenomeBase<TSequence*, TGene>
 	{
 		public:
-			PrimitiveGenomeBase() : allocator(StdAllocator::create_shared()) {}
+			PGenomeBase() : allocator(StdAllocator::create_shared()) {}
 
 			/**
 			   @param allocator a memory allocator
 
-			   Creates a new PrimitiveGenomeBase instance with an assigned allocator.
+			   Creates a new PGenomeBase instance with an assigned allocator.
 			 */
-			PrimitiveGenomeBase(std::shared_ptr<IAllocator> allocator)
+			PGenomeBase(std::shared_ptr<IAllocator> allocator)
 			{
 				assert(allocator != nullptr);
 				this.allocator = allocator;
 			}
 
-			virtual ~PrimitiveGenomeBase() {}
+			virtual ~PGenomeBase() {}
 
 			inline uint16_t gene_size() const override { return sizeof(TSequence); }
 
@@ -341,10 +346,58 @@ namespace ea
 	};
 
 	template<typename TGene, typename F, typename H, typename Cmp, typename TSequence>
-	F PrimitiveGenomeBase<TGene, F, H, Cmp, TSequence>::fitness_func;
+	F PGenomeBase<TGene, F, H, Cmp, TSequence>::fitness_func;
 
 	template<typename TGene, typename F, typename H, typename Cmp, typename TSequence>
-	H PrimitiveGenomeBase<TGene, F, H, Cmp, TSequence>::hash_func;
+	H PGenomeBase<TGene, F, H, Cmp, TSequence>::hash_func;
+
+	/**
+	   @typedef Int32PGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PGenomeBase with int32_t genes.
+	  */
+	template<typename F>
+	using Int32PGenomeBase = PGenomeBase<int32_t, F>;
+
+	/**
+	   @typedef UInt32PGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PGenomeBase with uint32_t genes.
+	  */
+	template<typename F>
+	using UInt32PGenomeBase = PGenomeBase<uint32_t, F>;
+
+	/**
+	   @typedef BinaryPGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PGenomeBase with bool genes.
+	  */
+	template<typename F>
+	using BinaryPGenomeBase = PGenomeBase<bool, F>;
+
+	/**
+	   @typedef DoublePGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PGenomeBase with double genes.
+	  */
+	template<typename F>
+	using DoublePGenomeBase = PGenomeBase<double, F>;
+
+	/**
+	   @typedef Int32PGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PGenomeBase with string genes.
+	  */
+	template<typename F>
+	using StringPGenomeBase = PGenomeBase<std::string,
+	                                              F,
+	                                              PGenomeIteratingHashFunc<Sequence<std::string>>,
+	                                              SequenceStrCmp<Sequence<std::string>>>;
 
 	enum
 	{
@@ -359,7 +412,7 @@ namespace ea
 	   @brief This sequence can additionally cache fitness and hash values.
 	  */
 	template<typename TGene>
-	struct CachedSequence : Sequence<TGene>
+	struct CSequence : Sequence<TGene>
 	{
 		/*! Flags. */
 		uint8_t flags;
@@ -370,23 +423,23 @@ namespace ea
 	};
 
 	/**
-	   @class CachedPrimitiveGenomeBase
+	   @class CPGenomeBase
 	   @tparam TGene type of genes
 	   @tparam F a fitness function
 	   @tparam H an hash function
 	   @tparam Cmp functor to compare sequences
-	   @brief A genome base class providing access to sequences of datatype CachedSequence.
+	   @brief A genome base class providing access to sequences of datatype CSequence.
 	 */
 	template<typename TGene,
 	         typename F,
-	         typename H = PrimitiveGenomeHashFunc<CachedSequence<TGene>>,
-	         typename Cmp = DirectSequenceCmp<CachedSequence<TGene>>>
-	class CachedPrimitiveGenomeBase : public PrimitiveGenomeBase<TGene, F, H, Cmp, CachedSequence<TGene>>
+	         typename H = PGenomeHashFunc<CSequence<TGene>>,
+	         typename Cmp = DirectSequenceCmp<CSequence<TGene>>>
+	class CPGenomeBase : public PGenomeBase<TGene, F, H, Cmp, CSequence<TGene>>
 	{
 		public:
-			virtual ~CachedPrimitiveGenomeBase() {}
+			virtual ~CPGenomeBase() {}
 
-			size_t hash(CachedSequence<TGene>* const& sequence) override
+			size_t hash(CSequence<TGene>* const& sequence) override
 			{
 				// test if hash has already been calculated:
 				if(sequence->flags & PSEQ_FLAG_HASH_SET)
@@ -402,7 +455,7 @@ namespace ea
 				return sequence->hash;
 			}
 
-			float fitness(CachedSequence<TGene>* const& sequence) override
+			float fitness(CSequence<TGene>* const& sequence) override
 			{
 				// test if fitness has already been calculated:
 				if(sequence->flags & PSEQ_FLAG_FITNESS_SET)
@@ -418,7 +471,7 @@ namespace ea
 				return sequence->fitness;
 			}
 
-			inline void set(CachedSequence<TGene>*& sequence, const uint16_t offset, const TGene& gene) const override
+			inline void set(CSequence<TGene>*& sequence, const uint16_t offset, const TGene& gene) const override
 			{
 				assert(sequence != nullptr && offset < sequence->len);
 
@@ -427,10 +480,59 @@ namespace ea
 			}
 
 		protected:
-			using PrimitiveGenomeBase<TGene, F, H, Cmp, CachedSequence<TGene>>::fitness_func;
-			using PrimitiveGenomeBase<TGene, F, H, Cmp, CachedSequence<TGene>>::hash_func;
+			using PGenomeBase<TGene, F, H, Cmp, CSequence<TGene>>::fitness_func;
+			using PGenomeBase<TGene, F, H, Cmp, CSequence<TGene>>::hash_func;
 	};
 
+	/**
+	   @typedef Int32CPGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PCGenomeBase with int32_t genes.
+	  */
+	template<typename F>
+	using Int32CPGenomeBase = CPGenomeBase<int32_t, F>;
+
+	/**
+	   @typedef UInt32CPGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PCGenomeBase with uint32_t genes.
+	  */
+	template<typename F>
+	using UInt32CPGenomeBase = CPGenomeBase<uint32_t, F>;
+
+	/**
+	   @typedef BinaryCPGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PCGenomeBase with bool genes.
+	  */
+	template<typename F>
+	using BinaryCPGenomeBase = CPGenomeBase<bool, F>;
+
+	/**
+	   @typedef DoubleCPGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PCGenomeBase with double genes.
+	  */
+	template<typename F>
+	using DoubleCPGenomeBase = CPGenomeBase<double, F>;
+
+	/**
+	   @typedef StringCPGenomeBase
+	   @tparam F a fitness function
+
+	   ea::PCGenomeBase with string genes.
+	  */
+	template<typename F>
+	using StringCPGenomeBase = CPGenomeBase<std::string,
+	                                              F,
+	                                              PGenomeIteratingHashFunc<Sequence<std::string>>,
+	                                              SequenceStrCmp<Sequence<std::string>>>;
+
+	// @TODO
 	template<typename TSequence>
 	uint16_t sequence_len(const TSequence* seq)
 	{
