@@ -17,13 +17,30 @@
 #include <sstream>
 #include "PrimitiveGenome.hpp"
 #include "FittestSelection.hpp"
+#include "FitnessProportionalSelection.hpp"
+#include "TournamentSelection.hpp"
+#include "DoubleTournamentSelection.hpp"
 
 using namespace std;
 using namespace CPPUNIT_NS;
 
 /*
- *	classes shared by test cases:
+ *	classes & methods shared by test cases:
  */
+
+// convert array of genes to a sequence:
+template<typename TGenomeBase>
+typename TGenomeBase::sequence_type array_to_sequence(TGenomeBase& base, const typename TGenomeBase::gene_type* genes, const int32_t size)
+{
+	auto seq = base.create(10);
+
+	for(uint32_t i = 0; i < size; i++)
+	{
+		base.set(seq, i, genes[i]);
+	}
+
+	return seq;
+}
 
 // fitness functor templates
 template<typename TSequence>
@@ -313,8 +330,8 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 typedef RandomNumberGeneratorTest<ea::AnsiRandomNumberGenerator> AnsiRandomNumberGeneratorTest;
 typedef RandomNumberGeneratorTest<ea::TR1UniformDistribution<mt19937_64>> TR1UniformDistributionTest;
 
-CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
 
 /*
  *	genome tests:
@@ -445,11 +462,11 @@ typedef ea::PrimitiveGenomeBase<std::string,
 	ea::StringSequenceCmp<ea::Sequence<std::string>>> PrimitiveStringGenomeBase;
 typedef GenomeBaseTest<PrimitiveStringGenomeBase, StringFactory> PrimitiveStringGenomeBaseTest;
 
-CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
 
 /*
  *	selection operators:
@@ -474,14 +491,8 @@ class SelectionOperatorTest : public CPPUNIT_NS::TestFixture
 			// create population:
 			for(uint32_t i = 0; i < 100; i++)
 			{
-				auto seq = base.create(10);
 				f.generate_gene_set(genes, 10);
-
-				for(uint32_t j = 0; j < 10; j++)
-				{
-					base.set(seq, j, genes[j]);
-				}
-
+				auto seq = array_to_sequence(base, genes, 10);
 				population.push_back(seq);
 			}
 
@@ -517,8 +528,18 @@ typedef SelectionOperatorTest<CachedPrimitiveInt32GenomeBase,
         Int32Factory,
         ea::FittestSelection<CachedPrimitiveInt32GenomeBase>> FittestCachedPrimitiveInt32GenomeBaseSelection;
 
+typedef SelectionOperatorTest<PrimitiveInt32GenomeBase,
+        Int32Factory,
+        ea::FitnessProportionalSelection<PrimitiveInt32GenomeBase>> FitnessProportionalPrimitiveInt32GenomeBaseSelection;
+
+typedef SelectionOperatorTest<CachedPrimitiveInt32GenomeBase,
+        Int32Factory,
+        ea::FitnessProportionalSelection<CachedPrimitiveInt32GenomeBase>> FitnessProportionalCachedPrimitiveInt32GenomeBaseSelection;
+
 CPPUNIT_TEST_SUITE_REGISTRATION(FittestPrimitiveInt32GenomeBaseSelection);
 CPPUNIT_TEST_SUITE_REGISTRATION(FittestCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
 
 int main(int argc, char* argv[])
 {
