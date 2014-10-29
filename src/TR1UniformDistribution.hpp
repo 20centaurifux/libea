@@ -51,14 +51,17 @@ namespace ea
 		public:
 			TR1UniformDistribution()
 			{
-				if(!_seeded)
-				{
-					_engine.seed(time(nullptr));
-					_seeded = true;
+				_engine.seed(time(nullptr));
 
-					memset(&_last_int32_dist, 0, sizeof(_last_int32_dist));
-					memset(&_last_double_dist, 0, sizeof(_last_double_dist));
-				}
+				memset(&_last_int32_dist, 0, sizeof(_last_int32_dist));
+				memset(&_last_double_dist, 0, sizeof(_last_double_dist));
+			}
+
+			TR1UniformDistribution(TR1UniformDistribution& r)
+			{
+				_engine.seed(time(nullptr));
+				memset(&_last_int32_dist, 0, sizeof(_last_int32_dist));
+				memset(&_last_double_dist, 0, sizeof(_last_double_dist));
 			}
 
 			virtual ~TR1UniformDistribution()
@@ -127,7 +130,6 @@ namespace ea
 			};
 
 			TEngine _engine;
-			bool _seeded;
 			std::ostringstream _sstream;
 			std::map<std::string, std::uniform_int_distribution<int32_t>*> _int32_cache;
 			std::map<std::string, std::uniform_real_distribution<double>*> _double_cache;

@@ -47,11 +47,7 @@ namespace ea
 
 			AnsiRandomNumberGenerator()
 			{
-				if(!_seeded)
-				{
-					srand(time(nullptr));
-					_seeded = true;
-				}
+				srand(time(nullptr));
 			}
 
 			~AnsiRandomNumberGenerator() {}
@@ -85,12 +81,7 @@ namespace ea
 			{
 				return 0.0;
 			}
-
-		private:
-			static bool _seeded;
 	};
-
-	bool AnsiRandomNumberGenerator::_seeded = false;
 
 	/**
 	   	@}
