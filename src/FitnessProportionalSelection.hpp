@@ -58,7 +58,12 @@ namespace ea
 			FitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 			{
 				assert(rnd != nullptr);
-				_rnd = rnd;
+				rnd = rnd;
+			}
+
+			FitnessProportionalSelection()
+			{
+				rnd = std::make_shared<TR1UniformDistribution<>>();
 			}
 
 			~FitnessProportionalSelection() {}
@@ -190,7 +195,7 @@ namespace ea
 			AlignedFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 			{
 				assert(rnd != nullptr);
-				_rnd = rnd;
+				rnd = rnd;
 			}
 
 			~AlignedFitnessProportionalSelection() {}
@@ -268,7 +273,7 @@ namespace ea
 			MinimizingFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
 			{
 				assert(rnd != nullptr);
-				_rnd = rnd;
+				rnd = rnd;
 			}
 
 			~MinimizingFitnessProportionalSelection() {}
