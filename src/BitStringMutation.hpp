@@ -38,7 +38,7 @@ namespace ea
 	 */
 
 	/**
-	   @class SingleBitStringMutation
+	   @class BitStringMutation
 	   @tparam TGenomeBase a genome base class
 	   @tparam P prohability (0..100) to flip a gene
 	   @brief A mutation operator flipping at least one random gene.

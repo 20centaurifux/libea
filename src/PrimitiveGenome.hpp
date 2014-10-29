@@ -15,7 +15,7 @@
     General Public License v3 for more details.
  ***************************************************************************/
 /**
-   @file PGenome.hpp
+   @file PrimitiveGenome.hpp
    @brief Default genome base classes.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
@@ -388,7 +388,7 @@ namespace ea
 	using DoublePGenomeBase = PGenomeBase<double, F>;
 
 	/**
-	   @typedef Int32PGenomeBase
+	   @typedef StringPGenomeBase
 	   @tparam F a fitness function
 
 	   ea::PGenomeBase with string genes.
@@ -532,7 +532,13 @@ namespace ea
 	                                              PGenomeIteratingHashFunc<Sequence<std::string>>,
 	                                              SequenceStrCmp<Sequence<std::string>>>;
 
-	// @TODO
+	/**
+	   @tparam TSequence sequence datatype
+	   @param seq a sequence
+	   @return length of the sequence
+
+	   Gets length of a sequence derived from ea::Sequence.
+	  */
 	template<typename TSequence>
 	uint16_t sequence_len(const TSequence* seq)
 	{
@@ -541,6 +547,14 @@ namespace ea
 		return seq->len;
 	}
 
+	/**
+	   @tparam TSequence sequence datatype
+	   @param seq a sequence
+	   @param offset offset of the desired gene
+	   @return a gene
+
+	   Gets a gene stored in a sequence derived from ea::Sequence.
+	  */
 	template<typename TSequence>
 	typename TSequence::gene_type sequence_get(const TSequence* seq, const uint16_t offset)
 	{
