@@ -24,6 +24,15 @@
 #include "DoubleTournamentSelection.hpp"
 #include "StochasticUniversalSampling.hpp"
 
+#include "CutAndSpliceCrossover.hpp"
+#include "CycleCrossover.hpp"
+#include "EdgeRecombinationCrossover.hpp"
+#include "OnePointCrossover.hpp"
+#include "OrderedCrossover.hpp"
+#include "PMXCrossover.hpp"
+#include "TwoPointCrossover.hpp"
+#include "UniformCrossover.hpp"
+
 using namespace std;
 using namespace CPPUNIT_NS;
 
@@ -180,6 +189,81 @@ class StringFactory
 		}
 };
 
+// fake random number generator:
+template<const int32_t I = 0>
+class StaticRndGenerator : public ea::ARandomNumberGenerator
+{
+	public:
+		int32_t get_int32() override
+		{
+			return I;
+		}
+
+		int32_t get_int32(const int32_t min, const int32_t max) override
+		{
+			if(min <= I && max >= I)
+			{
+				return I;
+			}
+
+			abort();
+		}
+
+		double get_double() override
+		{
+			return (double)I;
+		}
+
+		double get_double(const double min, const double max) override
+		{
+			if(min <= (double)I && max >= (double)I)
+			{
+				return (double)I;
+			}
+
+			abort();
+		}
+
+		inline int32_t get_max_int32() const override
+		{
+			return I;
+		}
+
+		inline int32_t get_min_int32() const override
+		{
+			return I;
+		}
+
+		double get_max_double() const override
+		{
+			return (double)I;
+		}
+
+		double get_min_double() const override
+		{
+			return (double)I;
+		}
+
+		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		{
+			abort();
+		}
+
+		void get_double_seq(const double min, const double max, double* numbers, const int32_t length)
+		{
+			abort();
+		}
+
+		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		{
+			abort();
+		}
+
+		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
+		{
+			abort();
+		}
+};
 
 /*
  *	test random number generators:
@@ -598,6 +682,60 @@ CPPUNIT_TEST_SUITE_REGISTRATION(StochasticCachedPrimitiveInt32GenomeBaseUniversa
 /*
  *	crossover operators:
  */
+class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(CutAndSpliceOperatorTest);
+	CPPUNIT_TEST(test_crossover);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_crossover()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto rnd = std::make_shared<StaticRndGenerator<4>>();
+			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
+			int32_t i;
+
+			// create parent sequences:
+			auto a = base.create(10);
+			auto b = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(a, i, i);
+				base.set(b, i, i + 10);
+			}
+
+			// create children:
+			std::vector<ea::Sequence<int32_t>*> children;
+			auto inserter = std::back_inserter(children);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+
+			uint32_t count = c.crossover(a, b, output);
+
+			// validate child sequences:
+			CPPUNIT_ASSERT(count == 2);
+
+			for(i = 0; i < 4; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], i) == i);
+				CPPUNIT_ASSERT(base.get(children[1], i) == i + 10);
+			}
+
+			for(i = 4; i < 10; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], i) == i + 10);
+				CPPUNIT_ASSERT(base.get(children[1], i) == i);
+			}
+
+			base.dispose(a);
+			base.dispose(b);
+
+			ea::dispose(base, begin(children), end(children));
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
 
 int main(int argc, char* argv[])
 {
