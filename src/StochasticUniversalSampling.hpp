@@ -56,6 +56,11 @@ namespace ea
 				_rnd = rnd;
 			}
 
+			StochasticUniversalSampling()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<>>();
+			}
+
 			~StochasticUniversalSampling() {}
 
 			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override

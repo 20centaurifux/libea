@@ -11,15 +11,18 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 #include "AnsiRandomNumberGenerator.hpp"
 #include "TR1UniformDistribution.hpp"
-#include <sstream>
+
 #include "PrimitiveGenome.hpp"
+
 #include "FittestSelection.hpp"
 #include "FitnessProportionalSelection.hpp"
 #include "TournamentSelection.hpp"
 #include "DoubleTournamentSelection.hpp"
+#include "StochasticUniversalSampling.hpp"
 
 using namespace std;
 using namespace CPPUNIT_NS;
@@ -330,8 +333,8 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 typedef RandomNumberGeneratorTest<ea::AnsiRandomNumberGenerator> AnsiRandomNumberGeneratorTest;
 typedef RandomNumberGeneratorTest<ea::TR1UniformDistribution<mt19937_64>> TR1UniformDistributionTest;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
 
 /*
  *	genome tests:
@@ -462,12 +465,12 @@ typedef GenomeBaseTest<PrimitiveStringGenomeBase, StringFactory> PrimitiveString
 typedef ea::StringCPGenomeBase<TestStringFitness<ea::Sequence<std::string>>> CachedPrimitiveStringGenomeBase;
 typedef GenomeBaseTest<CachedPrimitiveStringGenomeBase, StringFactory> CachedPrimitiveStringGenomeBaseTest;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
 
 /*
  *	selection operators:
@@ -569,6 +572,14 @@ typedef SelectionOperatorTest<CachedPrimitiveInt32GenomeBase,
         Int32Factory,
         ea::DoubleTournamentSelection<CachedPrimitiveInt32GenomeBase>> DoubleTournamentCachedPrimitiveInt32GenomeBaseSelection;
 
+typedef SelectionOperatorTest<PrimitiveInt32GenomeBase,
+        Int32Factory,
+        ea::StochasticUniversalSampling<PrimitiveInt32GenomeBase>> StochasticPrimitiveInt32GenomeBaseUniversalSampling;
+
+typedef SelectionOperatorTest<CachedPrimitiveInt32GenomeBase,
+        Int32Factory,
+        ea::StochasticUniversalSampling<CachedPrimitiveInt32GenomeBase>> StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling;
+
 CPPUNIT_TEST_SUITE_REGISTRATION(FittestPrimitiveInt32GenomeBaseSelection);
 CPPUNIT_TEST_SUITE_REGISTRATION(FittestCachedPrimitiveInt32GenomeBaseSelection);
 CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalPrimitiveInt32GenomeBaseSelection);
@@ -581,6 +592,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TournamentPrimitiveInt32GenomeBaseSelection);
 CPPUNIT_TEST_SUITE_REGISTRATION(TournamentCachedPrimitiveInt32GenomeBaseSelection);
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentPrimitiveInt32GenomeBaseSelection);
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(StochasticPrimitiveInt32GenomeBaseUniversalSampling);
+CPPUNIT_TEST_SUITE_REGISTRATION(StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling);
+
+/*
+ *	crossover operators:
+ */
 
 int main(int argc, char* argv[])
 {
