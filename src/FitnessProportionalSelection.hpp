@@ -297,9 +297,9 @@ namespace ea
 				          []
 				          (const typename TGenomeBase::sequence_type& a, const typename TGenomeBase::sequence_type& b)
 				          {
-						  static TGenomeBase base;
+				          	static TGenomeBase base;
 
-						  return base.cmp(a, b);
+				          	return base.cmp(a, b) > 0;
 				          });
 
 				// cumulate (aligned) fitness values:
