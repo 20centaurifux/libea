@@ -59,6 +59,11 @@ namespace ea
 				assert(P >= 1 && P <= 100);
 			}
 
+			TournamentSelection()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<>>();
+			}
+
 			~TournamentSelection() {}
 
 			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override

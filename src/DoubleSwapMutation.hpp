@@ -59,6 +59,11 @@ namespace ea
 			 */
 			DoubleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
+			DoubleTournamentSelection()
+			{
+				_rnd = std::make_shared<TR1UniformDistribution<>>();
+			}
+
 			virtual ~DoubleSwapMutation() {}
 
 			void mutate(sequence_type& sequence)
