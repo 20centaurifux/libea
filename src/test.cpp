@@ -780,6 +780,7 @@ class CycleCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			base.dispose(a);
 			base.dispose(b);
+			ea::dispose(base, begin(children), end(children));
 		}
 };
 
