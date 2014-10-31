@@ -24,6 +24,15 @@
 #include "DoubleTournamentSelection.hpp"
 #include "StochasticUniversalSampling.hpp"
 
+#include "CutAndSpliceCrossover.hpp"
+#include "CycleCrossover.hpp"
+#include "EdgeRecombinationCrossover.hpp"
+#include "OnePointCrossover.hpp"
+#include "OrderedCrossover.hpp"
+#include "PMXCrossover.hpp"
+#include "TwoPointCrossover.hpp"
+#include "UniformCrossover.hpp"
+
 using namespace std;
 using namespace CPPUNIT_NS;
 
@@ -180,6 +189,81 @@ class StringFactory
 		}
 };
 
+// fake random number generator:
+template<const int32_t I = 0>
+class StaticRndGenerator : public ea::ARandomNumberGenerator
+{
+	public:
+		int32_t get_int32() override
+		{
+			return I;
+		}
+
+		int32_t get_int32(const int32_t min, const int32_t max) override
+		{
+			if(min <= I && max >= I)
+			{
+				return I;
+			}
+
+			abort();
+		}
+
+		double get_double() override
+		{
+			return (double)I;
+		}
+
+		double get_double(const double min, const double max) override
+		{
+			if(min <= (double)I && max >= (double)I)
+			{
+				return (double)I;
+			}
+
+			abort();
+		}
+
+		inline int32_t get_max_int32() const override
+		{
+			return I;
+		}
+
+		inline int32_t get_min_int32() const override
+		{
+			return I;
+		}
+
+		double get_max_double() const override
+		{
+			return (double)I;
+		}
+
+		double get_min_double() const override
+		{
+			return (double)I;
+		}
+
+		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		{
+			abort();
+		}
+
+		void get_double_seq(const double min, const double max, double* numbers, const int32_t length)
+		{
+			abort();
+		}
+
+		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		{
+			abort();
+		}
+
+		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
+		{
+			abort();
+		}
+};
 
 /*
  *	test random number generators:
@@ -333,8 +417,8 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 typedef RandomNumberGeneratorTest<ea::AnsiRandomNumberGenerator> AnsiRandomNumberGeneratorTest;
 typedef RandomNumberGeneratorTest<ea::TR1UniformDistribution<mt19937_64>> TR1UniformDistributionTest;
 
-CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
 
 /*
  *	genome tests:
@@ -465,12 +549,12 @@ typedef GenomeBaseTest<PrimitiveStringGenomeBase, StringFactory> PrimitiveString
 typedef ea::StringCPGenomeBase<TestStringFitness<ea::Sequence<std::string>>> CachedPrimitiveStringGenomeBase;
 typedef GenomeBaseTest<CachedPrimitiveStringGenomeBase, StringFactory> CachedPrimitiveStringGenomeBaseTest;
 
-CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
 
 /*
  *	selection operators:
@@ -580,24 +664,127 @@ typedef SelectionOperatorTest<CachedPrimitiveInt32GenomeBase,
         Int32Factory,
         ea::StochasticUniversalSampling<CachedPrimitiveInt32GenomeBase>> StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling;
 
-CPPUNIT_TEST_SUITE_REGISTRATION(FittestPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(FittestCachedPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(TournamentPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(TournamentCachedPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentCachedPrimitiveInt32GenomeBaseSelection);
-CPPUNIT_TEST_SUITE_REGISTRATION(StochasticPrimitiveInt32GenomeBaseUniversalSampling);
-CPPUNIT_TEST_SUITE_REGISTRATION(StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling);
+//CPPUNIT_TEST_SUITE_REGISTRATION(FittestPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(FittestCachedPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(TournamentPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(TournamentCachedPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentCachedPrimitiveInt32GenomeBaseSelection);
+//CPPUNIT_TEST_SUITE_REGISTRATION(StochasticPrimitiveInt32GenomeBaseUniversalSampling);
+//CPPUNIT_TEST_SUITE_REGISTRATION(StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling);
 
 /*
  *	crossover operators:
  */
+class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(CutAndSpliceOperatorTest);
+	CPPUNIT_TEST(test_crossover);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_crossover()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto rnd = std::make_shared<StaticRndGenerator<4>>();
+			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
+			int32_t i;
+
+			// create parent sequences:
+			auto a = base.create(10);
+			auto b = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(a, i, i);
+				base.set(b, i, i + 10);
+			}
+
+			// create children:
+			std::vector<ea::Sequence<int32_t>*> children;
+			auto inserter = std::back_inserter(children);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+
+			uint32_t count = c.crossover(a, b, output);
+
+			// validate child sequences:
+			CPPUNIT_ASSERT(count == 2);
+
+			for(i = 0; i < 4; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], i) == i);
+				CPPUNIT_ASSERT(base.get(children[1], i) == i + 10);
+			}
+
+			for(i = 4; i < 10; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], i) == i + 10);
+				CPPUNIT_ASSERT(base.get(children[1], i) == i);
+			}
+
+			base.dispose(a);
+			base.dispose(b);
+
+			ea::dispose(base, begin(children), end(children));
+		}
+};
+
+class CycleCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(CycleCrossoverTest);
+	CPPUNIT_TEST(test_crossover);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_crossover()
+		{
+			PrimitiveInt32GenomeBase base;
+			ea::CycleCrossover<PrimitiveInt32GenomeBase> c;
+			const int32_t seq_a[10] = { 8, 4, 7, 3, 6, 2, 5, 1, 9, 0 };
+			const int32_t seq_b[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			const int32_t seq_child_a[10] = { 8, 1, 2, 3, 4, 5, 6, 7, 9, 0 };
+			const int32_t seq_child_b[10] = { 0, 4, 7, 3, 6, 2, 5, 1, 8, 9 };
+			int32_t i;
+
+			// create parent sequences:
+			auto a = base.create(10);
+			auto b = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(a, i, seq_a[i]);
+				base.set(b, i, seq_b[i]);
+			}
+
+			// create children:
+			std::vector<ea::Sequence<int32_t>*> children;
+			auto inserter = std::back_inserter(children);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+
+			uint32_t count = c.crossover(a, b, output);
+
+			// validate child sequences:
+			CPPUNIT_ASSERT(count == 2);
+
+			for(i = 0; i < 10; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], i) ==  seq_child_a[i]);
+				CPPUNIT_ASSERT(base.get(children[1], i) ==  seq_child_b[i]);
+			}
+
+			base.dispose(a);
+			base.dispose(b);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
 
 int main(int argc, char* argv[])
 {
