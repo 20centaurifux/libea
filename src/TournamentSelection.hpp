@@ -61,6 +61,7 @@ namespace ea
 
 			TournamentSelection()
 			{
+				assert(P >= 1 && P <= 100);
 				_rnd = std::make_shared<TR1UniformDistribution<>>();
 			}
 
