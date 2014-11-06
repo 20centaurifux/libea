@@ -417,8 +417,8 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 typedef RandomNumberGeneratorTest<ea::AnsiRandomNumberGenerator> AnsiRandomNumberGeneratorTest;
 typedef RandomNumberGeneratorTest<ea::TR1UniformDistribution<mt19937_64>> TR1UniformDistributionTest;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(AnsiRandomNumberGeneratorTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TR1UniformDistributionTest);
 
 /*
  *	genome tests:
@@ -549,12 +549,12 @@ typedef GenomeBaseTest<PrimitiveStringGenomeBase, StringFactory> PrimitiveString
 typedef ea::StringCPGenomeBase<TestStringFitness<ea::Sequence<std::string>>> CachedPrimitiveStringGenomeBase;
 typedef GenomeBaseTest<CachedPrimitiveStringGenomeBase, StringFactory> CachedPrimitiveStringGenomeBaseTest;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveInt32GenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveInt32GenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveDoubleGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
 
 /*
  *	selection operators:
@@ -664,20 +664,20 @@ typedef SelectionOperatorTest<CachedPrimitiveInt32GenomeBase,
         Int32Factory,
         ea::StochasticUniversalSampling<CachedPrimitiveInt32GenomeBase>> StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling;
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(FittestPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(FittestCachedPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(TournamentPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(TournamentCachedPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentCachedPrimitiveInt32GenomeBaseSelection);
-//CPPUNIT_TEST_SUITE_REGISTRATION(StochasticPrimitiveInt32GenomeBaseUniversalSampling);
-//CPPUNIT_TEST_SUITE_REGISTRATION(StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling);
+CPPUNIT_TEST_SUITE_REGISTRATION(FittestPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(FittestCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(AlignedFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(MinimizingFitnessProportionalCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(TournamentPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(TournamentCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentCachedPrimitiveInt32GenomeBaseSelection);
+CPPUNIT_TEST_SUITE_REGISTRATION(StochasticPrimitiveInt32GenomeBaseUniversalSampling);
+CPPUNIT_TEST_SUITE_REGISTRATION(StochasticCachedPrimitiveInt32GenomeBaseUniversalSampling);
 
 /*
  *	crossover operators:
@@ -692,9 +692,11 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::make_shared<StaticRndGenerator<4>>();
-			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
+			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c;
 			int32_t i;
+			int32_t j;
+			int32_t sep1;
+			int32_t sep2;
 
 			// create parent sequences:
 			auto a = base.create(10);
@@ -713,19 +715,44 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 
 			uint32_t count = c.crossover(a, b, output);
 
-			// validate child sequences:
+			// test number of created children:
 			CPPUNIT_ASSERT(count == 2);
 
-			for(i = 0; i < 4; i++)
+			// find separators:
+			for(i = 0; i < base.len(children[0]); i++)
 			{
-				CPPUNIT_ASSERT(base.get(children[0], i) == i);
-				CPPUNIT_ASSERT(base.get(children[1], i) == i + 10);
+				if(base.get(children[0], i) != base.get(a, i))
+				{
+					sep1 = i;
+					break;
+				}
 			}
 
-			for(i = 4; i < 10; i++)
+			sep2 = base.get(children[0], sep1) - 10;
+
+			// validate child sequences:
+			for(i = 0; i < sep1; i++)
 			{
-				CPPUNIT_ASSERT(base.get(children[0], i) == i + 10);
-				CPPUNIT_ASSERT(base.get(children[1], i) == i);
+				CPPUNIT_ASSERT(base.get(children[0], i) == base.get(a, i));
+			}
+
+			j = sep1;
+
+			for(i = sep2; j < base.len(children[0]); i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], j++) == base.get(b, i));
+			}
+
+			for(i = 0; i < sep2; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[1], i) == base.get(b, i));
+			}
+
+			j = sep2;
+
+			for(i = sep1; j < base.len(children[1]); i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[1], j++) == base.get(a, i));
 			}
 
 			base.dispose(a);
@@ -885,9 +912,9 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
 
 int main(int argc, char* argv[])
