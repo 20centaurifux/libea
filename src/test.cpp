@@ -912,10 +912,62 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
+class OrderedCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(OrderedCrossoverTest);
+	CPPUNIT_TEST(test_crossover);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_crossover()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto rnd = std::make_shared<StaticRndGenerator<5>>();
+			ea::OrderedCrossover<PrimitiveInt32GenomeBase> c(rnd);
+			int32_t i;
+
+			// create parent sequences:
+			auto a = base.create(10);
+			auto b = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(a, i, 9 - i);
+				base.set(b, i, i);
+			}
+
+			// create child:
+			std::vector<ea::Sequence<int32_t>*> children;
+			auto inserter = std::back_inserter(children);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+
+			uint32_t count = c.crossover(a, b, output);
+
+			// validate child:
+			CPPUNIT_ASSERT(count == 1);
+
+			for(i = 0; i < 5; i++)
+			{
+				CPPUNIT_ASSERT(base.get(a, i) == base.get(children[0], i));
+			}
+
+			for(i = 0; i < 5; i++)
+			{
+				CPPUNIT_ASSERT(i == base.get(children[0], i + 5));
+			}
+
+			base.dispose(a);
+			base.dispose(b);
+
+			ea::dispose(base, begin(children), end(children));
+		}
+};
+
 CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
 
 int main(int argc, char* argv[])
 {
