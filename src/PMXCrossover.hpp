@@ -95,7 +95,6 @@ namespace ea
 
 			sequence_type crossover(const sequence_type& a, const sequence_type& b, const uint32_t offset0, const uint32_t offset1) const
 			{
-				bool* indices;                                // array used to store the information if an index is in use or not
 				std::map<gene_type, bool, LessThan> assigned; // a cache to test if a gene is assigned to the child genome
 				uint32_t size;
 				uint32_t i;
@@ -104,9 +103,6 @@ namespace ea
 
 				// initialize index array:
 				size = _base.len(a);
-				indices = new bool[size];
-
-				std::fill(indices, indices + size, false);
 
 				// initialize cache:
 				for(i = 0; i < size; i++)
@@ -146,52 +142,30 @@ namespace ea
 							else
 							{
 								_base.set(child, index, gene);
-								assigned[gene] = indices[index] = true;
+								assigned[gene] = true;
 								break;
 							}
 						}
 					}
 				}
 
-				uint32_t start = 0;
-				index = next_unassigned(indices, 0, size), start++;
-
 				for(i = 0; i < offset0; i++)
 				{
-					if(!assigned[(gene = _base.get(a, i))])
+					if(!assigned[(gene = _base.get(b, i))])
 					{
-						_base.set(child, index, gene);
-						assigned[gene] = indices[index] = true;
-						index = next_unassigned(indices, start++, size);
+						_base.set(child, i, gene);
 					}
 				}
 
 				for(i = offset1 + 1; i < size; i++)
 				{
-					if(!assigned[(gene = _base.get(a, i))])
+					if(!assigned[(gene = _base.get(b, i))])
 					{
-						_base.set(child, index, gene);
-						assigned[gene] = indices[index] = true;
-						index = next_unassigned(indices, start++, size);
+						_base.set(child, i, gene);
 					}
 				}
-
-				delete[] indices;
 
 				return child;
-			}
-
-			inline uint32_t next_unassigned(const bool* indices, const uint32_t first, const uint32_t last) const
-			{
-				for(uint32_t i = first; i < last; i++)
-				{
-					if(!indices[i])
-					{
-						return i;
-					}
-				}
-
-				return 0;
 			}
 	};
 
