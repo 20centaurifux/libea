@@ -189,7 +189,7 @@ class StringFactory
 		}
 };
 
-// fake random number generator:
+// fake random number generators:
 template<const int32_t I = 0>
 class StaticRndGenerator : public ea::ARandomNumberGenerator
 {
@@ -262,6 +262,153 @@ class StaticRndGenerator : public ea::ARandomNumberGenerator
 		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
 		{
 			abort();
+		}
+};
+
+class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
+{
+	public:
+		FixedSeqRndGenerator(std::initializer_list<int32_t> ints, std::initializer_list<double> doubles)
+		{
+			for(int32_t v : ints)
+			{
+				_int32s.push_back(v);
+			};
+
+			_int32_iter = begin(_int32s);
+
+			for(double v: doubles)
+			{
+				_doubles.push_back(v);
+			}
+
+			_double_iter = begin(_doubles);
+		}
+
+		int32_t get_int32() override
+		{
+			int32_t v = *_int32_iter;
+
+			_int32_iter_next();
+
+			return v;
+		}
+
+		int32_t get_int32(const int32_t min, const int32_t max) override
+		{
+			uint32_t count = 0;
+			int32_t v;
+
+			do
+			{
+				v = get_int32();
+				_int32_iter_next();
+
+				if(v >= min && v <= max)
+				{
+					return v;
+				}
+			} while(count <= _int32s.size());
+
+			abort();
+		}
+
+		double get_double() override
+		{
+			double v = *_double_iter;
+
+			_double_iter_next();
+
+			return v;
+		}
+
+		double get_double(const double min, const double max) override
+		{
+			uint32_t count = 0;
+			double v;
+
+			do
+			{
+				v = get_double();
+				_double_iter_next();
+
+				if(v >= min && v <= max)
+				{
+					return v;
+				}
+			} while(count <= _doubles.size());
+
+			abort();
+		}
+
+		inline int32_t get_max_int32() const override
+		{
+			return std::numeric_limits<int32_t>::max();
+		}
+
+		inline int32_t get_min_int32() const override
+		{
+			return std::numeric_limits<int32_t>::min();
+		}
+
+		double get_max_double() const override
+		{
+			return std::numeric_limits<double>::max();
+		}
+
+		double get_min_double() const override
+		{
+			return std::numeric_limits<double>::min();
+		}
+
+		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		{
+			abort();
+		}
+
+		void get_double_seq(const double min, const double max, double* numbers, const int32_t length)
+		{
+			abort();
+		}
+
+		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		{
+			abort();
+		}
+
+		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
+		{
+			abort();
+		}
+
+	private:
+		std::vector<int32_t> _int32s;
+		std::vector<double> _doubles;
+		std::vector<int32_t>::iterator _int32_iter;
+		std::vector<double>::iterator _double_iter;
+
+		void _int32_iter_next()
+		{
+			if(_int32_iter == end(_int32s))
+			{
+				_int32_iter = begin(_int32s);
+			}
+			else
+			{
+				_int32_iter++;
+			}
+		}
+
+		void _double_iter_next()
+		{
+			if(_double_iter == end(_doubles))
+			{
+				_double_iter = begin(_doubles);
+			}
+			else
+			{
+				_double_iter++;
+			}
 		}
 };
 
