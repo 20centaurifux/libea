@@ -189,82 +189,7 @@ class StringFactory
 		}
 };
 
-// fake random number generators:
-template<const int32_t I = 0>
-class StaticRndGenerator : public ea::ARandomNumberGenerator
-{
-	public:
-		int32_t get_int32() override
-		{
-			return I;
-		}
-
-		int32_t get_int32(const int32_t min, const int32_t max) override
-		{
-			if(min <= I && max >= I)
-			{
-				return I;
-			}
-
-			abort();
-		}
-
-		double get_double() override
-		{
-			return (double)I;
-		}
-
-		double get_double(const double min, const double max) override
-		{
-			if(min <= (double)I && max >= (double)I)
-			{
-				return (double)I;
-			}
-
-			abort();
-		}
-
-		inline int32_t get_max_int32() const override
-		{
-			return I;
-		}
-
-		inline int32_t get_min_int32() const override
-		{
-			return I;
-		}
-
-		double get_max_double() const override
-		{
-			return (double)I;
-		}
-
-		double get_min_double() const override
-		{
-			return (double)I;
-		}
-
-		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
-		{
-			abort();
-		}
-
-		void get_double_seq(const double min, const double max, double* numbers, const int32_t length)
-		{
-			abort();
-		}
-
-		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
-		{
-			abort();
-		}
-
-		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
-		{
-			abort();
-		}
-};
-
+// fake random number generator:
 class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 {
 	public:
@@ -968,7 +893,7 @@ class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::make_shared<StaticRndGenerator<1>>();
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1}, {}));
 			ea::EdgeRecombinationCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			const int32_t seq_a[7] = { 0, 1, 2, 3, 4, 5, 6 };
 			const int32_t seq_b[7] = { 5, 2, 0, 1, 6, 4, 3 };
@@ -1016,7 +941,7 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::make_shared<StaticRndGenerator<5>>();
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5}, {}));
 			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 
@@ -1069,7 +994,7 @@ class OrderedCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::make_shared<StaticRndGenerator<5>>();
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5}, {}));
 			ea::OrderedCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 
