@@ -764,7 +764,8 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c;
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({3, 6}, {}));
+			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 			int32_t j;
 			int32_t sep1;
@@ -801,6 +802,9 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 			}
 
 			sep2 = base.get(children[0], sep1) - 10;
+
+			CPPUNIT_ASSERT(sep1 == 3);
+			CPPUNIT_ASSERT(sep2 == 6);
 
 			// validate child sequences:
 			for(i = 0; i < sep1; i++)
