@@ -1086,12 +1086,63 @@ class PMXCrossoverTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
+class TwoPointCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(TwoPointCrossoverTest);
+	CPPUNIT_TEST(test_crossover);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_crossover()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5, 6}, {}));
+			ea::TwoPointCrossover<PrimitiveInt32GenomeBase> c(rnd);
+			const int32_t seq_child_a[10] = { 10, 11, 12, 13, 14, 5, 16, 17, 18, 19 };
+			const int32_t seq_child_b[10] = { 0, 1, 2, 3, 4, 15, 6, 7, 8, 9 };
+			int32_t i;
+
+			// create parent sequences:
+			auto a = base.create(10);
+			auto b = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(a, i, i);
+				base.set(b, i, i + 10);
+			}
+
+			// create children:
+			std::vector<ea::Sequence<int32_t>*> children;
+			auto inserter = std::back_inserter(children);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+
+			uint32_t count = c.crossover(a, b, output);
+
+			// validate child sequences:
+			CPPUNIT_ASSERT(count == 2);
+
+			for(i = 0; i < 9; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], i) == seq_child_a[i]);
+				CPPUNIT_ASSERT(base.get(children[1], i) == seq_child_b[i]);
+			}
+
+			base.dispose(a);
+			base.dispose(b);
+
+			ea::dispose(base, begin(children), end(children));
+		}
+};
+
+
 CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(PMXCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TwoPointCrossoverTest);
 
 int main(int argc, char* argv[])
 {
