@@ -942,7 +942,7 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 		{
 			PrimitiveInt32GenomeBase base;
 			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5}, {}));
-			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
+			ea::OnePointCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 
 			// create parent sequences:
@@ -1135,6 +1135,54 @@ class TwoPointCrossoverTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
+class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(UniformCrossoverTest);
+	CPPUNIT_TEST(test_crossover);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_crossover()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 2}, {}));
+			ea::UniformCrossover<PrimitiveInt32GenomeBase> c(rnd);
+			const int32_t seq_child_a[10] = { 0, 11, 2, 13, 4, 15, 6, 17, 8, 19 };
+			const int32_t seq_child_b[10] = { 10, 1, 12, 3, 14, 5, 16, 7, 18, 9 };
+			int32_t i;
+
+			// create parent sequences:
+			auto a = base.create(10);
+			auto b = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(a, i, i);
+				base.set(b, i, i + 10);
+			}
+
+			// create children:
+			std::vector<ea::Sequence<int32_t>*> children;
+			auto inserter = std::back_inserter(children);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+
+			uint32_t count = c.crossover(a, b, output);
+
+			// validate child sequences:
+			CPPUNIT_ASSERT(count == 2);
+
+			for(i = 0; i < 9; i++)
+			{
+				CPPUNIT_ASSERT(base.get(children[0], i) == seq_child_a[i]);
+				CPPUNIT_ASSERT(base.get(children[1], i) == seq_child_b[i]);
+			}
+
+			base.dispose(a);
+			base.dispose(b);
+
+			ea::dispose(base, begin(children), end(children));
+		}
+};
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
@@ -1143,6 +1191,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(PMXCrossoverTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(TwoPointCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(UniformCrossoverTest);
 
 int main(int argc, char* argv[])
 {
