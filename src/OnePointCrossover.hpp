@@ -75,8 +75,8 @@ namespace ea
 
 				separator = _rnd->get_int32(1, _base.len(a) - 3);
 
-				output.push(create_child(b, a, separator));
 				output.push(create_child(a, b, separator));
+				output.push(create_child(b, a, separator));
 
 				return 2;
 			}
