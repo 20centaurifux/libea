@@ -218,7 +218,7 @@ class StringFactory
 class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 {
 	public:
-		FixedSeqRndGenerator(std::initializer_list<int32_t> ints, std::initializer_list<double> doubles)
+		FixedSeqRndGenerator(std::initializer_list<int32_t> ints)
 		{
 			for(int32_t v : ints)
 			{
@@ -226,13 +226,6 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 			};
 
 			_int32_iter = begin(_int32s);
-
-			for(double v: doubles)
-			{
-				_doubles.push_back(v);
-			}
-
-			_double_iter = begin(_doubles);
 		}
 
 		int32_t get_int32() override
@@ -265,29 +258,11 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 
 		double get_double() override
 		{
-			double v = *_double_iter;
-
-			_double_iter_next();
-
-			return v;
+			abort();
 		}
 
 		double get_double(const double min, const double max) override
 		{
-			uint32_t count = 0;
-			double v;
-
-			do
-			{
-				v = get_double();
-				_double_iter_next();
-
-				if(v >= min && v <= max)
-				{
-					return v;
-				}
-			} while(count <= _doubles.size());
-
 			abort();
 		}
 
@@ -303,12 +278,12 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 
 		double get_max_double() const override
 		{
-			return std::numeric_limits<double>::max();
+			abort();
 		}
 
 		double get_min_double() const override
 		{
-			return std::numeric_limits<double>::min();
+			abort();
 		}
 
 		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
@@ -341,9 +316,7 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 
 	private:
 		std::vector<int32_t> _int32s;
-		std::vector<double> _doubles;
 		std::vector<int32_t>::iterator _int32_iter;
-		std::vector<double>::iterator _double_iter;
 
 		void _int32_iter_next()
 		{
@@ -354,18 +327,6 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 			else
 			{
 				_int32_iter++;
-			}
-		}
-
-		void _double_iter_next()
-		{
-			if(_double_iter == end(_doubles))
-			{
-				_double_iter = begin(_doubles);
-			}
-			else
-			{
-				_double_iter++;
 			}
 		}
 };
@@ -797,7 +758,7 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({3, 6}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({3, 6}));
 			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 			int32_t j;
@@ -930,7 +891,7 @@ class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1}));
 			ea::EdgeRecombinationCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			const int32_t seq_a[7] = { 0, 1, 2, 3, 4, 5, 6 };
 			const int32_t seq_b[7] = { 5, 2, 0, 1, 6, 4, 3 };
@@ -978,7 +939,7 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5}));
 			ea::OnePointCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 
@@ -1031,7 +992,7 @@ class OrderedCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5}));
 			ea::OrderedCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 
@@ -1082,7 +1043,7 @@ class PMXCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({4, 5}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({4, 5}));
 			ea::PMXCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 			const int32_t seq_child_a[10] = { 9, 1, 2, 3, 5, 0, 8, 7, 6, 4 };
@@ -1133,7 +1094,7 @@ class TwoPointCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5, 6}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({5, 6}));
 			ea::TwoPointCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			const int32_t seq_child_a[10] = { 10, 11, 12, 13, 14, 5, 16, 17, 18, 19 };
 			const int32_t seq_child_b[10] = { 0, 1, 2, 3, 4, 15, 6, 7, 8, 9 };
@@ -1182,7 +1143,7 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 		void test_crossover()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 2}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 2}));
 			ea::UniformCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			const int32_t seq_child_a[10] = { 0, 11, 2, 13, 4, 15, 6, 17, 8, 19 };
 			const int32_t seq_child_b[10] = { 10, 1, 12, 3, 14, 5, 16, 7, 18, 9 };
@@ -1245,7 +1206,7 @@ class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
 		void test_mutation()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({6, 7}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({6, 7}));
 			ea::SingleSwapMutation<PrimitiveInt32GenomeBase> m(rnd);
 			int32_t mutant[10] = {0, 1, 2, 3, 4, 5, 7, 6, 8, 9};
 			int32_t i;
@@ -1278,7 +1239,7 @@ class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 		void test_mutation()
 		{
 			PrimitiveInt32GenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 2, 3}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 2, 3}));
 			ea::DoubleSwapMutation<PrimitiveInt32GenomeBase> m(rnd);
 			int32_t mutant[10] = {0, 2, 3, 1, 4, 5, 6, 7, 8, 9};
 			int32_t i;
@@ -1311,7 +1272,7 @@ class BitStringMutationTest : public CPPUNIT_NS::TestFixture
 		void test_mutation()
 		{
 			PrimitiveBinaryGenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 1, 100, 20, 20, 70, 40, 40, 60}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 1, 100, 20, 20, 70, 40, 40, 60}));
 			ea::BitStringMutation<PrimitiveBinaryGenomeBase> m(rnd);
 			bool child[9] = {false, false, true, false, false, true, false, false, true};
 			int32_t i;
@@ -1344,7 +1305,7 @@ class SingleBitStringMutationTest : public CPPUNIT_NS::TestFixture
 		void test_mutation()
 		{
 			PrimitiveBinaryGenomeBase base;
-			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({3}, {}));
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({3}));
 			ea::SingleBitStringMutation<PrimitiveBinaryGenomeBase> m(rnd);
 			int32_t i;
 
