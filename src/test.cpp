@@ -1214,6 +1214,39 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 /*
  *	mutation operators:
  */
+class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(SingleSwapMutationTest);
+	CPPUNIT_TEST(test_mutation);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_mutation()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({6, 7}, {}));
+			ea::SingleSwapMutation<PrimitiveInt32GenomeBase> m(rnd);
+			int32_t mutant[10] = {0, 1, 2, 3, 4, 5, 7, 6, 8, 9};
+			int32_t i;
+
+			auto gene = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(gene, i, i);
+			}
+
+			m.mutate(gene);
+
+			for(i = 0; i < base.len(gene); i++)
+			{
+				CPPUNIT_ASSERT(base.get(gene, i) == mutant[i]);
+			}
+
+			base.dispose(gene);
+		}
+};
+
 class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 {
 	CPPUNIT_TEST_SUITE(DoubleSwapMutationTest);
@@ -1247,6 +1280,7 @@ class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
+CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
 
 int main(int argc, char* argv[])
