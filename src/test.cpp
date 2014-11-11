@@ -33,11 +33,11 @@
 #include "TwoPointCrossover.hpp"
 #include "UniformCrossover.hpp"
 
+#include "SingleSwapMutation.hpp"
+#include "DoubleSwapMutation.hpp"
 #include "BitStringMutation.hpp"
 #include "SingleBitStringMutation.hpp"
 #include "InverseBitStringMutation.hpp"
-#include "SingleSwapMutation.hpp"
-#include "DoubleSwapMutation.hpp"
 
 using namespace std;
 using namespace CPPUNIT_NS;
@@ -72,6 +72,26 @@ class TestFitness
 			for(auto i = 0; i < seq->len; i++)
 			{
 				f += seq->genes[i] * i;
+			}
+
+			return f;
+		}
+};
+
+template<typename TSequence>
+class TestBinaryFitness
+{
+	public:
+		float operator()(const TSequence* const& seq) const
+		{
+			float f = 0;
+
+			for(auto i = 0; i < seq->len; i++)
+			{
+				if(seq->genes[i])
+				{
+					f++;
+				}
 			}
 
 			return f;
@@ -294,16 +314,6 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 
 		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
 		{
-			abort();
-		}
-
-		void get_double_seq(const double min, const double max, double* numbers, const int32_t length)
-		{
-			abort();
-		}
-
-		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
-		{
 			if((uint32_t)length > _int32s.size())
 			{
 				abort();
@@ -313,6 +323,16 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 			{
 				numbers[i] = _int32s[i];
 			}
+		}
+
+		void get_double_seq(const double min, const double max, double* numbers, const int32_t length)
+		{
+			abort();
+		}
+
+		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		{
+			get_int32_seq(min, max, numbers, length);
 		}
 
 		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
@@ -1214,6 +1234,8 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 /*
  *	mutation operators:
  */
+typedef ea::BinaryPGenomeBase<TestBinaryFitness<ea::Sequence<bool>>> PrimitiveBinaryGenomeBase;
+
 class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
 {
 	CPPUNIT_TEST_SUITE(SingleSwapMutationTest);
@@ -1280,8 +1302,42 @@ class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
+class BitStringMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(BitStringMutationTest);
+	CPPUNIT_TEST(test_mutation);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_mutation()
+		{
+			PrimitiveBinaryGenomeBase base;
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 1, 100, 20, 20, 70, 40, 40, 60}, {}));
+			ea::BitStringMutation<PrimitiveBinaryGenomeBase> m(rnd);
+			bool child[10] = {false, false, true, false, false, true, false, false, true};
+			int32_t i;
+
+			auto gene = base.create(9);
+
+			for(i = 0; i < 9; i++)
+			{
+				base.set(gene, i, true);
+			}
+
+			m.mutate(gene);
+
+			for(i = 0; i < 9; i++)
+			{
+				CPPUNIT_ASSERT(base.get(gene, i) == child[i]);
+			}
+
+			base.dispose(gene);
+		}
+};
+
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(BitStringMutationTest);
 
 int main(int argc, char* argv[])
 {
