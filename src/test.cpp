@@ -1314,7 +1314,7 @@ class BitStringMutationTest : public CPPUNIT_NS::TestFixture
 			PrimitiveBinaryGenomeBase base;
 			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 1, 100, 20, 20, 70, 40, 40, 60}, {}));
 			ea::BitStringMutation<PrimitiveBinaryGenomeBase> m(rnd);
-			bool child[10] = {false, false, true, false, false, true, false, false, true};
+			bool child[9] = {false, false, true, false, false, true, false, false, true};
 			int32_t i;
 
 			auto gene = base.create(9);
@@ -1335,9 +1335,42 @@ class BitStringMutationTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
+class SingleBitStringMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(SingleBitStringMutationTest);
+	CPPUNIT_TEST(test_mutation);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_mutation()
+		{
+			PrimitiveBinaryGenomeBase base;
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({3}, {}));
+			ea::SingleBitStringMutation<PrimitiveBinaryGenomeBase> m(rnd);
+			int32_t i;
+
+			auto gene = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(gene, i, true);
+			}
+
+			m.mutate(gene);
+
+			for(i = 0; i < 10; i++)
+			{
+				CPPUNIT_ASSERT(base.get(gene, i) == (i != 3));
+			}
+
+			base.dispose(gene);
+		}
+};
+
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(BitStringMutationTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(SingleBitStringMutationTest);
 
 int main(int argc, char* argv[])
 {
