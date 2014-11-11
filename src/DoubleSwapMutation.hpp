@@ -49,17 +49,12 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			DoubleSwapMutation()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
 			   @param rnd instance of a random number generator
 			 */
 			DoubleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
-			DoubleTournamentSelection()
+			DoubleSwapMutation()
 			{
 				_rnd = std::make_shared<TR1UniformDistribution<>>();
 			}

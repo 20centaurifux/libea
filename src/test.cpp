@@ -33,6 +33,12 @@
 #include "TwoPointCrossover.hpp"
 #include "UniformCrossover.hpp"
 
+#include "BitStringMutation.hpp"
+#include "SingleBitStringMutation.hpp"
+#include "InverseBitStringMutation.hpp"
+#include "SingleSwapMutation.hpp"
+#include "DoubleSwapMutation.hpp"
+
 using namespace std;
 using namespace CPPUNIT_NS;
 
@@ -298,7 +304,15 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 
 		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
 		{
-			abort();
+			if((uint32_t)length > _int32s.size())
+			{
+				abort();
+			}
+
+			for(int32_t i = 0; i < length; i++)
+			{
+				numbers[i] = _int32s[i];
+			}
 		}
 
 		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
@@ -1188,14 +1202,52 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(PMXCrossoverTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(TwoPointCrossoverTest);
-CPPUNIT_TEST_SUITE_REGISTRATION(UniformCrossoverTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(PMXCrossoverTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(TwoPointCrossoverTest);
+//CPPUNIT_TEST_SUITE_REGISTRATION(UniformCrossoverTest);
+
+/*
+ *	mutation operators:
+ */
+class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(DoubleSwapMutationTest);
+	CPPUNIT_TEST(test_mutation);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_mutation()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto rnd = std::shared_ptr<FixedSeqRndGenerator>(new FixedSeqRndGenerator({1, 2, 3}, {}));
+			ea::DoubleSwapMutation<PrimitiveInt32GenomeBase> m(rnd);
+			int32_t mutant[10] = {0, 2, 3, 1, 4, 5, 6, 7, 8, 9};
+			int32_t i;
+
+			auto gene = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(gene, i, i);
+			}
+
+			m.mutate(gene);
+
+			for(i = 0; i < base.len(gene); i++)
+			{
+				CPPUNIT_ASSERT(base.get(gene, i) == mutant[i]);
+			}
+
+			base.dispose(gene);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
 
 int main(int argc, char* argv[])
 {
