@@ -45,7 +45,6 @@ using namespace CPPUNIT_NS;
 /*
  *	classes & methods shared by test cases:
  */
-
 // convert array of genes to a sequence:
 template<typename TGenomeBase>
 typename TGenomeBase::sequence_type array_to_sequence(TGenomeBase& base, const typename TGenomeBase::gene_type* genes, const int32_t size)
@@ -1222,14 +1221,14 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(PMXCrossoverTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(TwoPointCrossoverTest);
-//CPPUNIT_TEST_SUITE_REGISTRATION(UniformCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceOperatorTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(PMXCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TwoPointCrossoverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(UniformCrossoverTest);
 
 /*
  *	mutation operators:
@@ -1367,10 +1366,42 @@ class SingleBitStringMutationTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
+class InverseBitStringMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(InverseBitStringMutationTest);
+	CPPUNIT_TEST(test_mutation);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_mutation()
+		{
+			PrimitiveBinaryGenomeBase base;
+			ea::InverseBitStringMutation<PrimitiveBinaryGenomeBase> m;
+			int32_t i;
+
+			auto gene = base.create(10);
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(gene, i, i % 2);
+			}
+
+			m.mutate(gene);
+
+			for(i = 0; i < 10; i++)
+			{
+				CPPUNIT_ASSERT(base.get(gene, i) == !(i % 2));
+			}
+
+			base.dispose(gene);
+		}
+};
+
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(BitStringMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleBitStringMutationTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(InverseBitStringMutationTest);
 
 int main(int argc, char* argv[])
 {
