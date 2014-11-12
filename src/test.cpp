@@ -623,6 +623,84 @@ CPPUNIT_TEST_SUITE_REGISTRATION(PrimitiveStringGenomeBaseTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CachedPrimitiveStringGenomeBaseTest);
 
 /*
+ *	test algorithms:
+ */
+class AlgorithmTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(AlgorithmTest);
+	CPPUNIT_TEST(test_multiset_check);
+	CPPUNIT_TEST(test_seq_equality_check);
+	CPPUNIT_TEST(test_add);
+	CPPUNIT_TEST(test_sub);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_multiset_check()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto seq = base.create(10);
+			uint32_t i;
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(seq, i, i);
+			}
+
+			CPPUNIT_ASSERT(!ea::is_multiset<PrimitiveInt32GenomeBase>(seq));
+
+			base.set(seq, 9, 0);
+
+			CPPUNIT_ASSERT(ea::is_multiset<PrimitiveInt32GenomeBase>(seq));
+
+			base.dispose(seq);
+		}
+
+		void test_seq_equality_check()
+		{
+			PrimitiveInt32GenomeBase base;
+			auto seq_a = base.create(10);
+			uint32_t i;
+
+			for(i = 0; i < 10; i++)
+			{
+				base.set(seq_a, i, i);
+			}
+
+			auto seq_b = base.copy(seq_a);
+
+			CPPUNIT_ASSERT(ea::set_equals<PrimitiveInt32GenomeBase>(seq_a, seq_b));
+
+			base.set(seq_b, 9, 11);
+
+			CPPUNIT_ASSERT(!ea::set_equals<PrimitiveInt32GenomeBase>(seq_a, seq_b));
+
+			base.dispose(seq_a);
+			base.dispose(seq_b);
+		}
+
+		void test_add()
+		{
+			int32_t sum = 0;
+
+			sum = ea::chk_add({std::numeric_limits<int32_t>::min(), 1, 13, 64, 22344534, -633175});
+
+			CPPUNIT_ASSERT(sum == std::numeric_limits<int32_t>::min() + 1 + 13 + 64 + 22344534 + -633175);
+		}
+
+		void test_sub()
+		{
+			int32_t diff = 0;
+
+			diff = ea::chk_sub({std::numeric_limits<int32_t>::max(), 246546352, -647456, 5463212});
+
+			CPPUNIT_ASSERT(diff == std::numeric_limits<int32_t>::max() - 246546352 - -647456 - 5463212);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(AlgorithmTest);
+
+
+/*
  *	selection operators:
  */
 template<typename TGenomeBase, typename TFactory, typename TSelection>
