@@ -55,13 +55,13 @@ namespace ea
 
 			if(set.find(gene) != end(set))
 			{
-				return false;
+				return true;
 			}
 
 			set.insert(gene);
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
@@ -69,13 +69,13 @@ namespace ea
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
 	   @return true if both sequences are equal.
 
-	   Tests if two sequences are qual. The sequences have to be multi-sets.
+	   Tests if two sequences are qual. The sequences have to be sets.
 	  */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	bool set_equals(const typename TGenomeBase::sequence_type& a, const typename TGenomeBase::sequence_type& b)
 	{
-		assert(is_multiset<TGenomeBase>(a));
-		assert(is_multiset<TGenomeBase>(b));
+		assert(!is_multiset<TGenomeBase>(a));
+		assert(!is_multiset<TGenomeBase>(b));
 
 		static TGenomeBase base;
 		uint32_t len = base.len(a);
