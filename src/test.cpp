@@ -13,31 +13,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include "AnsiRandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
-
-#include "PrimitiveGenome.hpp"
-
-#include "FittestSelection.hpp"
-#include "FitnessProportionalSelection.hpp"
-#include "TournamentSelection.hpp"
-#include "DoubleTournamentSelection.hpp"
-#include "StochasticUniversalSampling.hpp"
-
-#include "CutAndSpliceCrossover.hpp"
-#include "CycleCrossover.hpp"
-#include "EdgeRecombinationCrossover.hpp"
-#include "OnePointCrossover.hpp"
-#include "OrderedCrossover.hpp"
-#include "PMXCrossover.hpp"
-#include "TwoPointCrossover.hpp"
-#include "UniformCrossover.hpp"
-
-#include "SingleSwapMutation.hpp"
-#include "DoubleSwapMutation.hpp"
-#include "BitStringMutation.hpp"
-#include "SingleBitStringMutation.hpp"
-#include "InverseBitStringMutation.hpp"
+#include "libea.hpp"
 
 using namespace std;
 using namespace CPPUNIT_NS;
