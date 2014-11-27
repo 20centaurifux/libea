@@ -37,6 +37,9 @@ namespace ea
 	/**
 	   @tparam TBase a genome base class
 	   @tparam TIterator an iterator
+	   @param base genome base class
+	   @param first head of a list of sequences to dispose
+	   @param last tail of a list of sequences to dispose
 	   @brief Disposes all genomes.
 	 */
 	template<typename TBase, typename TIterator>
@@ -46,6 +49,21 @@ namespace ea
 		{
 			base.dispose(seq);
 		});
+	}
+
+	/**
+	   @tparam TBase a genome base class
+	   @param base genome base class
+	   @param seqs list of sequences to dispose
+	   @brief Disposes all genomes.
+	 */
+	template<typename TBase>
+	void dispose(TBase& base, std::initializer_list<typename TBase::sequence_type> seqs)
+	{
+		for(auto seq : seqs)
+		{
+			base.dispose(seq);
+		}
 	}
 
 	/**

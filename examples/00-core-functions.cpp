@@ -75,8 +75,7 @@ int main(int argc, char *argv[])
 	std::cout << "compare: " << base.cmp(a, b) << std::endl;
 
 	// free memory:
-	base.dispose(a);
-	base.dispose(b);
+	ea::dispose(base, { a, b });
 
 	return 0;
 }

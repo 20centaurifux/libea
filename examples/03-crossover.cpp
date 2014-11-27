@@ -63,8 +63,7 @@ int main(int argc, char *argv[])
 	});
 
 	// cleanup:
-	base.dispose(a);
-	base.dispose(b);
+	ea::dispose(base, { a, b });
 	ea::dispose(base, begin(children), end(children));
 
 	return 0;

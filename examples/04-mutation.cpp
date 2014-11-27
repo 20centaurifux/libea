@@ -62,8 +62,7 @@ int main(int argc, char *argv[])
 	print_genome(b);
 
 	// cleanup:
-	base.dispose(a);
-	base.dispose(b);
+	ea::dispose(base, { a, b });
 
 	return 0;
 }
