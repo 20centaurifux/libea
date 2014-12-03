@@ -129,7 +129,7 @@ Listing~\ref{lst:core-functions} demonstrates some basic functions of \textsc{li
 
 To access the genes and evaluate the fitness a genome base class is declared (\textit{l. 22}). The template parameters specify gene type and fitness function (\textit{ll. 5-19}).
 
-\begin{lstinputlisting}[caption=core functions,label=lst:core-functions]{../examples/00-core-functions.cpp}
+\begin{lstinputlisting}[caption=core functions,label=lst:core-functions]{examples/00-core-functions.cpp}
 \end{lstinputlisting}
 
 \subsection{Factories \& output adapters}
@@ -138,7 +138,7 @@ To access the genes and evaluate the fitness a genome base class is declared (\t
 
 The individuals are written to an \textit{ea::OutputAdapter} (\textit{ll. 74-78}). At the current stage \textsc{libea} only provides an adapter for STL vectors, but new adapters can be added easily by implementing the \textit{ea::IOutputAdapter} interface.
 
-\begin{lstinputlisting}[caption=custom factory,label=lst:factory]{../examples/01-factory.cpp}
+\begin{lstinputlisting}[caption=custom factory,label=lst:factory]{examples/01-factory.cpp}
 \end{lstinputlisting}
 
 \subsection{Selection operators}
@@ -160,7 +160,7 @@ class IIndexSelection
 
 Listing~\ref{lst:selection-example} creates a population with ten random sequences  (\textit{ll. 43-58}). Then five individuals are selected using a tournament selection operator (\textit{ll. 72-83}).
 
-\begin{lstinputlisting}[caption=selection operators,label=lst:selection-example]{../examples/02-selection.cpp}
+\begin{lstinputlisting}[caption=selection operators,label=lst:selection-example]{examples/02-selection.cpp}
 \end{lstinputlisting}
 
 \subsection{Crossover operators}
@@ -182,7 +182,7 @@ class ACrossover
 
 Crossover operators create at least one child sequence from two parent individuals. The \textit{crossover()} method returns the number of child sequences written to the given output adapter. Listing~\ref{lst:crossover-example} shows an example.
 
-\begin{lstinputlisting}[caption=crossover operators,label=lst:crossover-example]{../examples/03-crossover.cpp}
+\begin{lstinputlisting}[caption=crossover operators,label=lst:crossover-example]{examples/03-crossover.cpp}
 \end{lstinputlisting}
 
 \subsection{Mutation operators}
@@ -214,7 +214,7 @@ class AMutation
 
 In listing~\ref{lst:mutation-example} a parent individual is created (\textit{ll. 43-48}) and mutated in-place (\textit{l. 55}). Afterwards an inverted child sequence is generated (\textit{ll. 59-61}).
 
-\begin{lstinputlisting}[caption=mutation operators,label=lst:mutation-example]{../examples/04-mutation.cpp}
+\begin{lstinputlisting}[caption=mutation operators,label=lst:mutation-example]{examples/04-mutation.cpp}
 \end{lstinputlisting}
 
 \section{Summary}
