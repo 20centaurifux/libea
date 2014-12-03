@@ -62,7 +62,10 @@ if GetOption('clean'):
 	Default(['libea', 'tags', 'pdf', 'test-suite'])
 
 	# doxygen directory isn't deleted by scons:
-	shutil.rmtree('doc', ignore_errors=True)
+	shutil.rmtree('doc', ignore_errors = True)
 
+	# remove test suite:
+	if(os.path.exists(test_target)):
+		os.unlink(test_target)
 else:
 	Default('libea')
