@@ -28,22 +28,28 @@
 
 \section{Building libea}
 
-\textsc{libea} uses GNU Make as build system. To compile the library open the \textsc{libea} directory in a terminal and type in the following command:
+\textsc{libea} uses scons\footnote{\url{http://www.scons.org/}} as build system. To compile the library open the source code directory in a terminal and type in the following command:
 
 \begin{lstlisting}[language=bash, numbers=none]
-# make
+# scons libea
 \end{lstlisting}
 
-The test suite can be compiled with the command below (kindly note that this requires the CppUnit\footnote[1]{\url{http://freedesktop.org/wiki/Software/cppunit/}} framework).
+Now you can install the library:
 
 \begin{lstlisting}[language=bash, numbers=none]
-# make test
+# scons install
 \end{lstlisting}
 
-The source code documentation can be generated with the make utility too. You need Doxygen\footnote[2]{\url{http://www.stack.nl/~dimitri/doxygen/}} for this step.
+After the installation the test suite can be build optionally. Please note that this step requires the CppUnit\footnote{\url{http://freedesktop.org/wiki/Software/cppunit/}} framework:
 
 \begin{lstlisting}[language=bash, numbers=none]
-# make doc
+# scons test-suite
+\end{lstlisting}
+
+I you want to build the source code documentation please ensure Doxygen\footnote{\url{http://www.stack.nl/~dimitri/doxygen/}} is installed on your system and type in the following command:
+
+\begin{lstlisting}[language=bash, numbers=none]
+# scons doc
 \end{lstlisting}
 
 \section{The framework}
