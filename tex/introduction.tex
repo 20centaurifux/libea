@@ -12,9 +12,9 @@
 
 \lstset{tabsize=2, basicstyle=\small, breaklines=true, numbers=left, language=c++}
 
-\title{libea 0.2 - A short introduction}
+\title{libea 0.2 - A brief introduction}
 \author{Sebastian Fedrau}
-\date{November, 2014}
+\date{December, 2014}
 
 \begin{document}
 
@@ -28,25 +28,20 @@
 
 \section{Building libea}
 
-\textsc{libea} uses scons\footnote{\url{http://www.scons.org/}} as build system. To compile the library open the source code directory in a terminal and type in the following command:
+To build \textsc{libea} scons\footnote{\url{http://www.scons.org/}} is required. The library can be compiled and installed with the following commands:
 
 \begin{lstlisting}[language=bash, numbers=none]
 # scons libea
+# sudo scons install
 \end{lstlisting}
 
-Now you can install the library:
-
-\begin{lstlisting}[language=bash, numbers=none]
-# scons install
-\end{lstlisting}
-
-After the installation the test suite can be build optionally. Please note that this step requires the CppUnit\footnote{\url{http://freedesktop.org/wiki/Software/cppunit/}} framework:
+After installation you may want to build the test suite. Please note that this step requires the CppUnit\footnote{\url{http://freedesktop.org/wiki/Software/cppunit/}} framework:
 
 \begin{lstlisting}[language=bash, numbers=none]
 # scons test-suite
 \end{lstlisting}
 
-I you want to build the source code documentation please ensure Doxygen\footnote{\url{http://www.stack.nl/~dimitri/doxygen/}} is installed on your system and type in the following command:
+If you want to generate the source code documentation please ensure Doxygen\footnote{\url{http://www.stack.nl/~dimitri/doxygen/}} is installed on your system and type in the following command:
 
 \begin{lstlisting}[language=bash, numbers=none]
 # scons doc
@@ -71,6 +66,7 @@ To modify a sequence or evaluate its fitness a corresponding \textit{genome base
 \textsc{libea} offers the genome base class templates \textit{ea::PGenomeBase} and \textit{ea::CPGenomeBase} with the corresponding sequence types \textit{ea::Sequence} and \textit{ea::CSequence}. Any data type with a valid copy constructor is supported as gene type. There are already type aliases for many primitive data types available in \textsc{libea} (see table~\ref{tab:genome-base-classes-and-sequences}).
 
 \begin{table}[h]
+\caption{genome base classes and corresponding sequence types offered by \textsc{libea}}
 \begin{tabular}{|l|l|l|}
 \hline
 \textsc{genome base class} & \textsc{corresponding sequence type} & \textsc{gene type} \\
@@ -90,7 +86,6 @@ ea::DoubleCPGenomeBase & ea::CSequence\textless double\textgreater & double \\
 ea::StringCPGenomeBase & ea::CSequence\textless std::string\textgreater & std::string \\
 \hline
 \end{tabular}
-\caption{genome base classes and corresponding sequence types offered by \textsc{libea}}
 \label{tab:genome-base-classes-and-sequences}
 \end{table}
 
@@ -133,14 +128,14 @@ struct CSequence : Sequence<TGene>
 
 Listing~\ref{lst:core-functions} demonstrates some basic functions of \textsc{libea}. An individual represented in a sequence of integers is created (\textit{ll. 44-50}) and copied (\textit{l. 62}). The sequences are compared before and after modifying the second individual (\textit{ll. 67-75}).
 
-To access the genes and evaluate the fitness a genome base class is declared (\textit{l. 22}). The template parameters specify gene type and fitness function (\textit{ll. 5-19}).
+To access the genes and evaluate the fitness a genome base class is declared (\textit{l. 22}). The template parameters specify the gene type and fitness function (\textit{ll. 5-19}).
 
 \begin{lstinputlisting}[caption=core functions,label=lst:core-functions]{examples/00-core-functions.cpp}
 \end{lstinputlisting}
 
 \subsection{Factories \& output adapters}
 
-\textsc{libea} offers the \textit{ea::AFactory} base class as a unified way for creating populations. Listing~\ref{lst:factory} shows how to create sequences of ten random integers using a custom factory (\textit{ll. 30-51}). The values are generated with a random number generator (\textit{ll. 35-46}).
+\textsc{libea} offers the \textit{ea::AFactory} base class as an unified way for creating populations. Listing~\ref{lst:factory} shows how to create sequences of ten random integers using a custom factory (\textit{ll. 30-51}). The values are generated with a random number generator (\textit{ll. 35-46}).
 
 The individuals are written to an \textit{ea::OutputAdapter} (\textit{ll. 74-78}). At the current stage \textsc{libea} only provides an adapter for STL vectors, but new adapters can be added easily by implementing the \textit{ea::IOutputAdapter} interface.
 
@@ -149,7 +144,7 @@ The individuals are written to an \textit{ea::OutputAdapter} (\textit{ll. 74-78}
 
 \subsection{Selection operators}
 
-Selection operators have to implement the \textit{ea::IIndexSelection} interface (see listing~\ref{lst:iindexselection}). Instead of copying the selected genomes to an \textit{ea::OutpuAdapter} only the indexes are written. Access to the parent individuals is given through an adapter implementing the \textit{ea::IInputAdapter} interface. Input adapters can be created easily for all STL containers providing random access iterators with the \textit{ea::make\_input\_adapter()} function.
+Selection operators have to implement the \textit{ea::IIndexSelection} interface (see listing~\ref{lst:iindexselection}). Instead of copying the selected genomes to an \textit{ea::OutpuAdapter} only the indexes are written. Access to the parent individuals is given through an adapter implementing the \textit{ea::IInputAdapter} interface. Input adapters can be created for all STL containers providing random access iterators with the \textit{ea::make\_input\_adapter()} function.
 
 \begin{lstlisting}[caption=IIndexSelection,label=lst:iindexselection]
 template<typename TGenomeBase>
@@ -164,7 +159,7 @@ class IIndexSelection
 };
 \end{lstlisting}
 
-Listing~\ref{lst:selection-example} creates a population with ten random sequences  (\textit{ll. 43-58}). Then five individuals are selected using a tournament selection operator (\textit{ll. 72-83}).
+Listing~\ref{lst:selection-example} creates a population with ten random sequences  (\textit{ll. 43-58}). Then five individuals are selected using the tournament selection operator (\textit{ll. 72-83}).
 
 \begin{lstinputlisting}[caption=selection operators,label=lst:selection-example]{examples/02-selection.cpp}
 \end{lstinputlisting}
@@ -225,7 +220,9 @@ In listing~\ref{lst:mutation-example} a parent individual is created (\textit{ll
 
 \section{Summary}
 
-As you have seen in this tutorial \textsc{libea} provides a basic framework which may help you writing your own algorithms. There are some standard operators available which can be used with different kind of genomes, too.
+As you have seen in this introduction \textsc{libea} provides a basic framework to write evolutionary algorithms in a reliable way. There are some standard operators available which can be used with different kind of genomes.
 
-The library has been written just for fun and I hope you might find it useful. To have a more detailed look at \textsc{libea} you should generate the code documentation as described before in this tutorial.
+The library has been written just for fun and I hope you might find it useful. To have a more detailed look at \textsc{libea} you should generate the code documentation as described before in this document.
+
+Please keep in ming that \textsc{libea} is still under active development and not finished yet :)
 \end{document}
