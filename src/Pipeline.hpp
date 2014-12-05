@@ -84,6 +84,7 @@ namespace ea
 
 			uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
 			{
+				static TGenomeBase base;
 				auto count = _f();
 
 				std::vector<uint32_t> indices;
@@ -94,7 +95,7 @@ namespace ea
 
 				for(uint32_t i : indices)
 				{
-					sink.push(source.at(i));
+					sink.push(base.copy(source.at(i)));
 				}
 
 				return count;
