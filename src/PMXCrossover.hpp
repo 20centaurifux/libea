@@ -49,7 +49,7 @@ namespace ea
 	   @brief Implementation of the PMX crossover operator.
 	 */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
-	class PMXCrossover : ea::ACrossover<TGenomeBase>
+	class PMXCrossover : public ea::ACrossover<TGenomeBase>
 	{
 		public:
 			PMXCrossover()

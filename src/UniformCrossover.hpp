@@ -49,7 +49,7 @@ namespace ea
 	   @brief Implementation of the uniform crossover operator.
 	 */
 	template<typename TGenomeBase, const int32_t N = 2>
-	class UniformCrossover : ea::ACrossover<TGenomeBase>
+	class UniformCrossover : public ea::ACrossover<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */

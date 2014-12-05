@@ -46,7 +46,7 @@ namespace ea
 	   @brief Implementation of the one-point crossover operator.
 	 */
 	template<typename TGenomeBase>
-	class OnePointCrossover : ea::ACrossover<TGenomeBase>
+	class OnePointCrossover : public ea::ACrossover<TGenomeBase>
 	{
 		public:
 			OnePointCrossover()

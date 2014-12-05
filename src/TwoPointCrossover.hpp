@@ -46,7 +46,7 @@ namespace ea
 	   @brief Implementation of the two-point crossover operator.
 	 */
 	template<typename TGenomeBase>
-	class TwoPointCrossover : ea::ACrossover<TGenomeBase>
+	class TwoPointCrossover : public ea::ACrossover<TGenomeBase>
 	{
 		public:
 			TwoPointCrossover()

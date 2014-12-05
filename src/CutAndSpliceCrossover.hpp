@@ -47,7 +47,7 @@ namespace ea
 	   @brief Implementation of the cut-and-splice crossover operator.
 	 */
 	template<typename TGenomeBase>
-	class CutAndSpliceCrossover : ea::ACrossover<TGenomeBase>
+	class CutAndSpliceCrossover : public ea::ACrossover<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */

@@ -48,7 +48,7 @@ namespace ea
 	   @brief Implementation of the ordered crossover operator.
 	 */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
-	class OrderedCrossover : ea::ACrossover<TGenomeBase>
+	class OrderedCrossover : public ea::ACrossover<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
