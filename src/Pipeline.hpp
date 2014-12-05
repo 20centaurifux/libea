@@ -25,8 +25,10 @@
 
 #include <memory>
 #include <vector>
+#include <cassert>
 #include "InputAdapter.hpp"
 #include "OutputAdapter.hpp"
+#include "ARandomNumberGenerator.hpp"
 
 namespace ea
 {
@@ -118,6 +120,7 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
+
 			/**
 			   @param crossover a crossover operator
 			   @return a new CrossoverPipelineElement
@@ -148,6 +151,52 @@ namespace ea
 
 		private:
 			std::shared_ptr<ACrossover<TGenomeBase>> _crossover;
+	};
+
+	/**
+	   @class MutationPipelineElement
+	   @tparam TGenomeBase a genome base class
+	   @brief A pipeline element wrapping a mutation operator.
+	 */
+	template<typename TGenomeBase, const int32_t P = 30>
+	class MutationPipelineElement : public APipelineElement<TGenomeBase>
+	{
+		public:
+			/*! Datatype of sequences provided by TGenomeBase. */
+			typedef typename TGenomeBase::sequence_type sequence_type;
+
+			MutationPipelineElement(std::shared_ptr<AMutation<TGenomeBase>> mutation, std::shared_ptr<ARandomNumberGenerator> rnd) : _mutation(mutation), _rnd(rnd)
+			{
+				assert(P >= 1 && P <= 100);
+			}
+
+			uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
+			{
+				static TGenomeBase base;
+				int32_t* prohabilities = new int32_t[source.size()];
+
+				_rnd->get_int32_seq(1, 100, prohabilities, source.size());
+
+				for(int32_t i = 0; i < source.size(); i++)
+				{
+					if(prohabilities[i] <= P)
+					{
+						sink.push(base.copy(source.at(i)));
+					}
+					else
+					{
+						sink.push(_mutation->create_child(source.at(i)));
+					}
+				}
+
+				delete prohabilities;
+
+				return source.size();
+			}
+
+		private:
+			std::shared_ptr<AMutation<TGenomeBase>> _mutation;
+			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
 	/**
