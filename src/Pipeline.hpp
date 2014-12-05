@@ -106,6 +106,50 @@ namespace ea
 	};
 
 	/**
+	   @class CrossoverPipelineElement
+	   @tparam TGenomeBase a genome base class
+	   @brief A pipeline element wrapping a crossover operator.
+	 */
+	template<typename TGenomeBase>
+	class CrossoverPipelineElement : public APipelineElement<TGenomeBase>
+	{
+		public:
+			/*! Datatype of sequences provided by TGenomeBase. */
+			typedef typename TGenomeBase::sequence_type sequence_type;
+
+			/**
+			   @param crossover a crossover operator
+			   @return a new CrossoverPipelineElement
+
+			   Creates a new CrossoverPipelineElement element.
+			 */
+			CrossoverPipelineElement(std::shared_ptr<ACrossover<TGenomeBase>> crossover) : _crossover(crossover) {}
+
+			~CrossoverPipelineElement() {}
+
+			uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
+			{
+				uint32_t count = 0;
+
+				for(uint32_t i = 0; i < source.size(); i++)
+				{
+					for(uint32_t j = 0; j < source.size(); j++)
+					{
+						if(i != j)
+						{
+							count += _crossover->crossover(source.at(i), source.at(j), sink);
+						}
+					}
+				}
+
+				return count;
+			}
+
+		private:
+			std::shared_ptr<ACrossover<TGenomeBase>> _crossover;
+	};
+
+	/**
 	   @}
 	 */
 }
