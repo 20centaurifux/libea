@@ -49,7 +49,7 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			~APipelineElement() {}
+			virtual ~APipelineElement() {}
 
 			/**
 			   @param source source of the pipeline element
@@ -62,12 +62,65 @@ namespace ea
 	};
 
 	/**
+	   @tparam TGenomeBase a genome base class
+	   @param source a population
+	   @param sink destination to write sequences to
+	   @return number of written sequences
+
+	   Processes a pipeline.
+	 */
+	template<typename TGenomeBase>
+	uint32_t pipeline_process(IInputAdapter<typename TGenomeBase::sequence_type>& source,
+	                          IOutputAdapter<typename TGenomeBase::sequence_type>& sink,
+	                          std::initializer_list<APipelineElement<TGenomeBase>*>)
+	{
+		return 0;
+	}
+
+	/**
+	 * @class ASelectionSize
+	 * @tparam TGenomeBase a genome base class
+	 * @return number of sequences to select
+	 *
+	 * Calculates the number of sequences to select from a population.
+	 */
+	template<typename TGenomeBase>
+	class ASelectionSize
+	{
+		public:
+			virtual uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) = 0;
+	};
+
+	/**
+	 * @class SourceDivisor
+	 * @tparam TGenomeBase a genome base class
+	 * @tparam N a divisor
+	 * @return size of the population / divisor
+	 *
+	 * Calculates the number of sequences to select from a population by dividing its size and a given divisor.
+	 */
+	template<typename TGenomeBase, const uint32_t N = 2>
+	class SourceDivisor : ASelectionSize<TGenomeBase>
+	{
+		public:
+			SourceDivisor()
+			{
+				assert(N != 0);
+			}
+
+			uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+			{
+				return source.size() / N;
+			}
+	};
+
+	/**
 	   @class SelectionPipelineElement
 	   @tparam TGenomeBase a genome base class
-	   @tparam F functor returning number of sequences to select from source
+	   @tparam F a functor based on ASelectionSize returning number of genomes to select
 	   @brief A pipeline element wrapping a selection operator.
 	 */
-	template<typename TGenomeBase, typename F>
+	template<typename TGenomeBase, typename F = SourceDivisor<TGenomeBase>>
 	class SelectionPipelineElement : public APipelineElement<TGenomeBase>
 	{
 		public:
@@ -80,14 +133,24 @@ namespace ea
 
 			   Creates a new SelectionPipelineElement element.
 			 */
-			SelectionPipelineElement(std::shared_ptr<IIndexSelection<TGenomeBase>> selection) : _selection(selection) {}
+			SelectionPipelineElement(std::shared_ptr<IIndexSelection<TGenomeBase>> selection)
+				: _selection(selection) {}
+
+			/**
+			   @param selection a selection operator
+			   @return a new SelectionPipelineElement
+
+			   Creates a new SelectionPipelineElement element.
+			 */
+			SelectionPipelineElement(IIndexSelection<TGenomeBase>* selection)
+				: _selection(std::shared_ptr<IIndexSelection<TGenomeBase>>(selection)) {}
 
 			~SelectionPipelineElement() {}
 
 			uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
 			{
 				static TGenomeBase base;
-				auto count = _f();
+				auto count = _f(source);
 
 				std::vector<uint32_t> indices;
 				auto inserter = std::back_inserter(indices);
@@ -120,6 +183,14 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
+			/**
+			   @param crossover a crossover operator
+			   @return a new CrossoverPipelineElement
+
+			   Creates a new CrossoverPipelineElement element.
+			 */
+			CrossoverPipelineElement(std::shared_ptr<ACrossover<TGenomeBase>> crossover)
+				: _crossover(crossover) {}
 
 			/**
 			   @param crossover a crossover operator
@@ -127,7 +198,8 @@ namespace ea
 
 			   Creates a new CrossoverPipelineElement element.
 			 */
-			CrossoverPipelineElement(std::shared_ptr<ACrossover<TGenomeBase>> crossover) : _crossover(crossover) {}
+			CrossoverPipelineElement(ACrossover<TGenomeBase>* crossover)
+				: _crossover(std::shared_ptr<ACrossover<TGenomeBase>>(crossover)) {}
 
 			~CrossoverPipelineElement() {}
 
@@ -165,7 +237,14 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			MutationPipelineElement(std::shared_ptr<AMutation<TGenomeBase>> mutation, std::shared_ptr<ARandomNumberGenerator> rnd) : _mutation(mutation), _rnd(rnd)
+			MutationPipelineElement(std::shared_ptr<AMutation<TGenomeBase>> mutation, std::shared_ptr<ARandomNumberGenerator> rnd)
+				: _mutation(mutation), _rnd(rnd)
+			{
+				assert(P >= 1 && P <= 100);
+			}
+
+			MutationPipelineElement(AMutation<TGenomeBase>* mutation, std::shared_ptr<ARandomNumberGenerator> rnd)
+				: _mutation(std::shared_ptr<AMutation<TGenomeBase>>(mutation)), _rnd(rnd)
 			{
 				assert(P >= 1 && P <= 100);
 			}
