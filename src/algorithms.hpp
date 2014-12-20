@@ -248,25 +248,6 @@ namespace ea
 	}
 
 	/**
-	   @class ReturnNumber
-	   @tparam N number to return
-
-	   Functor returning a number.
-	 */
-	template<const uint32_t N>
-	class ReturnNumber
-	{
-		public:
-			/**
-			   @return a number
-			 */
-			uint32_t operator()()
-			{
-				return N;
-			}
-	};
-
-	/**
 	   @}
 	 */
 }
