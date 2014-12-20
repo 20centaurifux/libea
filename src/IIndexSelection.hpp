@@ -47,7 +47,7 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			~IIndexSelection() {}
+			virtual ~IIndexSelection() {}
 
 			/**
 			   @param input a population

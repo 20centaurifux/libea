@@ -46,7 +46,7 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			~ACrossover() {}
+			virtual ~ACrossover() {}
 
 			/**
 			   @param a a sequence
