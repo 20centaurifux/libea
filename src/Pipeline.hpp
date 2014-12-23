@@ -80,7 +80,7 @@ namespace ea
 
 			   Returns true if pipeline processing should be terminated.
 			  */
-			virtual bool terminate(const uint32_t step,
+			virtual bool operator()(const uint32_t step,
 					       IInputAdapter<typename TGenomeBase::sequence_type>& first,
 					       IInputAdapter<typename TGenomeBase::sequence_type>& current) = 0;
 	};
@@ -104,7 +104,7 @@ namespace ea
 
 			virtual ~ForLoopTerminator() {}
 
-			inline bool terminate(const uint32_t step,
+			inline bool operator()(const uint32_t step,
 					       IInputAdapter<typename TGenomeBase::sequence_type>& first,
 					       IInputAdapter<typename TGenomeBase::sequence_type>& current)
 			{
@@ -127,10 +127,58 @@ namespace ea
 	template<typename TGenomeBase>
 	uint32_t pipeline_process(IInputAdapter<typename TGenomeBase::sequence_type>& source,
 	                          IOutputAdapter<typename TGenomeBase::sequence_type>& sink,
-	                          std::initializer_list<IPipelineElement<TGenomeBase>*>,
+	                          std::initializer_list<IPipelineElement<TGenomeBase>*> elements,
 	                          ITerminator<TGenomeBase>& terminator)
 	{
-		return 0;
+		TGenomeBase base;
+		uint32_t step = 0;
+		uint32_t i;
+		uint32_t size;
+
+		std::vector<typename TGenomeBase::sequence_type> vec_a;
+		std::vector<typename TGenomeBase::sequence_type>* ptr_vec_a = &vec_a;
+		std::vector<typename TGenomeBase::sequence_type> vec_b;
+		std::vector<typename TGenomeBase::sequence_type>* ptr_vec_b = &vec_b;
+
+		// copy initial population:
+		for(i = 0; i < source.size(); ++i)
+		{
+			vec_a.push_back(base.copy(source.at(i)));
+		}
+
+		while(1)
+		{
+			for(auto el : elements)
+			{
+				auto in = make_input_adapter(*ptr_vec_a);
+				auto inserter = std::back_inserter(*ptr_vec_b);
+				ea::STLVectorAdapter<typename TGenomeBase::sequence_type> out(inserter);
+
+				size = el->process(in, out);
+
+				auto ptr_vec = ptr_vec_a;
+				ptr_vec_a = ptr_vec_b;
+				ptr_vec_b = ptr_vec;
+
+				dispose(base, begin(*ptr_vec_b), end(*ptr_vec_b));
+				ptr_vec_b->clear();
+			}
+
+			auto in = make_input_adapter(*ptr_vec_a);
+
+			if(terminator(++step, source, in))
+			{
+				// copy last generation:
+				for(auto seq : *ptr_vec_a)
+				{
+					sink.push(seq);
+				}
+
+				break;
+			}
+		}
+
+		return size;
 	}
 
 	/**
@@ -169,6 +217,25 @@ namespace ea
 				return source.size() / N;
 			}
 	};
+
+	/**
+	 * @class FixedSelectionSize
+	 * @tparam TGenomeBase a genome base class
+	 * @tparam N number of sequences to select
+	 * @return N
+	 *
+	 * Returns a fixed number of sequences to select.
+	 */
+	template<typename TGenomeBase, const uint32_t N>
+	class FixedSelectionSize : ASelectionSize<TGenomeBase>
+	{
+		public:
+			uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+			{
+				return N;
+			}
+	};
+
 
 	/**
 	   @class SelectionPipelineElement
@@ -324,7 +391,7 @@ namespace ea
 					}
 				}
 
-				delete prohabilities;
+				delete[] prohabilities;
 
 				return source.size();
 			}
