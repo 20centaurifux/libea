@@ -38,18 +38,18 @@ namespace ea
 	 */
 
 	/**
-	   @class APipelineElement
+	   @class IPipelineElement
 	   @tparam TGenomeBase a genome base class
 	   @brief A pipeline having a source and a sink.
 	 */
 	template<typename TGenomeBase>
-	class APipelineElement
+	class IPipelineElement
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			virtual ~APipelineElement() {}
+			virtual ~IPipelineElement() {}
 
 			/**
 			   @param source source of the pipeline element
@@ -127,7 +127,7 @@ namespace ea
 	template<typename TGenomeBase>
 	uint32_t pipeline_process(IInputAdapter<typename TGenomeBase::sequence_type>& source,
 	                          IOutputAdapter<typename TGenomeBase::sequence_type>& sink,
-	                          std::initializer_list<APipelineElement<TGenomeBase>*>,
+	                          std::initializer_list<IPipelineElement<TGenomeBase>*>,
 	                          ITerminator<TGenomeBase>& terminator)
 	{
 		return 0;
@@ -177,7 +177,7 @@ namespace ea
 	   @brief A pipeline element wrapping a selection operator.
 	 */
 	template<typename TGenomeBase, typename F = SourceDivisor<TGenomeBase>>
-	class SelectionPipelineElement : public APipelineElement<TGenomeBase>
+	class SelectionPipelineElement : public IPipelineElement<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
@@ -233,7 +233,7 @@ namespace ea
 	   @brief A pipeline element wrapping a crossover operator.
 	 */
 	template<typename TGenomeBase>
-	class CrossoverPipelineElement : public APipelineElement<TGenomeBase>
+	class CrossoverPipelineElement : public IPipelineElement<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
@@ -287,7 +287,7 @@ namespace ea
 	   @brief A pipeline element wrapping a mutation operator.
 	 */
 	template<typename TGenomeBase, const int32_t P = 30>
-	class MutationPipelineElement : public APipelineElement<TGenomeBase>
+	class MutationPipelineElement : public IPipelineElement<TGenomeBase>
 	{
 		public:
 			/*! Datatype of sequences provided by TGenomeBase. */
