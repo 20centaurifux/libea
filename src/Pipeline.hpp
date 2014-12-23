@@ -62,9 +62,64 @@ namespace ea
 	};
 
 	/**
+	   @class ITerminator
+	   @tparam TGenomeBase a genome base class
+	   @brief Functor executed after each pipeline iteration to test termination.
+	 */
+	template<typename TGenomeBase>
+	class ITerminator
+	{
+		public:
+			virtual ~ITerminator() {}
+
+			/**
+			   @param step iteration step
+			   @param first the initial population
+			   @param current the current generation
+			   @return true to stop pipeline processing
+
+			   Returns true if pipeline processing should be terminated.
+			  */
+			virtual bool terminate(const uint32_t step,
+					       IInputAdapter<typename TGenomeBase::sequence_type>& first,
+					       IInputAdapter<typename TGenomeBase::sequence_type>& current) = 0;
+	};
+
+	/**
+	   @class ForLoopTerminator
+	   @tparam TGenomeBase a genome base class
+	   @brief Functor terminating a pipeline processing after a given number of iterations.
+	 */
+	template<typename TGenomeBase>
+	class ForLoopTerminator : public ITerminator<TGenomeBase>
+	{
+		public:
+			/**
+			   @param condition number of iterations before terminating pipeline processing
+			  */
+			ForLoopTerminator(const uint32_t condition) : _condition(condition)
+			{
+				assert(condition > 0);
+			}
+
+			virtual ~ForLoopTerminator() {}
+
+			inline bool terminate(const uint32_t step,
+					       IInputAdapter<typename TGenomeBase::sequence_type>& first,
+					       IInputAdapter<typename TGenomeBase::sequence_type>& current)
+			{
+				return step == _condition;
+			}
+
+		private:
+			uint32_t _condition;
+	};
+
+	/**
 	   @tparam TGenomeBase a genome base class
 	   @param source a population
 	   @param sink destination to write sequences to
+	   @param terminator condition to check after each iteration
 	   @return number of written sequences
 
 	   Processes a pipeline.
@@ -72,7 +127,8 @@ namespace ea
 	template<typename TGenomeBase>
 	uint32_t pipeline_process(IInputAdapter<typename TGenomeBase::sequence_type>& source,
 	                          IOutputAdapter<typename TGenomeBase::sequence_type>& sink,
-	                          std::initializer_list<APipelineElement<TGenomeBase>*>)
+	                          std::initializer_list<APipelineElement<TGenomeBase>*>,
+	                          ITerminator<TGenomeBase>& terminator)
 	{
 		return 0;
 	}
