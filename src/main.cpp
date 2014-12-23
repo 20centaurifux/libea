@@ -90,14 +90,14 @@ int main(int argc, char *argv[])
 
 	auto rnd = std::make_shared<ea::AnsiRandomNumberGenerator>();
 
-	auto selection_a = ea::SelectionPipelineElement<Base, ea::SourceDivisor<Base>>(new ea::TournamentSelection<Base>());
-	auto selection_b = ea::SelectionPipelineElement<Base, ea::FixedSelectionSize<Base, 50>>(new ea::DoubleTournamentSelection<Base>());
-	auto crossover = ea::CrossoverPipelineElement<Base>(new ea::CutAndSpliceCrossover<Base>());
-	auto mutation = ea::MutationPipelineElement<Base>(new ea::SingleSwapMutation<Base>(), rnd);
-	auto terminator = ea::ForLoopTerminator<Base>(1);
-	ea::ITerminator<Base>& terminator_ref = terminator;
+	auto selection_a = ea::Pipeline::SelectionElement<Base, ea::Pipeline::SourceDivisor<Base>>(new ea::TournamentSelection<Base>());
+	auto selection_b = ea::Pipeline::SelectionElement<Base, ea::Pipeline::FixedSelectionSize<Base, 50>>(new ea::DoubleTournamentSelection<Base>());
+	auto crossover = ea::Pipeline::CrossoverElement<Base>(new ea::CutAndSpliceCrossover<Base>());
+	auto mutation = ea::Pipeline::MutationElement<Base>(new ea::SingleSwapMutation<Base>(), rnd);
+	auto terminator = ea::Pipeline::ForLoopTerminator<Base>(1);
+	ea::Pipeline::ITerminator<Base>& terminator_ref = terminator;
 
-	uint32_t sum = ea::pipeline_process<Base>(source, cadapter, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
+	uint32_t sum = ea::Pipeline::pipeline_process<Base>(source, cadapter, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
 
 	std::cout << sum << std::endl;
 
