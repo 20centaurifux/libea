@@ -144,7 +144,7 @@ namespace ea
 				TDistribution* distribution;
 				std::string key;
 
-				assert(min < max);
+				assert(min <= max);
 
 				if(last_dist.min == min && last_dist.max == max)
 				{
