@@ -221,7 +221,6 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 			do
 			{
 				v = get_int32();
-				_int32_iter_next();
 
 				if(v >= min && v <= max)
 				{
@@ -296,13 +295,11 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 
 		void _int32_iter_next()
 		{
+			_int32_iter++;
+
 			if(_int32_iter == end(_int32s))
 			{
 				_int32_iter = begin(_int32s);
-			}
-			else
-			{
-				_int32_iter++;
 			}
 		}
 };
