@@ -813,7 +813,7 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 			ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase> c(rnd);
 			int32_t i;
 			int32_t j;
-			int32_t sep1;
+			int32_t sep1 = 0;
 			int32_t sep2;
 
 			// create parent sequences:
@@ -1482,7 +1482,7 @@ class PipelineTest : public CPPUNIT_NS::TestFixture
 			uint32_t sum = ea::Pipeline::pipeline_process<PrimitiveInt32GenomeBase>
 				(source, cadapter, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
 
-			CPPUNIT_ASSERT_EQUAL(sum, 50);
+			CPPUNIT_ASSERT_EQUAL(sum, 50u);
 
 			// clean up:
 			ea::dispose(base, begin(population), end(population));
