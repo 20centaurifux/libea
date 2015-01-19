@@ -60,6 +60,8 @@
 #include "SingleBitStringMutation.hpp"
 #include "InverseBitStringMutation.hpp"
 
+#include "Pipeline.hpp"
+
 /**
    @}
  */
