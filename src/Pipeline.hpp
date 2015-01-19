@@ -194,6 +194,10 @@ namespace ea
 		class ASelectionSize
 		{
 			public:
+				/**
+				 * @param source source population
+				 * @return number of sequences to select
+				 */
 				virtual uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) = 0;
 		};
 
@@ -214,7 +218,7 @@ namespace ea
 					assert(N != 0);
 				}
 
-				uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+				uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) override
 				{
 					return source.size() / N;
 				}
@@ -232,7 +236,7 @@ namespace ea
 		class FixedSelectionSize : ASelectionSize<TGenomeBase>
 		{
 			public:
-				uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+				uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) override
 				{
 					return N;
 				}
@@ -362,12 +366,20 @@ namespace ea
 				/*! Datatype of sequences provided by TGenomeBase. */
 				typedef typename TGenomeBase::sequence_type sequence_type;
 
+				/**
+				   @param mutation a mutation operator
+				   @param rnd a random number generator
+				 */
 				MutationElement(std::shared_ptr<AMutation<TGenomeBase>> mutation, std::shared_ptr<ARandomNumberGenerator> rnd)
 					: _mutation(mutation), _rnd(rnd)
 				{
 					assert(P >= 1 && P <= 100);
 				}
 
+				/**
+				   @param mutation a new mutation operator
+				   @param rnd a random number generator
+				 */
 				MutationElement(AMutation<TGenomeBase>* mutation, std::shared_ptr<ARandomNumberGenerator> rnd)
 					: _mutation(std::shared_ptr<AMutation<TGenomeBase>>(mutation)), _rnd(rnd)
 				{
