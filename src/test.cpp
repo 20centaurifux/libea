@@ -1415,6 +1415,83 @@ CPPUNIT_TEST_SUITE_REGISTRATION(BitStringMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleBitStringMutationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(InverseBitStringMutationTest);
 
+/*
+ * pipeline:
+ */
+class PipelineTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(PipelineTest);
+	CPPUNIT_TEST(test_pipeline);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void test_pipeline()
+		{
+			PrimitiveInt32GenomeBase base;
+			std::vector<ea::Sequence<int32_t>*> population;
+			auto rnd = std::make_shared<ea::AnsiRandomNumberGenerator>();
+
+			// create population:
+			for(uint32_t i = 0; i < 100; i++)
+			{
+				auto g = base.create(20);
+
+				int32_t genes[20];
+				rnd->get_unique_int32_seq(0, 19, genes, 20);
+
+				for(uint32_t i = 0; i < 20; i++)
+				{
+					base.set(g, i, i);
+				}
+
+				population.push_back(g);
+			}
+
+			// create and process pipeline:
+			auto inserter = std::back_inserter(population);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> adapter(inserter);
+
+			auto source = ea::make_input_adapter(population);
+
+			std::vector<ea::Sequence<int32_t>*> children;
+			auto cinserter = std::back_inserter(children);
+			ea::STLVectorAdapter<ea::Sequence<int32_t>*> cadapter(cinserter);
+
+			auto selection_a =
+				ea::Pipeline::SelectionElement<PrimitiveInt32GenomeBase,
+				                               ea::Pipeline::SourceDivisor<PrimitiveInt32GenomeBase>>
+					(new ea::TournamentSelection<PrimitiveInt32GenomeBase>());
+
+			auto selection_b =
+				ea::Pipeline::SelectionElement<PrimitiveInt32GenomeBase,
+				                               ea::Pipeline::FixedSelectionSize<PrimitiveInt32GenomeBase, 50>>
+					(new ea::DoubleTournamentSelection<PrimitiveInt32GenomeBase>());
+
+			auto crossover =
+				ea::Pipeline::CrossoverElement<PrimitiveInt32GenomeBase>
+					(new ea::CutAndSpliceCrossover<PrimitiveInt32GenomeBase>());
+
+			auto mutation =
+				ea::Pipeline::MutationElement<PrimitiveInt32GenomeBase>
+					(new ea::SingleSwapMutation<PrimitiveInt32GenomeBase>(), rnd);
+
+			auto terminator = ea::Pipeline::ForLoopTerminator<PrimitiveInt32GenomeBase>(10);
+
+			ea::Pipeline::ITerminator<PrimitiveInt32GenomeBase>& terminator_ref = terminator;
+
+			uint32_t sum = ea::Pipeline::pipeline_process<PrimitiveInt32GenomeBase>
+				(source, cadapter, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
+
+			CPPUNIT_ASSERT_EQUAL(sum, 50);
+
+			// clean up:
+			ea::dispose(base, begin(population), end(population));
+			ea::dispose(base, begin(children), end(children));
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(PipelineTest);
+
 int main(int argc, char* argv[])
 {
 	// run test cases:

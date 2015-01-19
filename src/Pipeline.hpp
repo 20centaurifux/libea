@@ -135,7 +135,7 @@ namespace ea
 			TGenomeBase base;
 			uint32_t step = 0;
 			uint32_t i;
-			uint32_t size;
+			uint32_t size = 0;
 
 			std::vector<typename TGenomeBase::sequence_type> vec_a;
 			std::vector<typename TGenomeBase::sequence_type>* ptr_vec_a = &vec_a;
