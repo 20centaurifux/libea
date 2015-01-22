@@ -28,6 +28,7 @@
 #include <limits>
 #include <cmath>
 #include "AGenome.hpp"
+#include "InputAdapter.hpp"
 
 namespace ea
 {
@@ -245,6 +246,54 @@ namespace ea
 		}
 
 		return diff;
+	}
+
+	/**
+	 * @tparam TGenomeBase a genome base class
+	 * @param source source of sequences
+	 * @return average fitness
+	 *
+	 * Calculates the average fitness of a population.
+	 **/
+	template<typename TGenomeBase>
+	double mean(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+	{
+		TGenomeBase base;
+		double result = 0;
+
+		source.first();
+
+		for(auto i = 0; i < source.size(); i++)
+		{
+			result += base.fitness(source.at(i));
+		}
+
+		return result / source.size();
+	}
+
+	/**
+	 * @tparam TGenomeBase a genome base class
+	 * @param source source of sequences
+	 * @return median fitness
+	 *
+	 * Calculates the median fitness of a population.
+	 **/
+	template<typename TGenomeBase>
+	double median(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+	{
+		TGenomeBase base;
+		std::vector<double> values;
+
+		source.first();
+
+		for(auto i = 0; i < source.size(); i++)
+		{
+			values.push_back(base.fitness(source.at(i)));
+		}
+
+		std::sort(begin(values), end(values));
+
+		return values[(end(values) - begin(values)) / 2];
 	}
 
 	/**
