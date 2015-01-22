@@ -142,6 +142,8 @@ namespace ea
 			std::vector<typename TGenomeBase::sequence_type> vec_b;
 			std::vector<typename TGenomeBase::sequence_type>* ptr_vec_b = &vec_b;
 
+			source.first();
+
 			// copy initial population:
 			for(i = 0; i < source.size(); ++i)
 			{
