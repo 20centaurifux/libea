@@ -1,6 +1,7 @@
 #include <libea.hpp>
 #include <vector>
 #include <map>
+#include <iostream>
 
 using namespace std;
 using namespace ea;
@@ -97,12 +98,15 @@ main(int argc, char *argv[])
 	// create and process pipeline:
 	auto source = make_input_adapter(population);
 
+	cout << "mean fitness (parent): " << mean<Base>(source) << endl;
+	cout << "median fitness (parent): " << median<Base>(source) << endl;
+
 	vector<Route> children;
 	auto cinserter = back_inserter(children);
 	STLVectorAdapter<Route> cadapter(cinserter);
 
-	auto selection_a = SelectionElement<Base, SourceDivisor<Base>>(new TournamentSelection<Base>());
-	auto selection_b = SelectionElement<Base, FixedSelectionSize<Base, 50>>(new DoubleTournamentSelection<Base>());
+	auto selection_a = SelectionElement<Base, SourceDivisor<Base>>(new TournamentSelection<Base, std::less<double>>());
+	auto selection_b = SelectionElement<Base, FixedSelectionSize<Base, 50>>(new DoubleTournamentSelection<Base, std::less<double>>());
 	auto crossover = CrossoverElement<Base>(new EdgeRecombinationCrossover<Base>());
 	auto mutation = MutationElement<Base>(new SingleSwapMutation<Base>(), rnd);
 	auto terminator = ForLoopTerminator<Base>(10);
@@ -110,6 +114,11 @@ main(int argc, char *argv[])
 	ITerminator<Base>& terminator_ref = terminator;
 
 	pipeline_process<Base>(source, cadapter, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
+
+	source = make_input_adapter(children);
+
+	cout << "mean fitness (parent): " << mean<Base>(source) << endl;
+	cout << "median fitness (parent): " << median<Base>(source) << endl;
 
 	// cleanup:
 	dispose(base, begin(population), end(population));
