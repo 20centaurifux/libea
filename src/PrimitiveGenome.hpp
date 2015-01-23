@@ -20,8 +20,8 @@
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
    @version 0.1.0
  */
-#ifndef GENOME_H
-#define GENOME_H
+#ifndef PRIMITIVE_GENOME_H
+#define PRIMITIVE_GENOME_H
 
 #include <cstring>
 #include "AGenome.hpp"
