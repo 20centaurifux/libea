@@ -27,6 +27,7 @@
 #include <set>
 #include <limits>
 #include <cmath>
+#include <cassert>
 #include "AGenome.hpp"
 #include "InputAdapter.hpp"
 
