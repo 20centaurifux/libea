@@ -129,17 +129,26 @@ namespace ea
 				TDistribuion* distribution;
 			};
 
+			class StrLess
+			{
+				public:
+					bool operator()(const std::string& first, const std::string& second) const
+					{
+						return first.compare(second) == -1;
+					}
+			};
+
 			TEngine _engine;
 			std::ostringstream _sstream;
-			std::map<std::string, std::uniform_int_distribution<int32_t>*> _int32_cache;
-			std::map<std::string, std::uniform_real_distribution<double>*> _double_cache;
+			std::map<std::string, std::uniform_int_distribution<int32_t>*, StrLess> _int32_cache;
+			std::map<std::string, std::uniform_real_distribution<double>*, StrLess> _double_cache;
 			std::uniform_int_distribution<int32_t> _int32_distribution;
 			std::uniform_real_distribution<double> _double_distribution;
 			struct LastDist<int32_t, std::uniform_int_distribution<int32_t>> _last_int32_dist;
 			struct LastDist<double, std::uniform_real_distribution<double>> _last_double_dist;
 
 			template<typename TDistribution, typename T>
-			TDistribution* get_distribution(const T min, const T max, std::map<std::string, TDistribution*>& cache, struct LastDist<T, TDistribution> &last_dist)
+			TDistribution* get_distribution(const T min, const T max, std::map<std::string, TDistribution*, StrLess>& cache, struct LastDist<T, TDistribution> &last_dist)
 			{
 				TDistribution* distribution;
 				std::string key;
@@ -152,7 +161,6 @@ namespace ea
 				}
 
 				// create unique distribution key:
-				_sstream.clear();
 				_sstream << min << "," << max;
 				key = _sstream.str();
 
@@ -190,7 +198,7 @@ namespace ea
 			}
 
 			template<typename TDistribution>
-			void destroy_cache(std::map<std::string, TDistribution*>& cache)
+			void destroy_cache(std::map<std::string, TDistribution*, StrLess>& cache)
 			{
 				for(auto d : cache)
 				{
