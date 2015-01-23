@@ -58,7 +58,7 @@ namespace ea
 
 	/**
 	   @class StdAllocator
-	   @brief A wrapper for std::malloc() amd std:free().
+	   @brief A wrapper for std::malloc() and std:free().
 	 */
 	class StdAllocator : public ea::IAllocator
 	{
