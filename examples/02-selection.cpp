@@ -70,8 +70,7 @@ int main(int argc, char *argv[])
 
 	// select & print individuals:
 	std::vector<uint32_t> children;
-	auto inserter = std::back_inserter(children);
-	ea::STLVectorAdapter<uint32_t> output(inserter);
+	auto output = ea::make_output_adapter(children);
 
 	ea::TournamentSelection<ea::Int32PGenomeBase<Fitness>> sel;
 	sel.select(input, 5, output);

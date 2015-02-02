@@ -71,8 +71,7 @@ int main(int argc, char *argv[])
 	std::vector<Sequence*> population;
 
 	// create adapter from back_inserter:
-	auto inserter = std::back_inserter(population);
-	ea::STLVectorAdapter<Sequence*> adapter(inserter);
+	auto adapter = ea::make_output_adapter(population);
 
 	// create 100 genomes:
 	f.create_population(100, adapter);

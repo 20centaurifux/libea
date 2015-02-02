@@ -49,8 +49,7 @@ int main(int argc, char *argv[])
 
 	// create children:
 	std::vector<Sequence*> children;
-	auto inserter = std::back_inserter(children);
-	ea::STLVectorAdapter<Sequence*> adapter(inserter);
+	auto adapter = ea::make_output_adapter(children);
 	ea::CycleCrossover<ea::Int32PGenomeBase<Fitness>> crossover;
 
 	uint32_t n = crossover.crossover(a, b, adapter);
