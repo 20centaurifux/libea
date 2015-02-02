@@ -139,7 +139,6 @@ namespace ea
 			};
 
 			TEngine _engine;
-			std::ostringstream _sstream;
 			std::map<std::string, std::uniform_int_distribution<int32_t>*, StrLess> _int32_cache;
 			std::map<std::string, std::uniform_real_distribution<double>*, StrLess> _double_cache;
 			std::uniform_int_distribution<int32_t> _int32_distribution;
@@ -152,6 +151,7 @@ namespace ea
 			{
 				TDistribution* distribution;
 				std::string key;
+				std::ostringstream sstream;
 
 				assert(min <= max);
 
@@ -161,8 +161,8 @@ namespace ea
 				}
 
 				// create unique distribution key:
-				_sstream << min << "," << max;
-				key = _sstream.str();
+				sstream << min << "," << max;
+				key = sstream.str();
 
 				// try to find distribution in cache:
 				auto iter = cache.find(key);
