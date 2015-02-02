@@ -162,7 +162,7 @@ namespace ea
 					{
 						do
 						{
-							x = _base.get(a, _rnd->get_int32(0,len - 1));
+							x = _base.get(a, _rnd->get_int32(0, len - 1));
 						} while(gene_exists(child, child_i, x));
 					}
 				}
