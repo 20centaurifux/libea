@@ -54,36 +54,40 @@ namespace ea
 	};
 
 	/**
-	   @class STLOutputAdapter
-	   @tparam T datatype of items stored in the wrapped container
-	   @tparam TIterator an iterator compatible to STL's output iterator
-	   @brief An IOutputAdapter wrapping an iterator compatible to STL's output iterator.
+	   @class STLBackInserterAdapter
+	   @tparam TContainer a STL container
+	   @brief An IOutputAdapter creating a std::back_insert_iterator from a container.
 	 */
-	template<typename T, typename TIterator>
-	class STLOutputAdapter : public IOutputAdapter<T>
+	template<typename TContainer>
+	class STLBackInserterAdapter : public IOutputAdapter<typename TContainer::value_type>
 	{
-		private:
-			TIterator& _iterator;
-
 		public:
 			/**
-			   @param iterator a STL iterator to wrap
+			   @param container a STL container
 			 */
-			STLOutputAdapter(TIterator& iterator) : _iterator(iterator) {}
+			STLBackInserterAdapter(TContainer& container) : _iterator(std::back_inserter(container)) {}
 
-			void push(T item) override
+			void push(typename TContainer::value_type item) override
 			{
 				*_iterator++ = item;
 			}
+
+		private:
+			std::back_insert_iterator<TContainer> _iterator;
 	};
 
 	/**
-	   \typedef STLVectorAdapter
-	   \tparam TSequence type of the sequence stored in a std::vector
-	   \brief A STLOutputAdapter wrapping a std::back_insert_iterator created from a std::vector.
+	   @param container a container
+	   @tparam TContainer datatype of a container
+	   @return an OutputAdapter
+
+	   Helper function to create an OutputAdapter.
 	 */
-	template<typename TSequence>
-	using STLVectorAdapter = STLOutputAdapter<TSequence, std::back_insert_iterator<std::vector<TSequence>>>;
+	template<typename TContainer>
+	STLBackInserterAdapter<TContainer> make_output_adapter(TContainer &container)
+	{
+		return STLBackInserterAdapter<TContainer>(container);
+	}
 
 	/**
 	   @}

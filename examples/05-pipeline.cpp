@@ -91,9 +91,9 @@ main(int argc, char *argv[])
 	auto rnd = make_shared<ea::AnsiRandomNumberGenerator>();
 
 	// create 100 routes:
-	auto inserter = back_inserter(population);
-	STLVectorAdapter<Route> adapter(inserter);
-	f.create_population(100, adapter);
+	auto a = make_output_adapter(population);
+
+	f.create_population(100, a);
 
 	// create and process pipeline:
 	auto source = make_input_adapter(population);
@@ -102,14 +102,13 @@ main(int argc, char *argv[])
 	cout << "median fitness (parent): " << median<Base>(source) << endl;
 
 	vector<Route> children;
-	auto cinserter = back_inserter(children);
-	STLVectorAdapter<Route> cadapter(cinserter);
+	auto cadapter = make_output_adapter(children);
 
 	auto selection_a = SelectionElement<Base, SourceDivisor<Base>>(new TournamentSelection<Base, std::less<double>>());
 	auto selection_b = SelectionElement<Base, FixedSelectionSize<Base, 50>>(new DoubleTournamentSelection<Base, std::less<double>>());
 	auto crossover = CrossoverElement<Base>(new EdgeRecombinationCrossover<Base>());
 	auto mutation = MutationElement<Base>(new SingleSwapMutation<Base>(), rnd);
-	auto terminator = ForLoopTerminator<Base>(10);
+	auto terminator = ForLoopTerminator<Base>(1000);
 
 	ITerminator<Base>& terminator_ref = terminator;
 

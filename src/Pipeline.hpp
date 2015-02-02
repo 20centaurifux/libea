@@ -155,8 +155,7 @@ namespace ea
 				for(auto el : elements)
 				{
 					auto in = make_input_adapter(*ptr_vec_a);
-					auto inserter = std::back_inserter(*ptr_vec_b);
-					ea::STLVectorAdapter<typename TGenomeBase::sequence_type> out(inserter);
+					auto out = make_output_adapter(*ptr_vec_b);
 
 					size = el->process(in, out);
 
@@ -284,8 +283,7 @@ namespace ea
 					auto count = _f(source);
 
 					std::vector<uint32_t> indices;
-					auto inserter = std::back_inserter(indices);
-					ea::STLVectorAdapter<uint32_t> output(inserter);
+					auto output = make_output_adapter(indices);
 
 					_selection->select(source, count, output);
 
