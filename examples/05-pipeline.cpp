@@ -104,15 +104,26 @@ main(int argc, char *argv[])
 	vector<Route> children;
 	auto cadapter = make_output_adapter(children);
 
-	auto selection_a = SelectionElement<Base, SourceDivisor<Base>>(new TournamentSelection<Base, std::less<double>>());
-	auto selection_b = SelectionElement<Base, FixedSelectionSize<Base, 50>>(new DoubleTournamentSelection<Base, std::less<double>>());
-	auto crossover = CrossoverElement<Base>(new EdgeRecombinationCrossover<Base>());
-	auto mutation = MutationElement<Base>(new SingleSwapMutation<Base>(), rnd);
-	auto terminator = ForLoopTerminator<Base>(1000);
+	auto selection_a =
+		SelectionElement<Base, SourceDivisor<Base>>
+			(new TournamentSelection<Base, std::less<double>>());
 
+	auto selection_b =
+		SelectionElement<Base, FixedSelectionSize<Base, 50>>(
+			new DoubleTournamentSelection<Base, std::less<double>>());
+
+	auto crossover =
+		CrossoverElement<Base>
+			(new EdgeRecombinationCrossover<Base>());
+
+	auto mutation =
+		MutationElement<Base>
+			(new SingleSwapMutation<Base>(), rnd);
+
+	auto terminator = ForLoopTerminator<Base>(100);
 	ITerminator<Base>& terminator_ref = terminator;
 
-	pipeline_process<Base>(source, cadapter, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
+	pipeline_process<Base>(source, cadapter, { &selection_a, &crossover, &selection_b, &mutation }, terminator_ref);
 
 	source = make_input_adapter(children);
 

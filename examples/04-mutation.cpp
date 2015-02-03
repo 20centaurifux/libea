@@ -25,7 +25,7 @@ class Fitness
 };
 
 typedef ea::BinaryPGenomeBase<Fitness> Base;
-static ea::BinaryPGenomeBase<Fitness> base;
+static Base base;
 
 static void print_genome(Sequence* seq)
 {

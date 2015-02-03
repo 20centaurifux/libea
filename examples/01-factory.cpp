@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	Factory f;
 	std::vector<Sequence*> population;
 
-	// create adapter from back_inserter:
+	// create adapter:
 	auto adapter = ea::make_output_adapter(population);
 
 	// create 100 genomes:
