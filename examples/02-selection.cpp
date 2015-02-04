@@ -14,7 +14,7 @@ class Fitness
 		{
 			float avg = 0;
 
-			for(auto i = 0; i < ea::sequence_len(seq); i++)
+			for(auto i = 0; i < ea::sequence_len(seq); ++i)
 			{
 				avg += ea::sequence_get(seq, i);
 			}
@@ -27,7 +27,7 @@ static ea::Int32PGenomeBase<Fitness> base;
 
 static void print_genome(Sequence* seq)
 {
-	for(uint32_t i = 0; i < ea::sequence_len(seq); i++)
+	for(uint32_t i = 0; i < ea::sequence_len(seq); ++i)
 	{
 		std::cout << base.get(seq, i) << " ";
 	}
@@ -42,14 +42,14 @@ int main(int argc, char *argv[])
 	// create parent individuals:
 	std::vector<Sequence*> population;
 
-	for(uint32_t i = 0; i < 10; i++)
+	for(uint32_t i = 0; i < 10; ++i)
 	{
 		auto seq = base.create(10);
 
 		int32_t genes[10];
 		g.get_unique_int32_seq(0, 9, genes, 10);
 
-		for(uint32_t j = 0; j < 10; j++)
+		for(uint32_t j = 0; j < 10; ++j)
 		{
 			base.set(seq, j, genes[j]);
 		}

@@ -12,11 +12,11 @@ class Fitness
 		{
 			float count = 0;
 
-			for(auto i = 0; i < ea::sequence_len(seq); i++)
+			for(auto i = 0; i < ea::sequence_len(seq); ++i)
 			{
 				if(ea::sequence_get(seq, i))
 				{
-					count++;
+					++count;
 				}
 			}
 
@@ -29,7 +29,7 @@ static Base base;
 
 static void print_genome(Sequence* seq)
 {
-	for(uint32_t i = 0; i < ea::sequence_len(seq); i++)
+	for(uint32_t i = 0; i < ea::sequence_len(seq); ++i)
 	{
 		std::cout << (base.get(seq, i) ? 1 : 0);
 	}
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	// create parent individual:
 	auto a = base.create(10);
 
-	for(uint32_t i = 0; i < 10; i++)
+	for(uint32_t i = 0; i < 10; ++i)
 	{
 		base.set(a, i, i % 3);
 	}

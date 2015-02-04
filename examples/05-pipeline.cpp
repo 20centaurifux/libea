@@ -38,7 +38,7 @@ class Fitness
 		{
 			float f = 0;
 
-			for(auto i = 0; i < sequence_len(seq) - 1; i++)
+			for(auto i = 0; i < sequence_len(seq) - 1; ++i)
 			{
 				auto a = sequence_get(seq, i);
 				auto b = sequence_get(seq, i + 1);
@@ -65,7 +65,7 @@ class RouteFactory : public ea::AFactory<Route>
 
 			auto seq = _base.create(10);
 
-			for(uint32_t i = 0; i < 10; i++)
+			for(uint32_t i = 0; i < 10; ++i)
 			{
 				_base.set(seq, i, genes[i]);
 			}
