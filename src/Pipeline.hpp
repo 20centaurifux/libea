@@ -76,15 +76,13 @@ namespace ea
 
 				/**
 				   @param step iteration step
-				   @param first the initial population
-				   @param current the current generation
+				   @param population the current generation
 				   @return true to stop pipeline processing
 
 				   Returns true if pipeline processing should be terminated.
 				  */
 				virtual bool operator()(const uint32_t step,
-						       IInputAdapter<typename TGenomeBase::sequence_type>& first,
-						       IInputAdapter<typename TGenomeBase::sequence_type>& current) = 0;
+						       IInputAdapter<typename TGenomeBase::sequence_type>& population) = 0;
 		};
 
 		/**
@@ -106,9 +104,7 @@ namespace ea
 
 				virtual ~ForLoopTerminator() {}
 
-				inline bool operator()(const uint32_t step,
-						       IInputAdapter<typename TGenomeBase::sequence_type>& first,
-						       IInputAdapter<typename TGenomeBase::sequence_type>& current)
+				inline bool operator()(const uint32_t step, IInputAdapter<typename TGenomeBase::sequence_type>& population) override
 				{
 					return step == _condition;
 				}
@@ -169,7 +165,7 @@ namespace ea
 
 				auto in = make_input_adapter(*ptr_vec_a);
 
-				if(terminator(++step, source, in))
+				if(terminator(++step, in))
 				{
 					// copy last generation:
 					for(auto seq : *ptr_vec_a)
