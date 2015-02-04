@@ -298,6 +298,34 @@ namespace ea
 	}
 
 	/**
+	   @tparam TGenomeBase genome base class
+	   @tparam Compare a compare function
+	   @param source a population
+	   @return index of the fittest genome
+
+	   @brief Finds the fittest genome of a population.
+	 */
+	template<typename TGenomeBase, typename Compare = std::greater<double>>
+	uint32_t fittest(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+	{
+		TGenomeBase base;
+		Compare cmp;
+		uint32_t index = 0;
+
+		source.first();
+
+		for(uint32_t i = 1; i < source.size(); ++i)
+		{
+			if(cmp(base.fitness(source.at(index)), base.fitness(source.at(i))) < 1)
+			{
+				index = i;
+			}
+		};
+
+		return index;
+	}
+
+	/**
 	   @}
 	 */
 }
