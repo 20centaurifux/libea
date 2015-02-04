@@ -85,12 +85,12 @@ namespace ea
 
 				auto individual = _base.create(len);
 
-				for(i = 0; i < sep1; i++)
+				for(i = 0; i < sep1; ++i)
 				{
 					_base.set(individual, i, _base.get(a, i));
 				}
 
-				for(i = sep2; i < _base.len(b); i++)
+				for(i = sep2; i < _base.len(b); ++i)
 				{
 					_base.set(individual, m++, _base.get(b, i));
 				}
@@ -103,14 +103,14 @@ namespace ea
 
 				individual = _base.create(len);
 
-				for(i = 0; i < sep2; i++)
+				for(i = 0; i < sep2; ++i)
 				{
 					_base.set(individual, i, _base.get(b, i));
 				}
 
 				m = sep2;
 
-				for(i = sep1; i < _base.len(a); i++)
+				for(i = sep1; i < _base.len(a); ++i)
 				{
 					_base.set(individual, m++, _base.get(a, i));
 				}

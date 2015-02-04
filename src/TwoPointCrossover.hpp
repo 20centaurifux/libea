@@ -98,17 +98,17 @@ namespace ea
 
 				individual = _base.create(_base.len(a));
 
-				for(i = 0; i < offset1; i++)
+				for(i = 0; i < offset1; ++i)
 				{
 					_base.set(individual, i, _base.get(a, i));
 				}
 
-				for(i = offset1; i < offset2; i++)
+				for(i = offset1; i < offset2; ++i)
 				{
 					_base.set(individual, i, _base.get(b, i));
 				}
 
-				for(i = offset2; i < _base.len(a); i++)
+				for(i = offset2; i < _base.len(a); ++i)
 				{
 					_base.set(individual, i, _base.get(a, i));
 				}

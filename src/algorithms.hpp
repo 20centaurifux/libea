@@ -51,7 +51,7 @@ namespace ea
 		static TGenomeBase base;
 		std::set<typename TGenomeBase::gene_type, LessThan> set;
 
-		for(uint32_t i = 0; i < base.len(seq); i++)
+		for(uint32_t i = 0; i < base.len(seq); ++i)
 		{
 			const typename TGenomeBase::gene_type& gene = base.get(seq, i);
 
@@ -87,7 +87,7 @@ namespace ea
 			return false;
 		}
 
-		for(uint32_t i = 0; i < len; i++)
+		for(uint32_t i = 0; i < len; ++i)
 		{
 			if(base.index_of(a, base.get(b, i)) == -1)
 			{
@@ -162,13 +162,13 @@ namespace ea
 		auto iter = std::begin(list);
 		T sum = *iter;
 		
-		iter++;
+		++iter;
 
 		while(iter != end(list))
 		{
 			ASSERT_ADDITION(T, sum, *iter);
 			sum += *iter;
-			iter++;
+			++iter;
 		}
 
 		return sum;
@@ -237,13 +237,13 @@ namespace ea
 		auto iter = std::begin(list);
 		T diff = *iter;
 		
-		iter++;
+		++iter;
 
 		while(iter != end(list))
 		{
 			ASSERT_SUBTRACTION(T, diff, *iter);
 			diff -= *iter;
-			iter++;
+			++iter;
 		}
 
 		return diff;
@@ -264,7 +264,7 @@ namespace ea
 
 		source.first();
 
-		for(auto i = 0; i < source.size(); i++)
+		for(auto i = 0; i < source.size(); ++i)
 		{
 			result += base.fitness(source.at(i));
 		}
@@ -287,7 +287,7 @@ namespace ea
 
 		source.first();
 
-		for(auto i = 0; i < source.size(); i++)
+		for(auto i = 0; i < source.size(); ++i)
 		{
 			values.push_back(base.fitness(source.at(i)));
 		}

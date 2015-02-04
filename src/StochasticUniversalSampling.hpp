@@ -75,7 +75,7 @@ namespace ea
 				sums = new double[input.size()];
 				sums[0] = _base.fitness(input.current());
 
-				for(i = 1; i < input.size(); i++)
+				for(i = 1; i < input.size(); ++i)
 				{
 					sums[i] = sums[i - 1] + _base.fitness(input.at(i));
 				}

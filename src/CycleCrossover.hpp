@@ -71,7 +71,7 @@ namespace ea
 				assert(set_equals<TGenomeBase>(a, b));
 
 				// initialize dictionary:
-				for(uint32_t i = 0; i < len; i++)
+				for(uint32_t i = 0; i < len; ++i)
 				{
 					// mark all genes from individual a as not assigned:
 					assigned[_base.get(a, i)] = false;
@@ -95,7 +95,7 @@ namespace ea
 					while(!assigned[gene])
 					{
 						// insert current gene into current cycle & update counter:
-						cycle->push_back(gene), count++;
+						cycle->push_back(gene), ++count;
 						assigned[gene] = true;
 
 						// find next gene:
@@ -108,7 +108,7 @@ namespace ea
 						// find next unassigned gene:
 						while(offset < len - 1 && assigned[_base.get(a, offset)])
 						{
-							offset++;
+							++offset;
 						}
 
 						gene = _base.get(a, ((index = offset++)));
@@ -124,9 +124,9 @@ namespace ea
 				sequence_type child0 = _base.create(len);
 				sequence_type child1 = _base.create(len);
 
-				for(auto iter = begin(cycles); iter != end(cycles); iter++)
+				for(auto iter = begin(cycles); iter != end(cycles); ++iter)
 				{
-					for(uint32_t m = 0; m < len; m++)
+					for(uint32_t m = 0; m < len; ++m)
 					{
 						if(contains(*iter, _base.get(a, m)))
 						{

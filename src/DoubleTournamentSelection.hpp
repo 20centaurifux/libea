@@ -86,7 +86,7 @@ namespace ea
 				challengers = new int32_t[count];
 				_rnd->get_int32_seq(0, input.size() - 1, challengers, count);
 
-				for(i = 0; i < count; i++)
+				for(i = 0; i < count; ++i)
 				{
 					individual.index = challengers[i];
 					individual.score = 0;
@@ -97,14 +97,14 @@ namespace ea
 					float f0 = _base.fitness(input.at(challengers[i]));
 					ASSERT_FP_NORMALITY(f0);
 
-					for(j = 0; j < Q; j++)
+					for(j = 0; j < Q; ++j)
 					{
 						float f1 = _base.fitness(input.at(enemies[j]));
 						ASSERT_FP_NORMALITY(f1);
 
 						if(prohability[j] <= P && compare(f0, f1))
 						{
-							individual.score++;
+							++individual.score;
 						}
 					}
 

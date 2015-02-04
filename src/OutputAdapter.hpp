@@ -84,7 +84,7 @@ namespace ea
 	   Helper function to create an OutputAdapter.
 	 */
 	template<typename TContainer>
-	STLBackInserterAdapter<TContainer> make_output_adapter(TContainer &container)
+	STLBackInserterAdapter<TContainer> make_output_adapter(TContainer& container)
 	{
 		return STLBackInserterAdapter<TContainer>(container);
 	}

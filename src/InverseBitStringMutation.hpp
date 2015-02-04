@@ -53,7 +53,7 @@ namespace ea
 			{
 				static TGenomeBase base;
 
-				for(uint32_t i = 0; i < base.len(sequence); i++)
+				for(uint32_t i = 0; i < base.len(sequence); ++i)
 				{
 					base.set(sequence, i, !base.get(sequence, i));
 				}

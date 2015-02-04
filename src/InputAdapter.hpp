@@ -88,7 +88,7 @@ namespace ea
 	   @tparam TContainer datatype of the container
 	   @brief IInputAdapter wrapping a container. The container has to provide a random_access_iterator.
 	 */
-	template<typename TContainer> // @TODO
+	template<typename TContainer>
 	class STLRandomAccessInputAdapter : public IInputAdapter<typename TContainer::value_type>
 	{
 		public:
@@ -110,7 +110,7 @@ namespace ea
 
 			void next() override
 			{
-				_iter++;
+				++_iter;
 			}
 
 			bool end() const override
@@ -153,7 +153,7 @@ namespace ea
 	   Helper function to create a RandomAccessInputAdapter.
 	 */
 	template<typename TContainer>
-	STLRandomAccessInputAdapter<TContainer> make_input_adapter(TContainer &container)
+	STLRandomAccessInputAdapter<TContainer> make_input_adapter(TContainer& container)
 	{
 		return STLRandomAccessInputAdapter<TContainer>(begin(container), end(container));
 	}

@@ -65,7 +65,7 @@ namespace ea
 
 				auto it = individuals.begin();
 
-				for(uint32_t i = 0; i < count; i++, it++)
+				for(uint32_t i = 0; i < count; ++i, ++it)
 				{
 					output.push(it->index);
 				}

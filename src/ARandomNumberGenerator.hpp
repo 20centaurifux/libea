@@ -146,7 +146,7 @@ namespace ea
 				assert(numbers != nullptr);
 				assert(length > 0);
 
-				for(int32_t i = 0; i < length; i++)
+				for(int32_t i = 0; i < length; ++i)
 				{
 					T x = (this->*random)(min, max);
 					numbers[i] = x;
@@ -174,7 +174,7 @@ namespace ea
 					// test if number is already stored in array:
 					found = false;
 
-					for(i = 0; i < count; i++)
+					for(i = 0; i < count; ++i)
 					{
 						if(numbers[i] == rnd)
 						{

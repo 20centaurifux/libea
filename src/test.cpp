@@ -27,7 +27,7 @@ typename TGenomeBase::sequence_type array_to_sequence(TGenomeBase& base, const t
 {
 	auto seq = base.create(10);
 
-	for(uint32_t i = 0; i < size; i++)
+	for(uint32_t i = 0; i < size; ++i)
 	{
 		base.set(seq, i, genes[i]);
 	}
@@ -44,7 +44,7 @@ class TestFitness
 		{
 			float f = 0;
 
-			for(auto i = 0; i < seq->len; i++)
+			for(auto i = 0; i < seq->len; ++i)
 			{
 				f += seq->genes[i] * i;
 			}
@@ -61,11 +61,11 @@ class TestBinaryFitness
 		{
 			float f = 0;
 
-			for(auto i = 0; i < seq->len; i++)
+			for(auto i = 0; i < seq->len; ++i)
 			{
 				if(seq->genes[i])
 				{
-					f++;
+					++f;
 				}
 			}
 
@@ -81,7 +81,7 @@ class TestStringFitness
 		{
 			float f = 0;
 
-			for(auto i = 0; i < seq->len; i++)
+			for(auto i = 0; i < seq->len; ++i)
 			{
 				for(char c : seq->genes[i])
 				{
@@ -113,12 +113,12 @@ class Int32Factory
 
 			sep = size / 2;
 
-			for(i = 0; i < sep; i++)
+			for(i = 0; i < sep; ++i)
 			{
 				genes[1][i] = genes[0][i + sep];
 			}
 
-			for(i = sep; i < size; i++)
+			for(i = sep; i < size; ++i)
 			{
 				genes[1][i] = genes[0][i - sep];
 			}
@@ -150,12 +150,12 @@ class DoubleFactory
 
 			sep = size / 2;
 
-			for(i = 0; i < sep; i++)
+			for(i = 0; i < sep; ++i)
 			{
 				genes[1][i] = genes[0][i + sep];
 			}
 
-			for(i = sep; i < size; i++)
+			for(i = sep; i < size; ++i)
 			{
 				genes[1][i] = genes[0][i - sep];
 			}
@@ -175,7 +175,7 @@ class StringFactory
 			genes[0] = new string[size];
 			genes[1] = new string[size];
 
-			for(uint32_t i = 0; i < size; i++)
+			for(uint32_t i = 0; i < size; ++i)
 			{
 				std::ostringstream sstream;
 
@@ -268,7 +268,7 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 				abort();
 			}
 
-			for(int32_t i = 0; i < length; i++)
+			for(int32_t i = 0; i < length; ++i)
 			{
 				numbers[i] = _int32s[i];
 			}
@@ -295,7 +295,7 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 
 		void _int32_iter_next()
 		{
-			_int32_iter++;
+			++_int32_iter;
 
 			if(_int32_iter == end(_int32s))
 			{
@@ -332,7 +332,7 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 
 			CPPUNIT_ASSERT(g.get_min_int32() < g.get_max_int32());
 
-			for(uint32_t i = 0; i < 1000000; i++)
+			for(uint32_t i = 0; i < 1000000; ++i)
 			{
 				uint32_t n = g.get_int32();
 
@@ -363,7 +363,7 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 
 			CPPUNIT_ASSERT(g.get_min_double() < g.get_max_double());
 
-			for(uint32_t i = 0; i < 1000000; i++)
+			for(uint32_t i = 0; i < 1000000; ++i)
 			{
 				double n = g.get_double();
 
@@ -416,7 +416,7 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 
 			g.get_unique_int32_seq(-5120, 5119, seq, 10240);
 
-			for(uint32_t i = -5120; i < 5119; i++)
+			for(uint32_t i = -5120; i < 5119; ++i)
 			{
 				auto iter = find(begin(seq), end(seq), i);
 				CPPUNIT_ASSERT(iter != end(seq));
@@ -445,7 +445,7 @@ class RandomNumberGeneratorTest : public CPPUNIT_NS::TestFixture
 		{
 			F f;
 
-			for(uint32_t i = 0; i < 1000000; i++)
+			for(uint32_t i = 0; i < 1000000; ++i)
 			{
 				T n = f(min, max);
 				CPPUNIT_ASSERT(n >= min && n <= max);
@@ -488,20 +488,20 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 				sequences[0] = _base.create(size);
 				sequences[1] = _base.create(size);
 
-				for(i = 0; i < size; i++)
+				for(i = 0; i < size; ++i)
 				{
 					_base.set(sequences[0], i, genes[0][i]);
 					_base.set(sequences[1], i, genes[1][i]);
 				}
 
-				for(i = 0; i < 2; i++)
+				for(i = 0; i < 2; ++i)
 				{
 					// test length:
 					CPPUNIT_ASSERT(_base.len(sequences[i]) == size);
 
 					// get genes from sequence and compare them to genes of generated gene array:
 					test_get(sequences[i], genes[i], size);
-	
+
 					// test index_of method:
 					test_index_of(sequences[i], genes[i], size, not_in_set);
 
@@ -536,7 +536,7 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 				}
 
 				// clean up:
-				for(i = 0; i < 2; i++)
+				for(i = 0; i < 2; ++i)
 				{
 					_base.dispose(sequences[i]);
 					delete[] genes[i];
@@ -551,7 +551,7 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 		{
 			CPPUNIT_ASSERT(_base.len(sequence) == len);
 
-			for(uint32_t i = 0; i < len; i++)
+			for(uint32_t i = 0; i < len; ++i)
 			{
 				CPPUNIT_ASSERT(_base.get(sequence, i) == genes[i]);
 			}
@@ -561,7 +561,7 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 		{
 			CPPUNIT_ASSERT(_base.len(sequence) == len);
 
-			for(uint32_t i = 0; i < len; i++)
+			for(uint32_t i = 0; i < len; ++i)
 			{
 				CPPUNIT_ASSERT(_base.index_of(sequence, genes[i]) == i);
 			}
@@ -614,7 +614,7 @@ class AlgorithmTest : public CPPUNIT_NS::TestFixture
 			auto seq = base.create(10);
 			uint32_t i;
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(seq, i, i);
 			}
@@ -634,7 +634,7 @@ class AlgorithmTest : public CPPUNIT_NS::TestFixture
 			auto seq_a = base.create(10);
 			uint32_t i;
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(seq_a, i, i);
 			}
@@ -694,7 +694,7 @@ class SelectionOperatorTest : public CPPUNIT_NS::TestFixture
 			std::vector<typename TGenomeBase::sequence_type> population;
 
 			// create population:
-			for(uint32_t i = 0; i < 100; i++)
+			for(uint32_t i = 0; i < 100; ++i)
 			{
 				f.generate_gene_set(genes, 10);
 				auto seq = array_to_sequence(base, genes, 10);
@@ -820,7 +820,7 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(10);
 			auto b = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(a, i, i);
 				base.set(b, i, i + 10);
@@ -837,7 +837,7 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 			CPPUNIT_ASSERT(count == 2);
 
 			// find separators:
-			for(i = 0; i < base.len(children[0]); i++)
+			for(i = 0; i < base.len(children[0]); ++i)
 			{
 				if(base.get(children[0], i) != base.get(a, i))
 				{
@@ -852,26 +852,26 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 			CPPUNIT_ASSERT(sep2 == 6);
 
 			// validate child sequences:
-			for(i = 0; i < sep1; i++)
+			for(i = 0; i < sep1; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) == base.get(a, i));
 			}
 
 			j = sep1;
 
-			for(i = sep2; j < base.len(children[0]); i++)
+			for(i = sep2; j < base.len(children[0]); ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], j++) == base.get(b, i));
 			}
 
-			for(i = 0; i < sep2; i++)
+			for(i = 0; i < sep2; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[1], i) == base.get(b, i));
 			}
 
 			j = sep2;
 
-			for(i = sep1; j < base.len(children[1]); i++)
+			for(i = sep1; j < base.len(children[1]); ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[1], j++) == base.get(a, i));
 			}
@@ -904,7 +904,7 @@ class CycleCrossoverTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(10);
 			auto b = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(a, i, seq_a[i]);
 				base.set(b, i, seq_b[i]);
@@ -920,7 +920,7 @@ class CycleCrossoverTest : public CPPUNIT_NS::TestFixture
 			// validate child sequences:
 			CPPUNIT_ASSERT(count == 2);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) ==  seq_child_a[i]);
 				CPPUNIT_ASSERT(base.get(children[1], i) ==  seq_child_b[i]);
@@ -953,7 +953,7 @@ class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(7);
 			auto b = base.create(7);
 
-			for(i = 0; i < 7; i++)
+			for(i = 0; i < 7; ++i)
 			{
 				base.set(a, i, seq_a[i]);
 				base.set(b, i, seq_b[i]);
@@ -969,7 +969,7 @@ class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
 			// validate child sequences:
 			CPPUNIT_ASSERT(count == 1);
 
-			for(i = 0; i < 7; i++)
+			for(i = 0; i < 7; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) == seq_child[i]);
 			}
@@ -998,7 +998,7 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(10);
 			auto b = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(a, i, i);
 				base.set(b, i, i + 10);
@@ -1014,13 +1014,13 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 			// validate child sequences:
 			CPPUNIT_ASSERT(count == 2);
 
-			for(i = 0; i < 5; i++)
+			for(i = 0; i < 5; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) == i);
 				CPPUNIT_ASSERT(base.get(children[1], i) == i + 10);
 			}
 
-			for(i = 5; i < 10; i++)
+			for(i = 5; i < 10; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) == i + 10);
 				CPPUNIT_ASSERT(base.get(children[1], i) == i);
@@ -1051,7 +1051,7 @@ class OrderedCrossoverTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(10);
 			auto b = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(a, i, 9 - i);
 				base.set(b, i, i);
@@ -1067,12 +1067,12 @@ class OrderedCrossoverTest : public CPPUNIT_NS::TestFixture
 			// validate child:
 			CPPUNIT_ASSERT(count == 1);
 
-			for(i = 0; i < 5; i++)
+			for(i = 0; i < 5; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(a, i) == base.get(children[0], i));
 			}
 
-			for(i = 0; i < 5; i++)
+			for(i = 0; i < 5; ++i)
 			{
 				CPPUNIT_ASSERT(i == base.get(children[0], i + 5));
 			}
@@ -1104,7 +1104,7 @@ class PMXCrossoverTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(10);
 			auto b = base.create(10);
 
-			for(i = 0; i < 5; i++)
+			for(i = 0; i < 5; ++i)
 			{
 				base.set(a, i, 9 - i);
 				base.set(a, i + 5, i);
@@ -1122,7 +1122,7 @@ class PMXCrossoverTest : public CPPUNIT_NS::TestFixture
 			// validate children:
 			CPPUNIT_ASSERT(count == 2);
 
-			for(uint32_t i = 0; i < 10; i++)
+			for(uint32_t i = 0; i < 10; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) == seq_child_a[i]);
 				CPPUNIT_ASSERT(base.get(children[1], i) == seq_child_b[i]);
@@ -1155,7 +1155,7 @@ class TwoPointCrossoverTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(10);
 			auto b = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(a, i, i);
 				base.set(b, i, i + 10);
@@ -1171,7 +1171,7 @@ class TwoPointCrossoverTest : public CPPUNIT_NS::TestFixture
 			// validate child sequences:
 			CPPUNIT_ASSERT(count == 2);
 
-			for(i = 0; i < 9; i++)
+			for(i = 0; i < 9; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) == seq_child_a[i]);
 				CPPUNIT_ASSERT(base.get(children[1], i) == seq_child_b[i]);
@@ -1204,7 +1204,7 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 			auto a = base.create(10);
 			auto b = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(a, i, i);
 				base.set(b, i, i + 10);
@@ -1220,7 +1220,7 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 			// validate child sequences:
 			CPPUNIT_ASSERT(count == 2);
 
-			for(i = 0; i < 9; i++)
+			for(i = 0; i < 9; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(children[0], i) == seq_child_a[i]);
 				CPPUNIT_ASSERT(base.get(children[1], i) == seq_child_b[i]);
@@ -1264,14 +1264,14 @@ class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
 
 			auto gene = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(gene, i, i);
 			}
 
 			m.mutate(gene);
 
-			for(i = 0; i < base.len(gene); i++)
+			for(i = 0; i < base.len(gene); ++i)
 			{
 				CPPUNIT_ASSERT(base.get(gene, i) == mutant[i]);
 			}
@@ -1297,14 +1297,14 @@ class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 
 			auto gene = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(gene, i, i);
 			}
 
 			m.mutate(gene);
 
-			for(i = 0; i < base.len(gene); i++)
+			for(i = 0; i < base.len(gene); ++i)
 			{
 				CPPUNIT_ASSERT(base.get(gene, i) == mutant[i]);
 			}
@@ -1330,14 +1330,14 @@ class BitStringMutationTest : public CPPUNIT_NS::TestFixture
 
 			auto gene = base.create(9);
 
-			for(i = 0; i < 9; i++)
+			for(i = 0; i < 9; ++i)
 			{
 				base.set(gene, i, true);
 			}
 
 			m.mutate(gene);
 
-			for(i = 0; i < 9; i++)
+			for(i = 0; i < 9; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(gene, i) == child[i]);
 			}
@@ -1362,14 +1362,14 @@ class SingleBitStringMutationTest : public CPPUNIT_NS::TestFixture
 
 			auto gene = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(gene, i, true);
 			}
 
 			m.mutate(gene);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(gene, i) == (i != 3));
 			}
@@ -1393,14 +1393,14 @@ class InverseBitStringMutationTest : public CPPUNIT_NS::TestFixture
 
 			auto gene = base.create(10);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				base.set(gene, i, i % 2);
 			}
 
 			m.mutate(gene);
 
-			for(i = 0; i < 10; i++)
+			for(i = 0; i < 10; ++i)
 			{
 				CPPUNIT_ASSERT(base.get(gene, i) == !(i % 2));
 			}
@@ -1432,14 +1432,14 @@ class PipelineTest : public CPPUNIT_NS::TestFixture
 			auto rnd = std::make_shared<ea::AnsiRandomNumberGenerator>();
 
 			// create population:
-			for(uint32_t i = 0; i < 100; i++)
+			for(uint32_t i = 0; i < 100; ++i)
 			{
 				auto g = base.create(20);
 
 				int32_t genes[20];
 				rnd->get_unique_int32_seq(0, 19, genes, 20);
 
-				for(uint32_t i = 0; i < 20; i++)
+				for(uint32_t i = 0; i < 20; ++i)
 				{
 					base.set(g, i, i);
 				}

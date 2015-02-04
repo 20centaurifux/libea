@@ -102,7 +102,7 @@ namespace ea
 
 				sums[0] = chk_add(fitness, align);
 
-				for(uint32_t i = 1; i < input.size(); i++)
+				for(uint32_t i = 1; i < input.size(); ++i)
 				{
 					fitness = base.fitness(input.at(i));
 					sums[i] = chk_add({ sums[i - 1], fitness, align });
@@ -130,7 +130,7 @@ namespace ea
 
 				rnd->get_double_seq(0, max, numbers, count);
 
-				for(uint32_t i = 0; i < count; i++)
+				for(uint32_t i = 0; i < count; ++i)
 				{
 					range[0] = 0;
 					range[1] = input.size() - 1;
@@ -313,7 +313,7 @@ namespace ea
 					sums[0] = chk_add(sums[0], align);
 				}
 
-				for(auto iter = begin(ordered) + 1; iter < end(ordered); iter++, i++)
+				for(auto iter = begin(ordered) + 1; iter < end(ordered); ++iter, ++i)
 				{
 					fitness = base.fitness(*iter);
 					sums[i] = chk_add({ sums[i - 1], fitness, align });
@@ -323,7 +323,7 @@ namespace ea
 				auto numbers = new double[count];
 				rnd->get_double_seq(0, sums[ordered.size() - 1], numbers, count);
 
-				for(i = 0; i < count; i++)
+				for(i = 0; i < count; ++i)
 				{
 					range[0] = 0;
 					range[1] = ordered.size() - 1;
@@ -356,7 +356,7 @@ namespace ea
 						return index;
 					}
 
-					input.next(), index++;
+					input.next(), ++index;
 				}
 
 				std::abort(); // should never be reached 

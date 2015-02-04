@@ -15,51 +15,89 @@
     General Public License v3 for more details.
  ***************************************************************************/
 /**
-   @file AFactory.hpp
-   @brief Factory base class.
+   @file Array.hpp
+   @brief foo
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
-   @version 0.1.0
-*/
-#ifndef AFACTORY_H
-#define AFACTORY_H
+ */
 
-#include <stdint.h>
-#include "OutputAdapter.hpp"
+#ifndef ARRAY_H
+#define ARRAY_H
+
+#include <stdlib.h>
+#include <algorithms.hpp>
+#include <cassert>
 
 namespace ea
 {
 	/**
 	   @addtogroup Core
 	   @{
-	*/
-
-	/**
-	   @class AFactory
-	   @brief Base class for factories.
-	   @tparam TSequence Type of sequences this factory creates.
 	 */
-	template<typename TSequence>
-	class AFactory
+
+	template<typename T>
+	class Array
 	{
 		public:
-			/**
-			   @param count number of sequences to create
-			   @param output an output operator
-			 */
-			void create_population(uint32_t count, IOutputAdapter<TSequence>& output)
+			Array() : _len(0), _size(0), _ptr(nullptr) {}
+
+			virtual ~Array()
 			{
-				for(uint32_t i = 0; i < count; ++i)
+				if(_ptr)
 				{
-					output.push(create_sequence());
+					std::free(_ptr);
 				}
 			}
 
-			/**
-			   @return a new sequence
+			void push(T item)
+			{
+				if(!_size || _len == _size)
+				{
+					// resize array:
+					auto size = _size ? _size * 2 : 16;
 
-			   Creates a new sequence.
-			 */
-			virtual TSequence create_sequence() = 0;
+					assert(size > _size);
+					_size = size;
+
+					if((_ptr = (T*)std::realloc(_ptr, sizeof(T) * _size)) == nullptr)
+					{
+						throw std::bad_alloc();
+					}
+				}
+
+				assert(_len < _size);
+
+				_ptr[_len] = item;
+				++_len;
+			}
+
+			uint32_t size() const
+			{
+				return _len;
+			}
+
+			void clear()
+			{
+				_len = 0;
+			}
+
+			void set(const uint32_t index, T item)
+			{
+				assert(index < _len);
+
+				_ptr[index] = item;
+			}
+
+			T at(const uint32_t index) const
+			{
+				assert(index < _len);
+
+				return _ptr[index];
+			}
+
+		private:
+			uint32_t _len;
+			uint32_t _size;
+			T* _ptr;
 	};
 
 	/**

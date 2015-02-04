@@ -336,9 +336,9 @@ namespace ea
 				{
 					uint32_t count = 0;
 
-					for(uint32_t i = 0; i < source.size(); i++)
+					for(uint32_t i = 0; i < source.size(); ++i)
 					{
-						for(uint32_t j = 0; j < source.size(); j++)
+						for(uint32_t j = 0; j < source.size(); ++j)
 						{
 							if(i != j)
 							{
@@ -393,7 +393,7 @@ namespace ea
 
 					_rnd->get_int32_seq(1, 100, prohabilities, source.size());
 
-					for(int32_t i = 0; i < source.size(); i++)
+					for(int32_t i = 0; i < source.size(); ++i)
 					{
 						if(prohabilities[i] <= P)
 						{

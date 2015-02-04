@@ -82,7 +82,7 @@ namespace ea
 				child0 = _base.create(len);
 				child1 = _base.create(len);
 
-				for(uint32_t i = 0; i < len; i++)
+				for(uint32_t i = 0; i < len; ++i)
 				{
 					do
 					{

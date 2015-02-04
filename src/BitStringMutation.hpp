@@ -84,7 +84,7 @@ namespace ea
 				{
 					_rnd->get_int32_seq(1, 100, prohabilities, len);
 
-					for(uint32_t i = 0; i < len; i++)
+					for(uint32_t i = 0; i < len; ++i)
 					{
 						if(prohabilities[i] <= P)
 						{

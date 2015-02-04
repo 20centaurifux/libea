@@ -180,7 +180,7 @@ namespace ea
 
 				dst = create(l);
 
-				for(uint16_t i = 0; i < l; i++)
+				for(uint16_t i = 0; i < l; ++i)
 				{
 					set(dst, i, get(sequence, i));
 				}

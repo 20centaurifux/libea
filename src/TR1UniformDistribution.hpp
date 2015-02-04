@@ -191,7 +191,7 @@ namespace ea
 				assert(numbers != nullptr);
 				assert(length > 0);
 
-				for(int32_t i = 0; i < length; i++)
+				for(int32_t i = 0; i < length; ++i)
 				{
 					numbers[i] = (*distribution)(_engine);
 				}

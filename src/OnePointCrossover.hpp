@@ -92,12 +92,12 @@ namespace ea
 
 				individual = _base.create(_base.len(a));
 
-				for(i = 0; i < separator; i++)
+				for(i = 0; i < separator; ++i)
 				{
 					_base.set(individual, i, _base.get(a, i));
 				}
 
-				for(i = separator; i < _base.len(b); i++)
+				for(i = separator; i < _base.len(b); ++i)
 				{
 					_base.set(individual, i, _base.get(b, i));
 				}

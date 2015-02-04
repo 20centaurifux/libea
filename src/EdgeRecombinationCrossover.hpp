@@ -87,7 +87,7 @@ namespace ea
 				nblist = new Neighbors[len];
 				std::memset(nblist, 0, len * sizeof(Neighbors));
 
-				for(i = 0; i < len; i++)
+				for(i = 0; i < len; ++i)
 				{
 					count = 0;
 
@@ -125,7 +125,7 @@ namespace ea
 					// remove x from all neighbor lists:
 					n = nbs[x];
 
-					for(j = 0; j < n->count; j++)
+					for(j = 0; j < n->count; ++j)
 					{
 						remove_neighbor(nbs[n->genes[j]], x);
 					}
@@ -135,7 +135,7 @@ namespace ea
 					{
 						std::memset(next_count, 0, sizeof(next_count));
 
-						for(j = 0; j < n->count; j++)
+						for(j = 0; j < n->count; ++j)
 						{
 							next_nb = nbs[n->genes[j]];
 							next_gene[next_nb->count][next_count[next_nb->count]++] = n->genes[j];
@@ -220,11 +220,11 @@ namespace ea
 				if(!count)
 				{
 					neighbors[0] = neighbor;
-					count++;
+					++count;
 				}
 				else
 				{
-					for(uint32_t i = 0; i < count; i++)
+					for(uint32_t i = 0; i < count; ++i)
 					{
 						if(!_less_than(neighbors[i], neighbor) && !_less_than(neighbor, neighbors[i]))
 						{
@@ -242,11 +242,11 @@ namespace ea
 
 			void remove_neighbor(Neighbors* neighbors, const gene_type gene)
 			{
-				for(uint32_t i = 0; i < neighbors->count; i++)
+				for(uint32_t i = 0; i < neighbors->count; ++i)
 				{
 					if(!_less_than(neighbors->genes[i], gene) && !_less_than(gene, neighbors->genes[i]))
 					{
-						for(uint32_t m = i; m < neighbors->count - 1; m++)
+						for(uint32_t m = i; m < neighbors->count - 1; ++m)
 						{
 							neighbors->genes[m] = neighbors->genes[m + 1];
 						}
@@ -259,7 +259,7 @@ namespace ea
 
 			inline bool gene_exists(const sequence_type& genome, const uint32_t size, const gene_type gene)
 			{
-				for(uint32_t i = 0; i < size; i++)
+				for(uint32_t i = 0; i < size; ++i)
 				{
 					if(!_less_than(_base.get(genome, i), gene) && !_less_than(gene, _base.get(genome, i)))
 					{

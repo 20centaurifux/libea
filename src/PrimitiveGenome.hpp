@@ -60,7 +60,7 @@ namespace ea
 
 				hash_func.reset();
 
-				for(auto i = 0; i < sequence->len; i++)
+				for(auto i = 0; i < sequence->len; ++i)
 				{
 					hash_func << sequence->genes[i];
 				}
@@ -102,7 +102,7 @@ namespace ea
 
 				hash_func.reset();
 
-				for(auto i = 0; i < sequence->len; i++)
+				for(auto i = 0; i < sequence->len; ++i)
 				{
 					hash_func << sequence->genes[i];
 				}
@@ -206,7 +206,7 @@ namespace ea
 					return 1;
 				}
 
-				for(uint32_t i = 0; i < a->len; i++)
+				for(uint32_t i = 0; i < a->len; ++i)
 				{
 					int result = a->genes[i].compare(b->genes[i]);
 
@@ -323,7 +323,7 @@ namespace ea
 
 			int32_t index_of(TSequence* const& seq, const typename TSequence::gene_type& search) const override
 			{
-				for(uint32_t i = 0; i < seq->len; i++)
+				for(uint32_t i = 0; i < seq->len; ++i)
 				{
 					if(seq->genes[i] == search)
 					{

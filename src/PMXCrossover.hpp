@@ -105,7 +105,7 @@ namespace ea
 				size = _base.len(a);
 
 				// initialize cache:
-				for(i = 0; i < size; i++)
+				for(i = 0; i < size; ++i)
 				{
 					assigned[_base.get(a, i)] = false;
 				}
@@ -114,14 +114,14 @@ namespace ea
 				sequence_type child = _base.create(size);
 
 				// copy initial genes to child genome:
-				for(i = offset0; i <= offset1; i++)
+				for(i = offset0; i <= offset1; ++i)
 				{
 					gene = _base.get(a, i);
 					_base.set(child, i, gene);
 					assigned[gene] = true;
 				}
 
-				for(i = offset0; i <= offset1; i++)
+				for(i = offset0; i <= offset1; ++i)
 				{
 					gene = _base.get(b, i);
 
@@ -149,7 +149,7 @@ namespace ea
 					}
 				}
 
-				for(i = 0; i < offset0; i++)
+				for(i = 0; i < offset0; ++i)
 				{
 					if(!assigned[(gene = _base.get(b, i))])
 					{
@@ -157,7 +157,7 @@ namespace ea
 					}
 				}
 
-				for(i = offset1 + 1; i < size; i++)
+				for(i = offset1 + 1; i < size; ++i)
 				{
 					if(!assigned[(gene = _base.get(b, i))])
 					{

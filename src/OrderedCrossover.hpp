@@ -83,16 +83,16 @@ namespace ea
 
 				auto individual = _base.create(len);
 
-				for(i = 0; i < separator; i++)
+				for(i = 0; i < separator; ++i)
 				{
 					_base.set(individual, i, _base.get(a, i));
 				}
 
-				for(i = separator; i < len; i++)
+				for(i = separator; i < len; ++i)
 				{
 					while(gene_exists(_base.get(b, m), individual, i))
 					{
-						m++;
+						++m;
 					}
 
 					assert(m < _base.len(b));
@@ -113,7 +113,7 @@ namespace ea
 
 			inline bool gene_exists(const gene_type& gene, const sequence_type& individual, const uint32_t len)
 			{
-				for(uint32_t i = 0; i < len; i++)
+				for(uint32_t i = 0; i < len; ++i)
 				{
 					if(!_less_than(gene, _base.get(individual, i)) && !_less_than(_base.get(individual, i), gene))
 					{
