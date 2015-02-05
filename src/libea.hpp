@@ -61,6 +61,7 @@
 #include "InverseBitStringMutation.hpp"
 
 #include "Pipeline.hpp"
+#include "diversity.hpp"
 
 /**
    @}
