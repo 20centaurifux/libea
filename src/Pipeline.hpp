@@ -26,6 +26,8 @@
 #include <memory>
 #include <vector>
 #include <cassert>
+#include <ctime>
+#include <chrono>
 #include "InputAdapter.hpp"
 #include "OutputAdapter.hpp"
 #include "ARandomNumberGenerator.hpp"
@@ -88,7 +90,7 @@ namespace ea
 		/**
 		   @class ForLoopTerminator
 		   @tparam TGenomeBase a genome base class
-		   @brief Functor terminating a pipeline processing after a given number of iterations.
+		   @brief Functor terminating pipeline processing after a given number of iterations.
 		 */
 		template<typename TGenomeBase>
 		class ForLoopTerminator : public ITerminator<TGenomeBase>
@@ -111,6 +113,44 @@ namespace ea
 
 			private:
 				uint32_t _condition;
+		};
+
+		/**
+		   @class TimeBasedTerminator
+		   @tparam TGenomeBase a genome base class
+		   @brief Functor terminating pipeline processing after a specified time interval.
+		 */
+		template<typename TGenomeBase>
+		class TimeBasedTerminator : public ITerminator<TGenomeBase>
+		{
+			public:
+				/**
+				   @param seconds seconds until pipeline processing should be terminated
+				  */
+				TimeBasedTerminator(const double seconds) : _seconds(seconds) {}
+
+				virtual ~TimeBasedTerminator() {}
+
+				inline bool operator()(const uint32_t step, IInputAdapter<typename TGenomeBase::sequence_type>& population) override
+				{
+					if(step == 1)
+					{
+						_start = std::chrono::system_clock::now();
+					}
+
+					return exceeded();
+				}
+
+			private:
+				double _seconds;
+				std::chrono::time_point<std::chrono::system_clock> _start;
+
+				bool exceeded()
+				{
+ 					std::chrono::duration<double> elapsed = std::chrono::system_clock::now() - _start;
+
+					return elapsed.count() >= _seconds;
+				}
 		};
 
 		/**
