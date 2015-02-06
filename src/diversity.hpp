@@ -16,7 +16,7 @@
  ***************************************************************************/
 /**
    @file diversity.hpp
-   @brief Various algorithms to determine the diversity of a population.
+   @brief Various algorithms to compute the diversity of a population.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
@@ -27,6 +27,8 @@
 #include <cmath>
 #include <algorithm>
 #include <map>
+#include <vector>
+#include <numeric>
 #include "InputAdapter.hpp"
 
 namespace ea
@@ -36,12 +38,8 @@ namespace ea
 	   @{
 	 */
 
-	/**
-	   @tparam TGenomeBase genome base class
-	   @param source a population
-	   @return the sequence length
-
-	   Tests if all sequences of a population have the same length (if assertion is enabled) and returns it.
+	/*
+	 * test if all sequences of a population have the same length (if assertion is enabled) and return it:
 	 */
 	template<typename TGenomeBase>
 	static uint32_t _get_seq_len(IInputAdapter<typename TGenomeBase::sequence_type>& source)
@@ -52,13 +50,8 @@ namespace ea
 		assert(source.size() > 0);
 
 		source.first();
+		len = base.len(source.current());
 
-		if(!source.end())
-		{
-			len = base.len(source.current());
-		}
-
-		// test if all sequences have same length:
 		#ifndef NDEBUG
 		source.next();
 
@@ -71,6 +64,10 @@ namespace ea
 
 		return len;
 	}
+
+	/*
+	 * hamming distance:
+	 */
 
 	/**
 	   @tparam TGenomeBase genome base class
@@ -85,7 +82,7 @@ namespace ea
 	uint32_t hamming_distance(const typename TGenomeBase::sequence_type& a, const typename TGenomeBase::sequence_type& b)
 	{
 		static TGenomeBase base;
-		LessThan lt;
+		static LessThan lt;
 		uint32_t d = 0;
 
 		assert(base.len(a) == base.len(b));
@@ -107,7 +104,7 @@ namespace ea
 	   @param source a population
 	   @return the hamming distance
 
-	   @brief Computes the average hamming distance of a population.
+	   @brief Computes the average hamming distance between all distances of a population.
 	 */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	double distance_diversity(IInputAdapter<typename TGenomeBase::sequence_type>& source)
@@ -126,7 +123,7 @@ namespace ea
 			{
 				if(i != j)
 				{
-					d += hamming_distance<TGenomeBase>(source.at(i), source.at(j));
+					d += hamming_distance<TGenomeBase, LessThan>(source.at(i), source.at(j));
 				}
 			}
 		}
@@ -135,6 +132,10 @@ namespace ea
 
 		return d;
 	}
+
+	/*
+	 * shannon diversity:
+	 */
 
 	/**
 	   @enum LOGBase
@@ -154,14 +155,14 @@ namespace ea
 	   @tparam TGenomeBase genome base class
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
 	   @param source a population
-	   @return index of the fittest genome
+	   @return the shannon entropy
 
-	   @brief Finds the fittest genome of a population.
+	   @brief Computes the shannon entropy of a population.
 	 */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
 	double shannon_diversity(IInputAdapter<typename TGenomeBase::sequence_type>& source, LOGBase lbase = LOGBASE_E)
 	{
-		TGenomeBase base;
+		static TGenomeBase base;
 		uint32_t len;
 		std::map<typename TGenomeBase::gene_type, uint32_t, LessThan> map;
 		double entropy = 0.0;
@@ -216,6 +217,140 @@ namespace ea
 		entropy *= (double)1 / len;
 
 		return entropy;
+	}
+
+	/*
+	 * substring diversity:
+	 */
+
+	/*
+	 * test if two substrings are equal:
+	 */
+	template<typename LessThan, typename TGenomeBase>
+	static bool _cmp_substr(const TGenomeBase& base,
+	                        const LessThan& lt,
+	                        const typename TGenomeBase::sequence_type& seqx,
+	                        const uint32_t x0, const uint32_t x1, 
+	                        const typename TGenomeBase::sequence_type& seqy,
+	                        const uint32_t y0, const uint32_t y1)
+	{
+		assert(x1 >= x0);
+		assert(y1 >= y0);
+
+		if(x1 - x0 != y1 - y0)
+		{
+			return false;
+		}
+
+		for(uint32_t i = 0; i <= y1 - y0; ++i)
+		{
+			if(lt(base.get(seqx, x0 + i), base.get(seqy, y0 + i)) || lt(base.get(seqy, y0 + i), base.get(seqx, x0 + i)))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/*
+	 * test if a collection contains a substring:
+	 */
+	template<typename LessThan, typename TGenomeBase, typename TIterator>
+	static bool _substr_exists(const TGenomeBase& base,
+	                           const LessThan& lt,
+	                           const TIterator& start,
+	                           const TIterator& end,
+	                           const typename TGenomeBase::sequence_type& seq,
+	                           const uint32_t offset0, const uint32_t offset1)
+	{
+		TIterator iter = start;
+
+		while(iter != end)
+		{
+			if(_cmp_substr(base, lt, iter->source->at(iter->index), iter->start, iter->end, seq, offset0, offset1))
+			{
+				return true;
+			}
+
+			iter++;
+		}
+
+		return false;
+	}
+
+	/**
+	   @tparam TGenomeBase genome base class
+	   @tparam LessThan optional functor to test if a gene is smaller than another one
+	   @param source a population
+	   @return the substring diversity
+
+	   @brief Computes the substring diversity of a population.
+	 */
+	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
+	double substring_diversity(IInputAdapter<typename TGenomeBase::sequence_type>& source, LOGBase lbase = LOGBASE_E)
+	{
+		static TGenomeBase base;
+		static LessThan lt;
+		uint32_t i = 0;
+		double d = 0.0;
+
+		/* instead of copying genes we store the start & end offset of each found substring to identify it */
+		struct _Range
+		{
+			IInputAdapter<typename TGenomeBase::sequence_type>* source;
+			uint32_t index;
+			uint32_t start;
+			uint32_t end;
+		} r;
+
+		std::vector<struct _Range> substrs;     // substrings found in current sequence
+		std::vector<struct _Range> substrs_all; // substrings found in all sequences
+
+		// get all sequences:
+		source.first();
+
+		while(!source.end())
+		{
+			// get current sequence & its length:
+			auto seq = source.current();
+			auto len = base.len(seq);
+
+			// clear vector to store substrings:
+			substrs.clear();
+
+			// find all substrings:
+			for(uint32_t sublen = 0; sublen < len; ++sublen)
+			{
+				for(uint32_t start = 0; start < len - sublen; ++start)
+				{
+					r.source = &source;
+					r.index = i;
+					r.start = start;
+					r.end = start + sublen;
+
+					// has substring already been found?
+					if(!_substr_exists<LessThan>(base, lt, begin(substrs), end(substrs), seq, start, start + sublen))
+					{
+						// no => add found substring to vector(s):
+						substrs.push_back(r);
+
+						if(!_substr_exists<LessThan>(base, lt, begin(substrs_all), end(substrs_all), seq, start, start + sublen))
+						{
+							substrs_all.push_back(r);
+						}
+					}
+				}
+			}
+
+			d += substrs.size();
+
+			source.next(), ++i;
+		}
+
+		d = (double)source.size() * substrs_all.size() / d;
+
+		return d;
 	}
 
 	/**
