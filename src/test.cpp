@@ -706,8 +706,7 @@ class SelectionOperatorTest : public CPPUNIT_NS::TestFixture
 
 			// create index vector & corresponding output adapter:
 			std::vector<uint32_t> indexes;
-			auto inserter = std::back_inserter(indexes);
-			ea::STLVectorAdapter<uint32_t> output(inserter);
+			auto output = ea::make_output_adapter(indexes);
 
 			// select genomes:
 			sel.select(input, 80, output);
@@ -828,8 +827,7 @@ class CutAndSpliceOperatorTest : public CPPUNIT_NS::TestFixture
 
 			// create children:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -912,8 +910,7 @@ class CycleCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			// create children:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -961,8 +958,7 @@ class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			// create children:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -1006,8 +1002,7 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			// create children:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -1059,8 +1054,7 @@ class OrderedCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			// create child:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -1114,8 +1108,7 @@ class PMXCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			// create child:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -1163,8 +1156,7 @@ class TwoPointCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			// create children:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -1212,8 +1204,7 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 
 			// create children:
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto inserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> output(inserter);
+			auto output = ea::make_output_adapter(children);
 
 			uint32_t count = c.crossover(a, b, output);
 
@@ -1448,14 +1439,10 @@ class PipelineTest : public CPPUNIT_NS::TestFixture
 			}
 
 			// create and process pipeline:
-			auto inserter = std::back_inserter(population);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> adapter(inserter);
-
 			auto source = ea::make_input_adapter(population);
 
 			std::vector<ea::Sequence<int32_t>*> children;
-			auto cinserter = std::back_inserter(children);
-			ea::STLVectorAdapter<ea::Sequence<int32_t>*> cadapter(cinserter);
+			auto output = ea::make_output_adapter(children);
 
 			auto selection_a =
 				ea::Pipeline::SelectionElement<PrimitiveInt32GenomeBase,
@@ -1480,7 +1467,7 @@ class PipelineTest : public CPPUNIT_NS::TestFixture
 			ea::Pipeline::ITerminator<PrimitiveInt32GenomeBase>& terminator_ref = terminator;
 
 			uint32_t sum = ea::Pipeline::pipeline_process<PrimitiveInt32GenomeBase>
-				(source, cadapter, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
+				(source, output, { &selection_a, &crossover, &mutation, &selection_b }, terminator_ref);
 
 			CPPUNIT_ASSERT_EQUAL(sum, 50u);
 

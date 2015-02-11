@@ -134,7 +134,7 @@ namespace ea
 				public:
 					bool operator()(const std::string& first, const std::string& second) const
 					{
-						return first.compare(second) == -1;
+						return first.compare(second) < 0;
 					}
 			};
 
