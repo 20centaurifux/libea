@@ -141,7 +141,7 @@ namespace ea
 							next_gene[next_nb->count][next_count[next_nb->count]++] = n->genes[j];
 						}
 
-						for(j = 4; j >= 0; j--)
+						for(j = 4; j >= 0; --j)
 						{
 							if(next_count[j] || !j)
 							{
