@@ -66,10 +66,10 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
-				uint32_t offset0;
-				uint32_t offset1;
+				sequence_len_t offset0;
+				sequence_len_t offset1;
 
 				assert(_base.len(a) >= 5);
 				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
@@ -91,9 +91,9 @@ namespace ea
 			static TGenomeBase _base;
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
-			sequence_type create_child(const sequence_type& a, const sequence_type& b , const uint32_t offset1, const uint32_t offset2) const
+			sequence_type create_child(const sequence_type& a, const sequence_type& b , const sequence_len_t offset1, const sequence_len_t offset2) const
 			{
-				uint32_t i;
+				sequence_len_t i;
 				sequence_type individual;
 
 				individual = _base.create(_base.len(a));

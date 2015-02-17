@@ -54,13 +54,13 @@ namespace ea
 			   from ea::Sequence. It writes the data of each gene to the stream of
 		           the given hash algorithm.
 			 */
-			size_t operator()(const TSequence* const sequence) const
+			hash_t operator()(const TSequence* const sequence) const
 			{
 				assert(sequence != nullptr);
 
 				hash_func.reset();
 
-				for(auto i = 0; i < sequence->len; ++i)
+				for(sequence_len_t i = 0; i < sequence->len; ++i)
 				{
 					hash_func << sequence->genes[i];
 				}
@@ -96,13 +96,13 @@ namespace ea
 		           ea::Sequence. It iterates all genes of the given sequence
 			   and writes the data to the stream of the given hash algorithm.
 			 */
-			size_t operator()(const TSequence* const sequence) const
+			hash_t operator()(const TSequence* const sequence) const
 			{
 				assert(sequence != nullptr);
 
 				hash_func.reset();
 
-				for(auto i = 0; i < sequence->len; ++i)
+				for(sequence_len_t i = 0; i < sequence->len; ++i)
 				{
 					hash_func << sequence->genes[i];
 				}
@@ -129,7 +129,7 @@ namespace ea
 		typedef TGene gene_type;
 
 		/*! Number of stored genes. */
-		uint16_t len;
+		sequence_len_t len;
 		/*! Dynamic array holding genes. */
 		TGene* genes;
 	};
@@ -252,10 +252,12 @@ namespace ea
 
 			virtual ~PGenomeBase() {}
 
-			inline uint16_t gene_size() const override { return sizeof(TSequence); }
+			inline gene_size_t gene_size() const override { return sizeof(TSequence); }
 
-			TSequence* create(const uint16_t len) override
+			TSequence* create(const sequence_len_t len) override
 			{
+				assert(sizeof(TSequence) == gene_size());
+
 				auto genes = (TGene*)allocator->alloc(sizeof(typename TSequence::gene_type) * len);
 				auto sequence = (TSequence*)allocator->alloc(sizeof(TSequence));
 
@@ -285,21 +287,21 @@ namespace ea
 				allocator->free(sequence);
 			}
 
-			virtual inline void set(TSequence*& sequence, const uint16_t offset, const typename TSequence::gene_type& gene) const override
+			virtual inline void set(TSequence*& sequence, const sequence_len_t offset, const typename TSequence::gene_type& gene) const override
 			{
 				assert(sequence != nullptr && offset < sequence->len);
 
 				sequence->genes[offset] = gene;
 			}
 
-			typename TSequence::gene_type get(TSequence* const& sequence, const uint16_t offset) const override
+			typename TSequence::gene_type get(TSequence* const& sequence, const sequence_len_t offset) const override
 			{
 				assert(sequence != nullptr && offset < sequence->len);
 
 				return sequence->genes[offset];
 			}
 
-			uint16_t len(TSequence* const& sequence) const override
+			sequence_len_t len(TSequence* const& sequence) const override
 			{
 				return sequence->len;
 			}
@@ -309,7 +311,7 @@ namespace ea
 				return fitness_func(sequence);
 			}
 
-			virtual size_t hash(TSequence* const& sequence) override
+			virtual hash_t hash(TSequence* const& sequence) override
 			{
 				return hash_func(sequence);
 			}
@@ -323,7 +325,7 @@ namespace ea
 
 			int32_t index_of(TSequence* const& seq, const typename TSequence::gene_type& search) const override
 			{
-				for(uint32_t i = 0; i < seq->len; ++i)
+				for(sequence_len_t i = 0; i < seq->len; ++i)
 				{
 					if(seq->genes[i] == search)
 					{
@@ -419,7 +421,7 @@ namespace ea
 		/*! Cached fitness value. */
 		float fitness;
 		/*! Cached hash value. */
-		size_t hash;
+		hash_t hash;
 	};
 
 	/**
@@ -439,7 +441,7 @@ namespace ea
 		public:
 			virtual ~CPGenomeBase() {}
 
-			size_t hash(CSequence<TGene>* const& sequence) override
+			hash_t hash(CSequence<TGene>* const& sequence) override
 			{
 				// test if hash has already been calculated:
 				if(sequence->flags & PSEQ_FLAG_HASH_SET)
@@ -540,7 +542,7 @@ namespace ea
 	   Gets length of a sequence derived from ea::Sequence.
 	  */
 	template<typename TSequence>
-	uint16_t sequence_len(const TSequence* seq)
+	sequence_len_t sequence_len(const TSequence* seq)
 	{
 		assert(seq != nullptr);
 

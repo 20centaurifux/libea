@@ -43,6 +43,9 @@ namespace ea
 		append(_buffer, size);       \
 		return *this;
 
+	/*! Hash type. */
+	typedef uint32_t hash_t;
+
 	/**
 	   @class AHash
 	   @brief Abstract base class for hash algorithms.
@@ -145,14 +148,14 @@ namespace ea
 
 			   Appends char buffer to buffer.
 			 */
-			virtual void append(const char* buffer, const size_t size) = 0;
+			virtual void append(const char* buffer, const std::size_t size) = 0;
 
 			/**
 			   @return hash hash value
 
 			   Calculates the hash of the buffer.
 			 */
-			virtual size_t hash() = 0;
+			virtual hash_t hash() = 0;
 
 		private:
 			char _buffer[8];

@@ -72,10 +72,9 @@ namespace ea
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
-				uint32_t offset0;
-				uint32_t offset1;
+				sequence_len_t offset0, offset1;
 
 				assert(_base.len(a) > 3);
 				assert(set_equals<TGenomeBase>(a, b));
@@ -93,11 +92,10 @@ namespace ea
 			static TGenomeBase _base;
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
-			sequence_type crossover(const sequence_type& a, const sequence_type& b, const uint32_t offset0, const uint32_t offset1) const
+			sequence_type crossover(const sequence_type& a, const sequence_type& b, const sequence_len_t offset0, const sequence_len_t offset1) const
 			{
 				std::map<gene_type, bool, LessThan> assigned; // a cache to test if a gene is assigned to the child genome
-				uint32_t size;
-				uint32_t i;
+				sequence_len_t size, i;
 				gene_type gene;
 				int32_t index;
 

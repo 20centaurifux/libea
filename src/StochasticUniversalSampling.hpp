@@ -63,14 +63,14 @@ namespace ea
 
 			~StochasticUniversalSampling() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
 			{
 				double* sums;
-				uint32_t i = 0;
-				uint32_t j = 0;
+				sequence_len_t i = 0;
+				sequence_len_t j = 0;
 				double u;
 				double interval;
-				uint32_t range[2];
+				sequence_len_t range[2];
 
 				sums = new double[input.size()];
 				sums[0] = _base.fitness(input.current());
@@ -102,9 +102,9 @@ namespace ea
 			static TGenomeBase _base;
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
-			inline uint32_t find_index(const double* sums, uint32_t range[2], const double n) const
+			inline sequence_len_t find_index(const double* sums, sequence_len_t range[2], const double n) const
 			{
-				uint32_t mid;
+				sequence_len_t mid;
 
 				while(range[1] - range[0] > 1)
 				{

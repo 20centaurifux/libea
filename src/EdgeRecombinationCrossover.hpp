@@ -71,11 +71,12 @@ namespace ea
 				_rnd = rnd;
 			}
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				Neighbors* nblist;
 				std::map<gene_type, Neighbors*, LessThan> nbs;
-				uint32_t count, len, i;
+				uint32_t count;
+				sequence_len_t len, i;
 				int32_t index;
 
 				len = _base.len(a);
@@ -103,7 +104,8 @@ namespace ea
 				gene_type x;
 				Neighbors* n;
 				Neighbors* next_nb;
-				uint32_t next_count[5], j, child_i = 0;
+				uint32_t next_count[5], j = 0;
+				sequence_len_t child_i = 0;
 				gene_type next_gene[5][5];
 
 				auto child = _base.create(len);
@@ -188,9 +190,9 @@ namespace ea
 
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
-			void add_neighbors(const sequence_type& individual, const uint32_t index, gene_type neighbors[4], uint32_t& count)
+			void add_neighbors(const sequence_type& individual, const sequence_len_t index, gene_type neighbors[4], uint32_t& count)
 			{
-				uint32_t len = _base.len(individual);
+				sequence_len_t len = _base.len(individual);
 
 				if(index)
 				{
@@ -257,9 +259,9 @@ namespace ea
 				}
 			}
 
-			inline bool gene_exists(const sequence_type& genome, const uint32_t size, const gene_type gene)
+			inline bool gene_exists(const sequence_type& genome, const sequence_len_t size, const gene_type gene)
 			{
-				for(uint32_t i = 0; i < size; ++i)
+				for(sequence_len_t i = 0; i < size; ++i)
 				{
 					if(!_less_than(_base.get(genome, i), gene) && !_less_than(gene, _base.get(genome, i)))
 					{

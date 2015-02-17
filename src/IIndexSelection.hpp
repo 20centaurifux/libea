@@ -23,6 +23,7 @@
 #ifndef IINDEXSELECTION_H
 #define IINDEXSELECTION_H
 
+#include <cstddef>
 #include "InputAdapter.hpp"
 #include "OutputAdapter.hpp"
 
@@ -56,7 +57,7 @@ namespace ea
 
 			   Combines two genomes.
 			 */
-			virtual void select(IInputAdapter<sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) = 0;
+			virtual void select(IInputAdapter<sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) = 0;
 	};
 
 	/**

@@ -23,11 +23,11 @@ using namespace CPPUNIT_NS;
  */
 // convert array of genes to a sequence:
 template<typename TGenomeBase>
-typename TGenomeBase::sequence_type array_to_sequence(TGenomeBase& base, const typename TGenomeBase::gene_type* genes, const int32_t size)
+typename TGenomeBase::sequence_type array_to_sequence(TGenomeBase& base, const typename TGenomeBase::gene_type* genes, const ea::sequence_len_t size)
 {
 	auto seq = base.create(10);
 
-	for(uint32_t i = 0; i < size; ++i)
+	for(ea::sequence_len_t i = 0; i < size; ++i)
 	{
 		base.set(seq, i, genes[i]);
 	}
@@ -261,30 +261,30 @@ class FixedSeqRndGenerator : public ea::ARandomNumberGenerator
 			abort();
 		}
 
-		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length) override
 		{
-			if((uint32_t)length > _int32s.size())
+			if(length > _int32s.size())
 			{
 				abort();
 			}
 
-			for(int32_t i = 0; i < length; ++i)
+			for(std::size_t i = 0; i < length; ++i)
 			{
 				numbers[i] = _int32s[i];
 			}
 		}
 
-		void get_double_seq(const double min, const double max, double* numbers, const int32_t length)
+		void get_double_seq(const double min, const double max, double* numbers, const std::size_t length)
 		{
 			abort();
 		}
 
-		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+		void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length) override
 		{
 			get_int32_seq(min, max, numbers, length);
 		}
 
-		void get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length) override
+		void get_unique_double_seq(const double min, const double max, double* numbers, const std::size_t length) override
 		{
 			abort();
 		}
@@ -551,7 +551,7 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 		{
 			CPPUNIT_ASSERT(_base.len(sequence) == len);
 
-			for(uint32_t i = 0; i < len; ++i)
+			for(int32_t i = 0; i < len; ++i)
 			{
 				CPPUNIT_ASSERT(_base.get(sequence, i) == genes[i]);
 			}
@@ -561,7 +561,7 @@ class GenomeBaseTest : public CPPUNIT_NS::TestFixture
 		{
 			CPPUNIT_ASSERT(_base.len(sequence) == len);
 
-			for(uint32_t i = 0; i < len; ++i)
+			for(int32_t i = 0; i < len; ++i)
 			{
 				CPPUNIT_ASSERT(_base.index_of(sequence, genes[i]) == i);
 			}
@@ -672,7 +672,6 @@ class AlgorithmTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AlgorithmTest);
 
-
 /*
  *	selection operators:
  */
@@ -705,7 +704,7 @@ class SelectionOperatorTest : public CPPUNIT_NS::TestFixture
 			auto input = ea::make_input_adapter(population);
 
 			// create index vector & corresponding output adapter:
-			std::vector<uint32_t> indexes;
+			std::vector<std::size_t> indexes;
 			auto output = ea::make_output_adapter(indexes);
 
 			// select genomes:

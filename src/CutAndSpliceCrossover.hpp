@@ -67,14 +67,12 @@ namespace ea
 				_rnd = rnd;
 			}
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				uint32_t m, i, sep1, sep2, len;
 
 				assert(_base.len(a) > 2);
-				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
 				assert(_base.len(b) > 2);
-				assert(_base.len(b) < std::numeric_limits<int32_t>::max());
 
 				m = sep1 = _rnd->get_int32(1, _base.len(a) - 2);
 				sep2 = _rnd->get_int32(1, _base.len(b) - 2);
@@ -82,6 +80,8 @@ namespace ea
 				// create first individual:
 				len = chk_add(sep1, (uint32_t)_base.len(b));
 				len = chk_sub(len, sep2);
+
+				assert(len < MAX_SEQUENCE_LEN);
 
 				auto individual = _base.create(len);
 
@@ -100,6 +100,8 @@ namespace ea
 				// create second individual:
 				len = chk_add(sep2, (uint32_t)_base.len(a));
 				len = chk_sub(len, sep1);
+
+				assert(len < MAX_SEQUENCE_LEN);
 
 				individual = _base.create(len);
 

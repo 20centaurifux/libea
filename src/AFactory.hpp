@@ -23,6 +23,7 @@
 #ifndef AFACTORY_H
 #define AFACTORY_H
 
+#include <cstddef>
 #include <stdint.h>
 #include "OutputAdapter.hpp"
 
@@ -46,9 +47,9 @@ namespace ea
 			   @param count number of sequences to create
 			   @param output an output operator
 			 */
-			void create_population(uint32_t count, IOutputAdapter<TSequence>& output)
+			void create_population(std::size_t count, IOutputAdapter<TSequence>& output)
 			{
-				for(uint32_t i = 0; i < count; ++i)
+				for(std::size_t i = 0; i < count; ++i)
 				{
 					output.push(create_sequence());
 				}

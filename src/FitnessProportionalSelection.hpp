@@ -68,7 +68,7 @@ namespace ea
 
 			~FitnessProportionalSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
 			{
 				double* sums;
 
@@ -102,7 +102,7 @@ namespace ea
 
 				sums[0] = chk_add(fitness, align);
 
-				for(uint32_t i = 1; i < input.size(); ++i)
+				for(std::size_t i = 1; i < input.size(); ++i)
 				{
 					fitness = base.fitness(input.at(i));
 					sums[i] = chk_add({ sums[i - 1], fitness, align });
@@ -117,11 +117,11 @@ namespace ea
 
 			   Selects genomes respecting the cumulated fitness values.
 			 */
-			void select_genomes(IInputAdapter<typename TGenomeBase::sequence_type>& input, const double* sums, const uint32_t count, IOutputAdapter<uint32_t>& output) const
+			void select_genomes(IInputAdapter<typename TGenomeBase::sequence_type>& input, const double* sums, const std::size_t count, IOutputAdapter<std::size_t>& output) const
 			{
 				double* numbers;
 				double max;
-				uint32_t range[2];
+				std::size_t range[2];
 
 				max = sums[input.size() - 1];
 				assert(max > 0);
@@ -130,7 +130,7 @@ namespace ea
 
 				rnd->get_double_seq(0, max, numbers, count);
 
-				for(uint32_t i = 0; i < count; ++i)
+				for(std::size_t i = 0; i < count; ++i)
 				{
 					range[0] = 0;
 					range[1] = input.size() - 1;
@@ -149,9 +149,9 @@ namespace ea
 
 			   Searches for a value in the cumulated fitness value array.
 			 */
-			static uint32_t find(const double* sums, uint32_t range[2], const double n)
+			static std::size_t find(const double* sums, std::size_t range[2], const double n)
 			{
-				uint32_t mid;
+				std::size_t mid;
 
 				ASSERT_FP_NORMALITY(n);
 				assert(range[0] <= range[1]);
@@ -198,7 +198,7 @@ namespace ea
 
 			~AlignedFitnessProportionalSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output)
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output)
 			{
 				double s;
 				double* sums;
@@ -274,13 +274,13 @@ namespace ea
 
 			~MinimizingFitnessProportionalSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output)
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output)
 			{
 				std::vector<typename TGenomeBase::sequence_type> ordered;
 				double* sums;
 				double align = 0.0;
-				uint32_t i = 1;
-				uint32_t range[2];
+				std::size_t i = 1;
+				std::size_t range[2];
 				double fitness;
 
 				assert(input.size() >= 2);
@@ -332,7 +332,7 @@ namespace ea
 
 					assert(index < ordered.size());
 
-					index = chk_sub({ (uint32_t)ordered.size(), 1u, index });
+					index = chk_sub({ ordered.size(), (std::size_t)1, index });
 
 					output.push(map_sequence(input, ordered[index]));
 				}
@@ -343,9 +343,9 @@ namespace ea
 			}
 
 		private:
-			static uint32_t map_sequence(IInputAdapter<typename TGenomeBase::sequence_type>& input, typename TGenomeBase::sequence_type& seq)
+			static std::size_t map_sequence(IInputAdapter<typename TGenomeBase::sequence_type>& input, typename TGenomeBase::sequence_type& seq)
 			{
-				uint32_t index = 0;
+				std::size_t index = 0;
 
 				input.first();
 

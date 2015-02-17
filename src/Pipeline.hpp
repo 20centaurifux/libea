@@ -62,7 +62,7 @@ namespace ea
 
 				   Reads sequences from the source and writes process sequences to sink.
 				 */
-				virtual uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink) = 0;
+				virtual std::size_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink) = 0;
 		};
 
 		/**
@@ -163,15 +163,14 @@ namespace ea
 		   Processes a pipeline.
 		 */
 		template<typename TGenomeBase>
-		uint32_t pipeline_process(IInputAdapter<typename TGenomeBase::sequence_type>& source,
-					  IOutputAdapter<typename TGenomeBase::sequence_type>& sink,
-					  std::initializer_list<IElement<TGenomeBase>*> elements,
-					  ITerminator<TGenomeBase>& terminator)
+		std::size_t pipeline_process(IInputAdapter<typename TGenomeBase::sequence_type>& source,
+					     IOutputAdapter<typename TGenomeBase::sequence_type>& sink,
+					     std::initializer_list<IElement<TGenomeBase>*> elements,
+					     ITerminator<TGenomeBase>& terminator)
 		{
 			TGenomeBase base;
 			uint32_t step = 0;
-			uint32_t i;
-			uint32_t size = 0;
+			std::size_t i, size = 0;
 
 			std::vector<typename TGenomeBase::sequence_type> vec_a;
 			std::vector<typename TGenomeBase::sequence_type>* ptr_vec_a = &vec_a;
@@ -235,7 +234,7 @@ namespace ea
 				 * @param source source population
 				 * @return number of sequences to select
 				 */
-				virtual uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) = 0;
+				virtual std::size_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) = 0;
 		};
 
 		/**
@@ -246,7 +245,7 @@ namespace ea
 		 *
 		 * Calculates the number of sequences to select from a population by dividing its size and a given divisor.
 		 */
-		template<typename TGenomeBase, const uint32_t N = 2>
+		template<typename TGenomeBase, const std::size_t N = 2>
 		class SourceDivisor : ASelectionSize<TGenomeBase>
 		{
 			public:
@@ -255,7 +254,7 @@ namespace ea
 					assert(N != 0);
 				}
 
-				uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) override
+				std::size_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) override
 				{
 					return source.size() / N;
 				}
@@ -269,11 +268,11 @@ namespace ea
 		 *
 		 * Returns a fixed number of sequences to select.
 		 */
-		template<typename TGenomeBase, const uint32_t N>
+		template<typename TGenomeBase, const std::size_t N>
 		class FixedSelectionSize : ASelectionSize<TGenomeBase>
 		{
 			public:
-				uint32_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) override
+				std::size_t operator()(IInputAdapter<typename TGenomeBase::sequence_type>& source) override
 				{
 					return N;
 				}
@@ -313,17 +312,17 @@ namespace ea
 
 				~SelectionElement() {}
 
-				uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
+				std::size_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
 				{
 					static TGenomeBase base;
 					auto count = _f(source);
 
-					std::vector<uint32_t> indices;
+					std::vector<std::size_t> indices;
 					auto output = make_output_adapter(indices);
 
 					_selection->select(source, count, output);
 
-					for(uint32_t i : indices)
+					for(std::size_t i : indices)
 					{
 						sink.push(base.copy(source.at(i)));
 					}
@@ -368,13 +367,13 @@ namespace ea
 
 				~CrossoverElement() {}
 
-				uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
+				std::size_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
 				{
-					uint32_t count = 0;
+					std::size_t count = 0;
 
-					for(uint32_t i = 0; i < source.size(); ++i)
+					for(std::size_t i = 0; i < source.size(); ++i)
 					{
-						for(uint32_t j = 0; j < source.size(); ++j)
+						for(std::size_t j = 0; j < source.size(); ++j)
 						{
 							if(i != j)
 							{
@@ -422,14 +421,14 @@ namespace ea
 					assert(P >= 1 && P <= 100);
 				}
 
-				uint32_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
+				std::size_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink)
 				{
 					static TGenomeBase base;
 					int32_t* prohabilities = new int32_t[source.size()];
 
 					_rnd->get_int32_seq(1, 100, prohabilities, source.size());
 
-					for(int32_t i = 0; i < source.size(); ++i)
+					for(std::size_t i = 0; i < source.size(); ++i)
 					{
 						if(prohabilities[i] <= P)
 						{

@@ -44,9 +44,9 @@ namespace ea
 		uint32_t rnd;
 		int32_t result;
 
-		assert(max > min);
+		assert(max >= min);
 
-		/* the distribution algorithm assumes that the minimum number returned by
+		/* this distribution algorithm assumes that the minimum number returned by
 		   get_int32() is zero */
 		assert(get_min_int32() == 0 && get_max_int32() > 0);
 
@@ -97,22 +97,22 @@ namespace ea
 		return result;
 	}
 
-	void ARandomNumberGenerator::get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length)
+	void ARandomNumberGenerator::get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length)
 	{
 		get_seq<int32_t, int32_t (ARandomNumberGenerator::*)(const int32_t, const int32_t)>(min, max, numbers, length, &ARandomNumberGenerator::get_int32);
 	}
 
-	void ARandomNumberGenerator::get_double_seq(const double min, const double max, double* numbers, const int32_t length)
+	void ARandomNumberGenerator::get_double_seq(const double min, const double max, double* numbers, const std::size_t length)
 	{
 		get_seq<double, double (ARandomNumberGenerator::*)(const double, const double)>(min, max, numbers, length, &ARandomNumberGenerator::get_double);
 	}
 
-	void ARandomNumberGenerator::get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length)
+	void ARandomNumberGenerator::get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length)
 	{
 		get_unique_seq<int32_t, int32_t (ARandomNumberGenerator::*)(const int32_t, const int32_t)>(min, max, numbers, length, &ARandomNumberGenerator::get_int32);
 	}
 
-	void ARandomNumberGenerator::get_unique_double_seq(const double min, const double max, double* numbers, const int32_t length)
+	void ARandomNumberGenerator::get_unique_double_seq(const double min, const double max, double* numbers, const std::size_t length)
 	{
 		get_unique_seq<double, double (ARandomNumberGenerator::*)(const double, const double)>(min, max, numbers, length, &ARandomNumberGenerator::get_double);
 	}

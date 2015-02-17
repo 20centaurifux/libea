@@ -49,20 +49,20 @@ namespace ea
 
 			inline void append(const char* buffer, const size_t size) override
 			{
-				for(uint32_t i = 0; i < size; ++i)
+				for(std::size_t i = 0; i < size; ++i)
 				{
 					_hash = buffer[i] + (_hash << 6) + (_hash << 16) - _hash;
 				}
 			}
 
-			inline size_t hash() override
+			inline hash_t hash() override
 			{
 			
 				return _hash;
 			}
 
 		private:
-			size_t _hash;
+			hash_t _hash;
 	};
 
 	/**

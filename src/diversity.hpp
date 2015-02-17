@@ -42,10 +42,10 @@ namespace ea
 	 * test if all sequences of a population have the same length (if assertion is enabled) and return it:
 	 */
 	template<typename TGenomeBase>
-	static uint32_t _get_seq_len(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+	static sequence_len_t _get_seq_len(IInputAdapter<typename TGenomeBase::sequence_type>& source)
 	{
 		static TGenomeBase base;
-		uint32_t len;
+		sequence_len_t len;
 
 		assert(source.size() > 0);
 
@@ -87,7 +87,7 @@ namespace ea
 
 		assert(base.len(a) == base.len(b));
 
-		for(uint32_t i = 0; i < base.len(a); ++i)
+		for(sequence_len_t i = 0; i < base.len(a); ++i)
 		{
 			if(lt(base.get(a, i), base.get(b, i)) || lt(base.get(b, i), base.get(a, i)))
 			{
@@ -110,16 +110,16 @@ namespace ea
 	double distance_diversity(IInputAdapter<typename TGenomeBase::sequence_type>& source)
 	{
 		static TGenomeBase base;
-		uint32_t len;
+		sequence_len_t len;
 		double d = 0.0;
 
 		assert(len >= 2);
 
 		len = _get_seq_len<TGenomeBase>(source);
 
-		for(uint32_t i = 0; i < source.size(); ++i)
+		for(std::size_t i = 0; i < source.size(); ++i)
 		{
-			for(uint32_t j = 0; j < source.size(); ++j)
+			for(std::size_t j = 0; j < source.size(); ++j)
 			{
 				if(i != j)
 				{
@@ -163,13 +163,13 @@ namespace ea
 	double shannon_diversity(IInputAdapter<typename TGenomeBase::sequence_type>& source, LOGBase lbase = LOGBASE_E)
 	{
 		static TGenomeBase base;
-		uint32_t len;
+		sequence_len_t len;
 		std::map<typename TGenomeBase::gene_type, uint32_t, LessThan> map;
 		double entropy = 0.0;
 
 		len = _get_seq_len<TGenomeBase>(source);
 
-		for(uint32_t k = 0; k < len; ++k)
+		for(sequence_len_t k = 0; k < len; ++k)
 		{
 			source.first();
 			map.clear();
@@ -230,9 +230,9 @@ namespace ea
 	static bool _cmp_substr(const TGenomeBase& base,
 	                        const LessThan& lt,
 	                        const typename TGenomeBase::sequence_type& seqx,
-	                        const uint32_t x0, const uint32_t x1, 
+	                        const sequence_len_t x0, const sequence_len_t x1, 
 	                        const typename TGenomeBase::sequence_type& seqy,
-	                        const uint32_t y0, const uint32_t y1)
+	                        const sequence_len_t y0, const sequence_len_t y1)
 	{
 		assert(x1 >= x0);
 		assert(y1 >= y0);
@@ -242,7 +242,7 @@ namespace ea
 			return false;
 		}
 
-		for(uint32_t i = 0; i <= y1 - y0; ++i)
+		for(sequence_len_t i = 0; i <= y1 - y0; ++i)
 		{
 			if(lt(base.get(seqx, x0 + i), base.get(seqy, y0 + i)) || lt(base.get(seqy, y0 + i), base.get(seqx, x0 + i)))
 			{
@@ -262,7 +262,7 @@ namespace ea
 	                           const TIterator& start,
 	                           const TIterator& end,
 	                           const typename TGenomeBase::sequence_type& seq,
-	                           const uint32_t offset0, const uint32_t offset1)
+	                           const sequence_len_t offset0, const sequence_len_t offset1)
 	{
 		TIterator iter = start;
 
@@ -273,7 +273,7 @@ namespace ea
 				return true;
 			}
 
-			iter++;
+			++iter;
 		}
 
 		return false;
@@ -292,16 +292,16 @@ namespace ea
 	{
 		static TGenomeBase base;
 		static LessThan lt;
-		uint32_t i = 0;
+		std::size_t i = 0;
 		double d = 0.0;
 
 		/* instead of copying genes we store the start & end offset of each found substring to identify it */
 		struct _Range
 		{
 			IInputAdapter<typename TGenomeBase::sequence_type>* source;
-			uint32_t index;
-			uint32_t start;
-			uint32_t end;
+			std::size_t index;
+			sequence_len_t start;
+			sequence_len_t end;
 		} r;
 
 		std::vector<struct _Range> substrs;     // substrings found in current sequence
@@ -320,9 +320,9 @@ namespace ea
 			substrs.clear();
 
 			// find all substrings:
-			for(uint32_t sublen = 0; sublen < len; ++sublen)
+			for(sequence_len_t sublen = 0; sublen < len; ++sublen)
 			{
-				for(uint32_t start = 0; start < len - sublen; ++start)
+				for(sequence_len_t start = 0; start < len - sublen; ++start)
 				{
 					r.source = &source;
 					r.index = i;

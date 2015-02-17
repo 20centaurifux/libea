@@ -9,7 +9,7 @@ class Fitness
 		{
 			float avg = 0;
 
-			for(auto i = 0; i < ea::sequence_len(seq); ++i)
+			for(ea::sequence_len_t i = 0; i < ea::sequence_len(seq); ++i)
 			{
 				avg += ea::sequence_get(seq, i);
 			}
@@ -30,7 +30,7 @@ static void print_genome(ea::Sequence<int32_t>* seq)
 	// print sequence:
 	std::cout << "sequence: ";
 
-	for(uint32_t i = 0; i < 10; ++i)
+	for(ea::sequence_len_t i = 0; i < 10; ++i)
 	{
 		std::cout << base.get(seq, i) << " ";
 	}
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	ea::Sequence<int32_t>* a = base.create(10);
 
 	// set genes:
-	for(uint32_t i = 0; i < 10; ++i)
+	for(ea::sequence_len_t i = 0; i < 10; ++i)
 	{
 		base.set(a, i, i + 100);
 	}

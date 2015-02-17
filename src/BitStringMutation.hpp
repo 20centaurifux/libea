@@ -43,7 +43,7 @@ namespace ea
 	   @tparam P prohability (0..100) to flip a gene
 	   @brief A mutation operator flipping at least one random gene.
 	 */
-	template<class TGenomeBase, const uint32_t P = 50>
+	template<class TGenomeBase, const int32_t P = 50>
 	class BitStringMutation : public AMutation<TGenomeBase>
 	{
 		public:
@@ -70,7 +70,7 @@ namespace ea
 			{
 				static TGenomeBase base;
 				int32_t* prohabilities;
-				uint32_t len;
+				sequence_len_t len;
 				bool flipped = false;
 
 				len = base.len(sequence);
@@ -84,7 +84,7 @@ namespace ea
 				{
 					_rnd->get_int32_seq(1, 100, prohabilities, len);
 
-					for(uint32_t i = 0; i < len; ++i)
+					for(sequence_len_t i = 0; i < len; ++i)
 					{
 						if(prohabilities[i] <= P)
 						{

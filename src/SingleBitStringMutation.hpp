@@ -68,7 +68,7 @@ namespace ea
 			void mutate(sequence_type& sequence) override
 			{
 				static TGenomeBase base;
-				int32_t index;
+				sequence_len_t index;
 
 				assert(base.len(sequence) > 0);
 

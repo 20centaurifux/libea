@@ -48,7 +48,7 @@ namespace ea
 	   @tparam P prohability (1..100) that the fitter individual gets selected
 	   @brief Implementation of double-tournament selection.
 	 */
-	template<typename TGenomeBase, typename Compare = std::greater<double>, const uint32_t Q = 3, const uint32_t P = 65>
+	template<typename TGenomeBase, typename Compare = std::greater<double>, const int32_t Q = 3, const int32_t P = 65>
 	class DoubleTournamentSelection : public IIndexSelection<TGenomeBase>
 	{
 		public:
@@ -60,19 +60,24 @@ namespace ea
 				assert(rnd != nullptr);
 				assert(P >= 1 && P <= 100);
 				assert(Q >= 1);
+				assert(Q < std::numeric_limits<int32_t>::max());
 			}
 
 			DoubleTournamentSelection()
 			{
 				_rnd = std::make_shared<TR1UniformDistribution<>>();
+
+				assert(P >= 1 && P <= 100);
+				assert(Q >= 1);
+				assert(Q < std::numeric_limits<int32_t>::max());
 			}
 
 			~DoubleTournamentSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
 			{
 				std::multiset<_Individual, _CompareIndividuals> individuals;
-				uint32_t i;
+				std::size_t i;
 				uint32_t j;
 				_Individual individual;
 				static Compare compare;
@@ -81,7 +86,8 @@ namespace ea
 				int32_t prohability[Q];
 
 				assert(input.size() > 1);
-				assert(input.size() < std::numeric_limits<int32_t>::max());
+				assert(input.size() < (std::size_t)std::numeric_limits<int32_t>::max());
+				assert(count < (std::size_t)std::numeric_limits<int32_t>::max());
 
 				challengers = new int32_t[count];
 				_rnd->get_int32_seq(0, input.size() - 1, challengers, count);
@@ -125,7 +131,7 @@ namespace ea
 
 			typedef struct
 			{
-				uint32_t index;
+				std::size_t index;
 				uint32_t score;
 			} _Individual;
 
@@ -138,7 +144,7 @@ namespace ea
 			} _CompareIndividuals;
 	};
 
-	template<typename TGenomeBase, typename Compare, const uint32_t Q, const uint32_t P>
+	template<typename TGenomeBase, typename Compare, const int32_t Q, const int32_t P>
 	TGenomeBase DoubleTournamentSelection<TGenomeBase, Compare, Q, P>::_base;
 
 	/**

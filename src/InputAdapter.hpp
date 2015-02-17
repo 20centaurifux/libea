@@ -65,7 +65,7 @@ namespace ea
 
 			   Gets the size of the wrapped container.
 			 */
-			virtual uint32_t size() = 0;
+			virtual std::size_t size() = 0;
 
 			/**
 			   @return value of the current element
@@ -80,7 +80,7 @@ namespace ea
 
 			   Reads the value at the given position.
 			 */
-			virtual T at(const uint32_t index) = 0;
+			virtual T at(const std::size_t index) = 0;
 	};
 
 	/**
@@ -123,12 +123,12 @@ namespace ea
 				_iter = _begin;
 			}
 
-			uint32_t size() override
+			std::size_t size() override
 			{
 				return _size;
 			}
 
-			typename TContainer::value_type at(const uint32_t index) override
+			typename TContainer::value_type at(const std::size_t index) override
 			{
 				return *(_begin + index);
 			}

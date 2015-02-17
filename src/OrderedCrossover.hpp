@@ -67,12 +67,9 @@ namespace ea
 			 */
 			OrderedCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
-				uint32_t len;
-				uint32_t separator;
-				uint32_t i;
-				uint32_t m = 0;
+				sequence_len_t len, separator, i, m = 0;
 
 				assert(set_equals<TGenomeBase>(a, b));
 				assert(_base.len(a) > 2);
@@ -111,9 +108,9 @@ namespace ea
 
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 
-			inline bool gene_exists(const gene_type& gene, const sequence_type& individual, const uint32_t len)
+			inline bool gene_exists(const gene_type& gene, const sequence_type& individual, const sequence_len_t len)
 			{
-				for(uint32_t i = 0; i < len; ++i)
+				for(sequence_len_t i = 0; i < len; ++i)
 				{
 					if(!_less_than(gene, _base.get(individual, i)) && !_less_than(_base.get(individual, i), gene))
 					{

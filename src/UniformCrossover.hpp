@@ -48,7 +48,7 @@ namespace ea
 	   @tparam N Ratio between two parents
 	   @brief Implementation of the uniform crossover operator.
 	 */
-	template<typename TGenomeBase, const int32_t N = 2>
+	template<typename TGenomeBase, const sequence_len_t N = 2>
 	class UniformCrossover : public ea::ACrossover<TGenomeBase>
 	{
 		public:
@@ -69,12 +69,12 @@ namespace ea
 				_rnd = rnd;
 			}
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				sequence_type child0;
 				sequence_type child1;
 				int32_t rnd;
-				uint32_t len = _base.len(a);
+				sequence_len_t len = _base.len(a);
 
 				assert(len > N);
 				assert(len == _base.len(b));
@@ -82,7 +82,7 @@ namespace ea
 				child0 = _base.create(len);
 				child1 = _base.create(len);
 
-				for(uint32_t i = 0; i < len; ++i)
+				for(sequence_len_t i = 0; i < len; ++i)
 				{
 					do
 					{
@@ -112,7 +112,7 @@ namespace ea
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-	template<typename TGenomeBase, const int32_t N>
+	template<typename TGenomeBase, const sequence_len_t N>
 	TGenomeBase UniformCrossover<TGenomeBase, N>::_base;
 
 	/**

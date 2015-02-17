@@ -53,7 +53,7 @@ namespace ea
 
 			   Frees memory.
 			 */
-			virtual void free(void *ptr) = 0;
+			virtual void free(void* ptr) = 0;
 	};
 
 	/**

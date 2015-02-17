@@ -26,6 +26,8 @@
 #include <stdint.h>
 #include <string>
 #include <algorithm>
+#include <limits>
+#include "AHash.hpp"
 
 namespace ea
 {
@@ -66,6 +68,15 @@ namespace ea
 		}
 	}
 
+	/*! Type of sequence length. */
+	typedef uint16_t sequence_len_t;
+
+	/*! Maximium sequence length. */
+	#define MAX_SEQUENCE_LEN std::numeric_limits<uint16_t>::max()
+
+	/*! Type of genome size. */
+	typedef uint16_t gene_size_t;
+
 	/**
 	   @class AGenomeBase
 	   @tparam TSequence the genome base class provides access to sequences of this type
@@ -86,7 +97,7 @@ namespace ea
 			virtual ~AGenomeBase() {}
 
 			/*! Size of a gene in byte.*/
-			virtual uint16_t gene_size() const = 0;
+			virtual gene_size_t gene_size() const = 0;
 
 			/**
 			   @param len length of the new sequence
@@ -94,7 +105,7 @@ namespace ea
 
 			   Creates a new and empty sequence.
 			 */
-			virtual TSequence create(const uint16_t len) = 0;
+			virtual TSequence create(const sequence_len_t len) = 0;
 
 			/**
 			   @param sequence sequence to destroy
@@ -110,7 +121,7 @@ namespace ea
 
 			   Writes a gene to a sequence.
 			 */
-			virtual void set(TSequence& sequence, const uint16_t offset, const TGene& gene) const = 0;
+			virtual void set(TSequence& sequence, const sequence_len_t offset, const TGene& gene) const = 0;
 
 			/**
 			   @param sequence a sequence
@@ -119,7 +130,7 @@ namespace ea
 
 			   Reads a gene from a sequence.
 			 */
-			virtual TGene get(const TSequence& sequence, const uint16_t offset) const = 0;
+			virtual TGene get(const TSequence& sequence, const sequence_len_t offset) const = 0;
 
 			/**
 			   @param sequence a sequence
@@ -127,8 +138,8 @@ namespace ea
 
 			   Gets the length of a sequence.
 			 */
+			virtual sequence_len_t len(const TSequence& sequence) const = 0;
 
-			virtual uint16_t len(const TSequence& sequence) const = 0;
 			/**
 			   @param sequence a sequence
 			   @return fitness of the sequence
@@ -144,7 +155,7 @@ namespace ea
 
 			   Gets the hash of a sequence.
 			 */
-			virtual size_t hash(const TSequence& sequence) = 0;
+			virtual hash_t hash(const TSequence& sequence) = 0;
 
 			/**
 			   @param a a sequence
@@ -176,11 +187,11 @@ namespace ea
 			virtual TSequence copy(const TSequence& sequence)
 			{
 				TSequence dst;
-				uint16_t l = len(sequence);
+				auto l = len(sequence);
 
 				dst = create(l);
 
-				for(uint16_t i = 0; i < l; ++i)
+				for(auto i = 0; i < l; ++i)
 				{
 					set(dst, i, get(sequence, i));
 				}

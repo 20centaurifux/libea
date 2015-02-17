@@ -60,6 +60,7 @@ namespace ea
 			TR1UniformDistribution(TR1UniformDistribution& r)
 			{
 				_engine.seed(time(nullptr));
+
 				memset(&_last_int32_dist, 0, sizeof(_last_int32_dist));
 				memset(&_last_double_dist, 0, sizeof(_last_double_dist));
 			}
@@ -82,22 +83,26 @@ namespace ea
 
 			int32_t get_int32(const int32_t min, const int32_t max) override
 			{
-				return (*get_distribution<std::uniform_int_distribution<int32_t>>(min, max, _int32_cache, _last_int32_dist))(_engine);
+				return (*get_distribution<std::uniform_int_distribution<int32_t>>
+						(min, max, _int32_cache, _last_int32_dist))(_engine);
 			}
 
 			double get_double(const double min, const double max) override
 			{
-				return (*get_distribution<std::uniform_real_distribution<double>>(min, max, _double_cache, _last_double_dist))(_engine);
+				return (*get_distribution<std::uniform_real_distribution<double>>
+						(min, max, _double_cache, _last_double_dist))(_engine);
 			}
 
-			void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const int32_t length) override
+			void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length) override
 			{
-				generate_sequence(get_distribution<std::uniform_int_distribution<int32_t>>(min, max, _int32_cache, _last_int32_dist), numbers, length);
+				generate_sequence(get_distribution<std::uniform_int_distribution<int32_t>>
+						(min, max, _int32_cache, _last_int32_dist), numbers, length);
 			}
 
-			void get_double_seq(const double min, const double max, double* numbers, const int32_t length) override
+			void get_double_seq(const double min, const double max, double* numbers, const std::size_t length) override
 			{
-				generate_sequence(get_distribution<std::uniform_real_distribution<double>>(min, max, _double_cache, _last_double_dist), numbers, length);
+				generate_sequence(get_distribution<std::uniform_real_distribution<double>>
+						(min, max, _double_cache, _last_double_dist), numbers, length);
 			}
 
 			inline int32_t get_max_int32() const override
@@ -186,12 +191,12 @@ namespace ea
 			}
 
 			template<typename T, typename TDistribution>
-			void generate_sequence(TDistribution* distribution, T* numbers, const int32_t length)
+			void generate_sequence(TDistribution* distribution, T* numbers, const std::size_t length)
 			{
 				assert(numbers != nullptr);
 				assert(length > 0);
 
-				for(int32_t i = 0; i < length; ++i)
+				for(std::size_t i = 0; i < length; ++i)
 				{
 					numbers[i] = (*distribution)(_engine);
 				}

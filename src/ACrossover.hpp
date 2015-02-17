@@ -23,6 +23,7 @@
 #ifndef ACROSSOVER_H
 #define ACROSSOVER_H
 
+#include <cstddef>
 #include "OutputAdapter.hpp"
 
 namespace ea
@@ -56,7 +57,7 @@ namespace ea
 
 			   Combines two sequences.
 			 */
-			virtual uint32_t crossover(const sequence_type& a, const sequence_type& b, IOutputAdapter<sequence_type>& output) = 0;
+			virtual std::size_t crossover(const sequence_type& a, const sequence_type& b, IOutputAdapter<sequence_type>& output) = 0;
 	};
 
 	/**

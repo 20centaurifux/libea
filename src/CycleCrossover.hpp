@@ -55,15 +55,15 @@ namespace ea
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
 
-			uint32_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				std::map<gene_type, bool, LessThan> assigned; /* dictionary used to test if a gene
 				                                                 is assigned */
 				std::vector<std::vector<gene_type>*> cycles;  // vector containing the generated cycles
-				uint32_t count = 1;                           // number of inserted genes
-				uint32_t len = _base.len(a);                  // genome length
-				uint32_t offset = 1;
-				uint32_t index = 0;
+				std::size_t count = 1;                        // number of inserted genes
+				sequence_len_t len = _base.len(a);            // genome length
+				sequence_len_t offset = 1;
+				sequence_len_t index = 0;
 				gene_type gene;
 				std::vector<gene_type>* cycle;
 
@@ -71,7 +71,7 @@ namespace ea
 				assert(set_equals<TGenomeBase>(a, b));
 
 				// initialize dictionary:
-				for(uint32_t i = 0; i < len; ++i)
+				for(sequence_len_t i = 0; i < len; ++i)
 				{
 					// mark all genes from individual a as not assigned:
 					assigned[_base.get(a, i)] = false;
@@ -126,7 +126,7 @@ namespace ea
 
 				for(auto iter = begin(cycles); iter != end(cycles); ++iter)
 				{
-					for(uint32_t m = 0; m < len; ++m)
+					for(sequence_len_t m = 0; m < len; ++m)
 					{
 						if(contains(*iter, _base.get(a, m)))
 						{
@@ -158,7 +158,7 @@ namespace ea
 		private:
 			TGenomeBase _base;
 
-			inline bool next_gene(const sequence_type& a, const sequence_type& b, uint32_t& index, gene_type& gene) const
+			inline bool next_gene(const sequence_type& a, const sequence_type& b, sequence_len_t& index, gene_type& gene) const
 			{
 				int32_t i = _base.index_of(a, _base.get(b, index));
 

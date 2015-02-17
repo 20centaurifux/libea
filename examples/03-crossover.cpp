@@ -14,7 +14,7 @@ class Fitness
 		{
 			float avg = 0;
 
-			for(auto i = 0; i < ea::sequence_len(seq); ++i)
+			for(ea::sequence_len_t i = 0; i < ea::sequence_len(seq); ++i)
 			{
 				avg += ea::sequence_get(seq, i);
 			}
@@ -27,7 +27,7 @@ static ea::Int32PGenomeBase<Fitness> base;
 
 static void print_genome(Sequence* seq)
 {
-	for(uint32_t i = 0; i < ea::sequence_len(seq); ++i)
+	for(ea::sequence_len_t i = 0; i < ea::sequence_len(seq); ++i)
 	{
 		std::cout << base.get(seq, i) << " ";
 	}
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	auto a = base.create(10);
 	auto b = base.create(10);
 
-	for(uint32_t i = 0; i < 10; ++i)
+	for(ea::sequence_len_t i = 0; i < 10; ++i)
 	{
 		base.set(a, i, i);
 		base.set(b, i, 9 - i);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	auto adapter = ea::make_output_adapter(children);
 	ea::CycleCrossover<ea::Int32PGenomeBase<Fitness>> crossover;
 
-	uint32_t n = crossover.crossover(a, b, adapter);
+	std::size_t n = crossover.crossover(a, b, adapter);
 
 	std::cout << "number of created children: " << n << std::endl;
 

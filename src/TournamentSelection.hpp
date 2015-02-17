@@ -45,7 +45,7 @@ namespace ea
 	   @tparam P prohability (0..100) that the fitter individual gets selected
 	   @brief Implementation of tournament selection.
 	 */
-	template<typename TGenomeBase, typename Compare = std::greater<double>, const uint32_t Q = 3, const uint32_t P = 65>
+	template<typename TGenomeBase, typename Compare = std::greater<double>, const int32_t Q = 3, const int32_t P = 65>
 	class TournamentSelection : public IIndexSelection<TGenomeBase>
 	{
 		public:
@@ -57,20 +57,23 @@ namespace ea
 			{
 				assert(rnd != nullptr);
 				assert(P >= 1 && P <= 100);
+				assert(Q >= 1);
 			}
 
 			TournamentSelection()
 			{
 				assert(P >= 1 && P <= 100);
+				assert(Q >= 1);
+
 				_rnd = std::make_shared<TR1UniformDistribution<>>();
 			}
 
 			~TournamentSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const uint32_t count, IOutputAdapter<uint32_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
 			{
-				uint32_t index;
-				uint32_t size = 0;
+				std::size_t index;
+				std::size_t size = 0;
 				int32_t enemies[Q];
 				int32_t prohability[Q];
 				static Compare compare;
@@ -101,7 +104,7 @@ namespace ea
 			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-	template<typename TGenomeBase, typename Compare, const uint32_t Q, const uint32_t P>
+	template<typename TGenomeBase, typename Compare, const int32_t Q, const int32_t P>
 	TGenomeBase TournamentSelection<TGenomeBase, Compare, Q, P>::_base;
 
 	/**

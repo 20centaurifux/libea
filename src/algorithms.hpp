@@ -51,7 +51,7 @@ namespace ea
 		static TGenomeBase base;
 		std::set<typename TGenomeBase::gene_type, LessThan> set;
 
-		for(uint32_t i = 0; i < base.len(seq); ++i)
+		for(sequence_len_t i = 0; i < base.len(seq); ++i)
 		{
 			const typename TGenomeBase::gene_type& gene = base.get(seq, i);
 
@@ -80,14 +80,14 @@ namespace ea
 		assert(!is_multiset<TGenomeBase>(b));
 
 		static TGenomeBase base;
-		uint32_t len = base.len(a);
+		sequence_len_t len = base.len(a);
 
 		if(len != base.len(b))
 		{
 			return false;
 		}
 
-		for(uint32_t i = 0; i < len; ++i)
+		for(sequence_len_t i = 0; i < len; ++i)
 		{
 			if(base.index_of(a, base.get(b, i)) == -1)
 			{
@@ -264,7 +264,7 @@ namespace ea
 
 		source.first();
 
-		for(auto i = 0; i < source.size(); ++i)
+		for(std::size_t i = 0; i < source.size(); ++i)
 		{
 			result += base.fitness(source.at(i));
 		}
@@ -287,7 +287,7 @@ namespace ea
 
 		source.first();
 
-		for(auto i = 0; i < source.size(); ++i)
+		for(std::size_t i = 0; i < source.size(); ++i)
 		{
 			values.push_back(base.fitness(source.at(i)));
 		}
@@ -306,15 +306,15 @@ namespace ea
 	   @brief Finds the fittest genome of a population.
 	 */
 	template<typename TGenomeBase, typename Compare = std::greater<double>>
-	uint32_t fittest(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+	std::size_t fittest(IInputAdapter<typename TGenomeBase::sequence_type>& source)
 	{
 		TGenomeBase base;
 		Compare cmp;
-		uint32_t index = 0;
+		std::size_t index = 0;
 
 		source.first();
 
-		for(uint32_t i = 1; i < source.size(); ++i)
+		for(auto i = 1; i < source.size(); ++i)
 		{
 			if(cmp(base.fitness(source.at(index)), base.fitness(source.at(i))) < 1)
 			{
