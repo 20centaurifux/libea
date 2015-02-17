@@ -46,8 +46,18 @@ if 'test-suite' in COMMAND_LINE_TARGETS:
 
 # installation:
 install_targets = []
-install_targets += env.Install(lib_dir, libea_build)
-install_targets += env.Install(include_dir, libea_headers)
+
+lib_targets = env.Install(lib_dir, libea_build)
+install_targets += lib_targets
+
+header_targets = env.Install(include_dir, libea_headers)
+install_targets += header_targets
+
+for t in lib_targets:
+	env.AddPostAction(t, Chmod(str(t), 0777))
+
+for t in header_targets:
+	env.AddPostAction(t, Chmod(str(t), 0444))
 
 # ctags:
 tags_builder = Builder(action = 'ctags $SOURCES')
@@ -63,6 +73,8 @@ pdf_build = env.PDF('Introduction.pdf', 'tex/introduction.tex')
 env.Alias('pdf', pdf_build)
 
 # installation:
+os.umask(022)
+
 env.Alias('install', install_targets)
 
 # read user options:
