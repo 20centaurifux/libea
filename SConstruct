@@ -1,8 +1,17 @@
-import os, glob, shutil
+import os, glob, shutil, sys
+
+# 64bit check:
+def check_64bit():
+	return sys.maxsize > 2**32
 
 # installation folders:
 prefix = '/usr/local'
-lib_dir  = '%s/lib64' % prefix
+
+if check_64bit():
+	lib_dir  = '%s/lib64' % prefix
+else:
+	lib_dir  = '%s/lib' % prefix
+
 include_dir = '%s/include/libea' % prefix
 
 # compiler options:
