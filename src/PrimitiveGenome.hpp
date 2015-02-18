@@ -104,7 +104,10 @@ namespace ea
 
 				for(sequence_len_t i = 0; i < sequence->len; ++i)
 				{
-					hash_func << sequence->genes[i];
+					for(auto it : sequence->genes[i])
+					{
+						hash_func << it;
+					}
 				}
 
 				return hash_func.hash();
