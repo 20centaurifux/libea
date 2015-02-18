@@ -57,7 +57,10 @@ for t in lib_targets:
 	env.AddPostAction(t, Chmod(str(t), 0555))
 
 for t in header_targets:
-	env.AddPostAction(t, Chmod(str(t), 0444))
+	if str(t) == include_dir:
+		env.AddPostAction(t, Chmod(str(t), 0555))
+	else:
+		env.AddPostAction(t, Chmod(str(t), 0444))
 
 # ctags:
 tags_builder = Builder(action = 'ctags $SOURCES')
@@ -79,14 +82,19 @@ env.Alias('install', install_targets)
 
 # read user options:
 if GetOption('clean'):
-	# make optional targets default to let scons clean everything:
-	Default(['libea', 'tags', 'pdf', 'test-suite'])
+	if 'install' in COMMAND_LINE_TARGETS:
+		# remove header directory:
+		shutil.rmtree(include_dir, ignore_errors = False)
+	else:
+		if len(COMMAND_LINE_TARGETS) == 0:
+			# make optional targets default to let scons clean everything:
+			Default(['libea', 'tags', 'pdf', 'test-suite'])
 
-	# doxygen directory isn't deleted by scons:
-	shutil.rmtree('doc', ignore_errors = True)
+			# doxygen directory isn't deleted by scons:
+			shutil.rmtree('doc', ignore_errors = True)
 
-	# remove test suite:
-	if(os.path.exists(test_target)):
-		os.unlink(test_target)
+			# remove test suite:
+			if(os.path.exists(test_target)):
+				os.unlink(test_target)
 else:
 	Default('libea')
