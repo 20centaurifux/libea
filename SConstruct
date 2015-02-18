@@ -54,7 +54,7 @@ header_targets = env.Install(include_dir, libea_headers)
 install_targets += header_targets
 
 for t in lib_targets:
-	env.AddPostAction(t, Chmod(str(t), 0777))
+	env.AddPostAction(t, Chmod(str(t), 0555))
 
 for t in header_targets:
 	env.AddPostAction(t, Chmod(str(t), 0444))
