@@ -23,8 +23,8 @@
 #ifndef DIVERSITY_H
 #define DIVERSITY_H
 
-#include <cassert>
-#include <cmath>
+#include <assert.h>
+#include <math.h>
 #include <algorithm>
 #include <map>
 #include <vector>
@@ -117,9 +117,9 @@ namespace ea
 
 		len = _get_seq_len<TGenomeBase>(source);
 
-		for(std::size_t i = 0; i < source.size(); ++i)
+		for(size_t i = 0; i < source.size(); ++i)
 		{
-			for(std::size_t j = 0; j < source.size(); ++j)
+			for(size_t j = 0; j < source.size(); ++j)
 			{
 				if(i != j)
 				{
@@ -293,14 +293,14 @@ namespace ea
 	{
 		static TGenomeBase base;
 		static LessThan lt;
-		std::size_t i = 0;
+		size_t i = 0;
 		double d = 0.0;
 
 		/* instead of copying genes we store the start & end offset of each found substring to identify it */
 		struct _Range
 		{
 			IInputAdapter<typename TGenomeBase::sequence_type>* source;
-			std::size_t index;
+			size_t index;
 			sequence_len_t start;
 			sequence_len_t end;
 		} r;

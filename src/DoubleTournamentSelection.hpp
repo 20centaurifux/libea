@@ -23,8 +23,8 @@
 #ifndef DOUBLETOURNAMENTSELECTION_H
 #define DOUBLETOURNAMENTSELECTION_H
 
+#include <assert.h>
 #include <set>
-#include <cassert>
 #include <memory>
 #include <limits>
 #include "IIndexSelection.hpp"
@@ -74,10 +74,10 @@ namespace ea
 
 			~DoubleTournamentSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output) override
 			{
 				std::multiset<_Individual, _CompareIndividuals> individuals;
-				std::size_t i;
+				size_t i;
 				uint32_t j;
 				_Individual individual;
 				static Compare compare;
@@ -86,8 +86,8 @@ namespace ea
 				int32_t prohability[Q];
 
 				assert(input.size() > 1);
-				assert(input.size() < (std::size_t)std::numeric_limits<int32_t>::max());
-				assert(count < (std::size_t)std::numeric_limits<int32_t>::max());
+				assert(input.size() < (size_t)std::numeric_limits<int32_t>::max());
+				assert(count < (size_t)std::numeric_limits<int32_t>::max());
 
 				challengers = new int32_t[count];
 				_rnd->get_int32_seq(0, input.size() - 1, challengers, count);
@@ -131,7 +131,7 @@ namespace ea
 
 			typedef struct
 			{
-				std::size_t index;
+				size_t index;
 				uint32_t score;
 			} _Individual;
 

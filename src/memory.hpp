@@ -46,7 +46,7 @@ namespace ea
 
 			   Allocates memory.
 			 */
-			virtual void* alloc(const std::size_t size) = 0;
+			virtual void* alloc(const size_t size) = 0;
 
 			/**
 			   @param ptr memory to free
@@ -58,12 +58,12 @@ namespace ea
 
 	/**
 	   @class StdAllocator
-	   @brief A wrapper for std::malloc() and std:free().
+	   @brief A wrapper for std::malloc() and std::free().
 	 */
 	class StdAllocator : public ea::IAllocator
 	{
 		public:
-			void* alloc(const std::size_t size) override
+			void* alloc(const size_t size) override
 			{
 				void* ptr = std::malloc(size);
 

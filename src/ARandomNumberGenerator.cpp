@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <cmath>
+#include <math.h>
 #include "ARandomNumberGenerator.hpp"
 #include "algorithms.hpp"
 
@@ -97,22 +97,22 @@ namespace ea
 		return result;
 	}
 
-	void ARandomNumberGenerator::get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length)
+	void ARandomNumberGenerator::get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const size_t length)
 	{
 		get_seq<int32_t, int32_t (ARandomNumberGenerator::*)(const int32_t, const int32_t)>(min, max, numbers, length, &ARandomNumberGenerator::get_int32);
 	}
 
-	void ARandomNumberGenerator::get_double_seq(const double min, const double max, double* numbers, const std::size_t length)
+	void ARandomNumberGenerator::get_double_seq(const double min, const double max, double* numbers, const size_t length)
 	{
 		get_seq<double, double (ARandomNumberGenerator::*)(const double, const double)>(min, max, numbers, length, &ARandomNumberGenerator::get_double);
 	}
 
-	void ARandomNumberGenerator::get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length)
+	void ARandomNumberGenerator::get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const size_t length)
 	{
 		get_unique_seq<int32_t, int32_t (ARandomNumberGenerator::*)(const int32_t, const int32_t)>(min, max, numbers, length, &ARandomNumberGenerator::get_int32);
 	}
 
-	void ARandomNumberGenerator::get_unique_double_seq(const double min, const double max, double* numbers, const std::size_t length)
+	void ARandomNumberGenerator::get_unique_double_seq(const double min, const double max, double* numbers, const size_t length)
 	{
 		get_unique_seq<double, double (ARandomNumberGenerator::*)(const double, const double)>(min, max, numbers, length, &ARandomNumberGenerator::get_double);
 	}

@@ -23,9 +23,9 @@
 #ifndef FITTESTSELECTION_H
 #define FITTESTSELECTION_H
 
+#include <assert.h>
 #include <functional>
 #include <set>
-#include <cassert>
 #include "IIndexSelection.hpp"
 
 namespace ea
@@ -47,11 +47,11 @@ namespace ea
 	class FittestSelection : public IIndexSelection<TGenomeBase>
 	{
 		public:
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output) override
 			{
 				std::multiset<_Individual, _CompareIndividuals> individuals;
 				_Individual individual;
-				std::size_t index = 0;
+				size_t index = 0;
 
 				assert(count <= input.size());
 
@@ -65,7 +65,7 @@ namespace ea
 
 				auto it = individuals.begin();
 
-				for(std::size_t i = 0; i < count; ++i, ++it)
+				for(size_t i = 0; i < count; ++i, ++it)
 				{
 					output.push(it->index);
 				}
@@ -79,7 +79,7 @@ namespace ea
 			/// @cond INTERNAL
 			typedef struct
 			{
-				std::size_t index;
+				size_t index;
 				double fitness;
 			} _Individual;
 

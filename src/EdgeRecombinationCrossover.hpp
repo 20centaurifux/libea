@@ -23,8 +23,8 @@
 #ifndef EDGERECOMBINATION_CROSSOVER_H
 #define EDGERECOMBINATION_CROSSOVER_H
 
-#include <cassert>
-#include <cstring>
+#include <assert.h>
+#include <string.h>
 #include <memory>
 #include <random>
 #include "ACrossover.hpp"
@@ -71,7 +71,7 @@ namespace ea
 				_rnd = rnd;
 			}
 
-			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				Neighbors* nblist;
 				std::map<gene_type, Neighbors*, LessThan> nbs;
@@ -86,7 +86,7 @@ namespace ea
 
 				// initialize neighbor lists:
 				nblist = new Neighbors[len];
-				std::memset(nblist, 0, len * sizeof(Neighbors));
+				memset(nblist, 0, len * sizeof(Neighbors));
 
 				for(i = 0; i < len; ++i)
 				{
@@ -135,7 +135,7 @@ namespace ea
 					// find next gene:
 					if(n->count)
 					{
-						std::memset(next_count, 0, sizeof(next_count));
+						memset(next_count, 0, sizeof(next_count));
 
 						for(j = 0; j < n->count; ++j)
 						{

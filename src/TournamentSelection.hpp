@@ -23,7 +23,7 @@
 #ifndef TOURNAMENTSELECTION_H
 #define TOURNAMENTSELECTION_H
 
-#include <cassert>
+#include <assert.h>
 #include <memory>
 #include "IIndexSelection.hpp"
 #include "ARandomNumberGenerator.hpp"
@@ -70,10 +70,10 @@ namespace ea
 
 			~TournamentSelection() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output) override
 			{
-				std::size_t index;
-				std::size_t size = 0;
+				size_t index;
+				size_t size = 0;
 				int32_t enemies[Q];
 				int32_t prohability[Q];
 				static Compare compare;

@@ -23,7 +23,7 @@
 #ifndef PRIMITIVE_GENOME_H
 #define PRIMITIVE_GENOME_H
 
-#include <cstring>
+#include <string.h>
 #include "AGenome.hpp"
 #include "SDBMHash.hpp"
 #include "memory.hpp"
@@ -141,7 +141,7 @@ namespace ea
 	   @class DirectSequenceCmp
 	   @tparam TSequence sequence datatype
 	   @brief Functor comparing two sequences. Genes are compared
-	          using std::memcmp.
+	          using memcmp.
 	 */
 	template<typename TSequence>
 	class DirectSequenceCmp
@@ -155,7 +155,7 @@ namespace ea
 			           sequences have the same length). Zero-length sequences are always equal.
 				   If a's length is less than b's the result is -1, otherwise 1.
 
-			   Compares genes using std::memcmp.
+			   Compares genes using memcmp.
 			 */
 			int operator()(TSequence* const& a, TSequence* const& b) const
 			{
@@ -171,7 +171,7 @@ namespace ea
 					return 1;
 				}
 
-				return std::memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
+				return memcmp(a->genes, b->genes, sizeof(typename TSequence::gene_type) * a->len);
 			}
 	};
 

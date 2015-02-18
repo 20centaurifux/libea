@@ -23,8 +23,8 @@
 #ifndef BITSTRINGMUTATION_H
 #define BITSTRINGMUTATION_H
 
+#include <assert.h>
 #include <memory>
-#include <cassert>
 #include "AMutation.hpp"
 #include "TR1UniformDistribution.hpp"
 

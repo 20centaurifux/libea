@@ -24,10 +24,10 @@
 #ifndef AHASH_H
 #define AHASH_H
 
-#include <string>
-#include <cstring>
+#include <string.h>
 #include <stdint.h>
 #include <assert.h>
+#include <string>
 
 namespace ea
 {
@@ -148,7 +148,7 @@ namespace ea
 
 			   Appends char buffer to buffer.
 			 */
-			virtual void append(const char* buffer, const std::size_t size) = 0;
+			virtual void append(const char* buffer, const size_t size) = 0;
 
 			/**
 			   @return hash hash value

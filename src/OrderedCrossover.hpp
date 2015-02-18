@@ -23,7 +23,7 @@
 #ifndef ORDEREDCROSSOVER_H
 #define ORDEREDCROSSOVER_H
 
-#include <cassert>
+#include <assert.h>
 #include <memory>
 #include <random>
 #include <limits>
@@ -67,7 +67,7 @@ namespace ea
 			 */
 			OrderedCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
 
-			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				sequence_len_t len, separator, i, m = 0;
 

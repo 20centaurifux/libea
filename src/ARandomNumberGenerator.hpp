@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <cassert>
+#include <assert.h>
 
 namespace ea
 {
@@ -86,7 +86,7 @@ namespace ea
 
 			   Generates multiple random integer values.
 			 */
-			virtual void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length);
+			virtual void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const size_t length);
 
 			/**
 			   @param min minimum value
@@ -96,7 +96,7 @@ namespace ea
 
 			   Generates multiple random double values.
 			 */
-			virtual void get_double_seq(const double min, const double max, double* numbers, const std::size_t length);
+			virtual void get_double_seq(const double min, const double max, double* numbers, const size_t length);
 
 			/**
 			   @param min minimum value
@@ -106,7 +106,7 @@ namespace ea
 
 			   Generates multiple unique integer values.
 			 */
-			virtual void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length);
+			virtual void get_unique_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const size_t length);
 
 			/**
 			   @param min minimum value
@@ -116,7 +116,7 @@ namespace ea
 
 			   Generates multiple unique double values.
 			 */
-			virtual void get_unique_double_seq(const double min, const double max, double* numbers, const std::size_t length);
+			virtual void get_unique_double_seq(const double min, const double max, double* numbers, const size_t length);
 
 			/**
 			   @return The maximum value the get_int32() method can return.
@@ -140,13 +140,13 @@ namespace ea
 
 		private:
 			template<typename T, typename F>
-			void get_seq(const T min, const T max, T* numbers, const std::size_t length, F random)
+			void get_seq(const T min, const T max, T* numbers, const size_t length, F random)
 			{
 				assert(min <= max);
 				assert(numbers != nullptr);
 				assert(length > 0);
 
-				for(std::size_t i = 0; i < length; ++i)
+				for(size_t i = 0; i < length; ++i)
 				{
 					T x = (this->*random)(min, max);
 					numbers[i] = x;
@@ -154,10 +154,10 @@ namespace ea
 			}
 
 			template<typename T, typename F>
-			void get_unique_seq(const T min, const T max, T* numbers, const std::size_t length, F random)
+			void get_unique_seq(const T min, const T max, T* numbers, const size_t length, F random)
 			{
-				std::size_t count = 0;
-				std::size_t i;
+				size_t count = 0;
+				size_t i;
 				T rnd;
 				bool found;
 

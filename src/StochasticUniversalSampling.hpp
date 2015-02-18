@@ -23,7 +23,7 @@
 #ifndef STOCHASTICUNIVERSALSAMPLING_H
 #define STOCHASTICUNIVERSALSAMPLING_H
 
-#include <cassert>
+#include <assert.h>
 #include <memory>
 #include "IIndexSelection.hpp"
 #include "ARandomNumberGenerator.hpp"
@@ -63,7 +63,7 @@ namespace ea
 
 			~StochasticUniversalSampling() {}
 
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const std::size_t count, IOutputAdapter<std::size_t>& output) override
+			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output) override
 			{
 				double* sums;
 				sequence_len_t i = 0;

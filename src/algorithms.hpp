@@ -23,11 +23,11 @@
 #ifndef ALGORITHMS_H
 #define ALGORITHMS_H
 
+#include <math.h>
+#include <assert.h>
 #include <algorithm>
 #include <set>
 #include <limits>
-#include <cmath>
-#include <cassert>
 #include "AGenome.hpp"
 #include "InputAdapter.hpp"
 
@@ -264,7 +264,7 @@ namespace ea
 
 		source.first();
 
-		for(std::size_t i = 0; i < source.size(); ++i)
+		for(size_t i = 0; i < source.size(); ++i)
 		{
 			result += base.fitness(source.at(i));
 		}
@@ -287,7 +287,7 @@ namespace ea
 
 		source.first();
 
-		for(std::size_t i = 0; i < source.size(); ++i)
+		for(size_t i = 0; i < source.size(); ++i)
 		{
 			values.push_back(base.fitness(source.at(i)));
 		}
@@ -306,11 +306,11 @@ namespace ea
 	   @brief Finds the fittest genome of a population.
 	 */
 	template<typename TGenomeBase, typename Compare = std::greater<double>>
-	std::size_t fittest(IInputAdapter<typename TGenomeBase::sequence_type>& source)
+	size_t fittest(IInputAdapter<typename TGenomeBase::sequence_type>& source)
 	{
 		TGenomeBase base;
 		Compare cmp;
-		std::size_t index = 0;
+		size_t index = 0;
 
 		source.first();
 

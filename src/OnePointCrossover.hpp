@@ -23,7 +23,7 @@
 #ifndef ONEPOINTCROSSOVER_H
 #define ONEPOINTCROSSOVER_H
 
-#include <cassert>
+#include <assert.h>
 #include <memory>
 #include <random>
 #include <limits>
@@ -66,7 +66,7 @@ namespace ea
 			/*! Datatype of sequences provided by TGenomeBase. */
 			typedef typename TGenomeBase::sequence_type sequence_type;
 
-			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				sequence_len_t separator;
 

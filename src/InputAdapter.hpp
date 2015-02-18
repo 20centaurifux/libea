@@ -23,7 +23,7 @@
 #ifndef INPUTADAPTER_H
 #define INPUTADAPTER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace ea
 {
@@ -65,7 +65,7 @@ namespace ea
 
 			   Gets the size of the wrapped container.
 			 */
-			virtual std::size_t size() = 0;
+			virtual size_t size() = 0;
 
 			/**
 			   @return value of the current element
@@ -80,7 +80,7 @@ namespace ea
 
 			   Reads the value at the given position.
 			 */
-			virtual T at(const std::size_t index) = 0;
+			virtual T at(const size_t index) = 0;
 	};
 
 	/**
@@ -123,12 +123,12 @@ namespace ea
 				_iter = _begin;
 			}
 
-			std::size_t size() override
+			size_t size() override
 			{
 				return _size;
 			}
 
-			typename TContainer::value_type at(const std::size_t index) override
+			typename TContainer::value_type at(const size_t index) override
 			{
 				return *(_begin + index);
 			}

@@ -49,7 +49,7 @@ namespace ea
 
 			inline void append(const char* buffer, const size_t size) override
 			{
-				for(std::size_t i = 0; i < size; ++i)
+				for(size_t i = 0; i < size; ++i)
 				{
 					_hash = buffer[i] + (_hash << 6) + (_hash << 16) - _hash;
 				}

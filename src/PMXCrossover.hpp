@@ -23,7 +23,7 @@
 #ifndef PMXCROSSOVER_H
 #define PMXCROSSOVER_H
 
-#include <cassert>
+#include <assert.h>
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -72,7 +72,7 @@ namespace ea
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
 
-			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				sequence_len_t offset0, offset1;
 

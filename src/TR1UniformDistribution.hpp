@@ -23,12 +23,12 @@
 #ifndef TR1UNIFORMDISTRIBUTION_H
 #define TR1UNIFORMDISTRIBUTION_H
 
+#include <time.h>
+#include <string.h>
 #include <random>
-#include <ctime>
 #include <map>
 #include <string>
 #include <sstream>
-#include <cstring>
 #include "ARandomNumberGenerator.hpp"
 
 namespace ea
@@ -97,13 +97,13 @@ namespace ea
 						(min, max, _double_cache, _last_double_dist))(_engine);
 			}
 
-			void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const std::size_t length) override
+			void get_int32_seq(const int32_t min, const int32_t max, int32_t* numbers, const size_t length) override
 			{
 				generate_sequence(get_distribution<std::uniform_int_distribution<int32_t>>
 						(min, max, _int32_cache, _last_int32_dist), numbers, length);
 			}
 
-			void get_double_seq(const double min, const double max, double* numbers, const std::size_t length) override
+			void get_double_seq(const double min, const double max, double* numbers, const size_t length) override
 			{
 				generate_sequence(get_distribution<std::uniform_real_distribution<double>>
 						(min, max, _double_cache, _last_double_dist), numbers, length);
@@ -195,12 +195,12 @@ namespace ea
 			}
 
 			template<typename T, typename TDistribution>
-			void generate_sequence(TDistribution* distribution, T* numbers, const std::size_t length)
+			void generate_sequence(TDistribution* distribution, T* numbers, const size_t length)
 			{
 				assert(numbers != nullptr);
 				assert(length > 0);
 
-				for(std::size_t i = 0; i < length; ++i)
+				for(size_t i = 0; i < length; ++i)
 				{
 					numbers[i] = (*distribution)(_engine);
 				}

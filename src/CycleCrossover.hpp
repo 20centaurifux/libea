@@ -23,7 +23,7 @@
 #ifndef CYCLECROSSOVER_H
 #define CYCLECROSSOVER_H
 
-#include <cassert>
+#include <assert.h>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -55,12 +55,12 @@ namespace ea
 			/*! Gene datatype. */
 			typedef typename TGenomeBase::gene_type gene_type;
 
-			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				std::map<gene_type, bool, LessThan> assigned; /* dictionary used to test if a gene
 				                                                 is assigned */
 				std::vector<std::vector<gene_type>*> cycles;  // vector containing the generated cycles
-				std::size_t count = 1;                        // number of inserted genes
+				size_t count = 1;                        // number of inserted genes
 				sequence_len_t len = _base.len(a);            // genome length
 				sequence_len_t offset = 1;
 				sequence_len_t index = 0;

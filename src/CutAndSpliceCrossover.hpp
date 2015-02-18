@@ -23,7 +23,7 @@
 #ifndef CUTANDSPLICECROSSOVER_H
 #define CUTANDSPLICECROSSOVER_H
 
-#include <cassert>
+#include <assert.h>
 #include <memory>
 #include <random>
 #include <limits>
@@ -67,7 +67,7 @@ namespace ea
 				_rnd = rnd;
 			}
 
-			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				uint32_t m, i, sep1, sep2, len;
 

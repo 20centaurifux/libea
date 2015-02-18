@@ -23,7 +23,7 @@
 #ifndef UNIFORMCROSSOVER_H
 #define UNIFORMCROSSOVER_H
 
-#include <cassert>
+#include <assert.h>
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -69,7 +69,7 @@ namespace ea
 				_rnd = rnd;
 			}
 
-			std::size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
 			{
 				sequence_type child0;
 				sequence_type child1;

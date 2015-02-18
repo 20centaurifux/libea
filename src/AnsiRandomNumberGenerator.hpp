@@ -23,7 +23,7 @@
 #ifndef ANSIRANDOMNUMBERGENERATOR_H
 #define ANSIRANDOMNUMBERGENERATOR_H
 
-#include <ctime>
+#include <time.h>
 #include "ARandomNumberGenerator.hpp"
 
 namespace ea
@@ -47,7 +47,7 @@ namespace ea
 
 			AnsiRandomNumberGenerator()
 			{
-				srand(time(nullptr));
+				srand((unsigned int)time(nullptr));
 			}
 
 			~AnsiRandomNumberGenerator() {}
