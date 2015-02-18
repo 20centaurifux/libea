@@ -57,6 +57,10 @@ namespace ea
 				memset(&_last_double_dist, 0, sizeof(_last_double_dist));
 			}
 
+			/**
+			   @param r a random number generator to copy
+			   @brief Copy constructor.
+			  */
 			TR1UniformDistribution(TR1UniformDistribution& r)
 			{
 				_engine.seed(time(nullptr));

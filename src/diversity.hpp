@@ -155,6 +155,7 @@ namespace ea
 	   @tparam TGenomeBase genome base class
 	   @tparam LessThan optional functor to test if a gene is smaller than another one
 	   @param source a population
+	   @param lbase logarithm base
 	   @return the shannon entropy
 
 	   @brief Computes the shannon entropy of a population.
@@ -288,7 +289,7 @@ namespace ea
 	   @brief Computes the substring diversity of a population.
 	 */
 	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
-	double substring_diversity(IInputAdapter<typename TGenomeBase::sequence_type>& source, LOGBase lbase = LOGBASE_E)
+	double substring_diversity(IInputAdapter<typename TGenomeBase::sequence_type>& source)
 	{
 		static TGenomeBase base;
 		static LessThan lt;

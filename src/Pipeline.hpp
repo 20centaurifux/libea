@@ -60,7 +60,7 @@ namespace ea
 				   @param sink sink of the pipeline element
 				   @return number of sequences written to sink
 
-				   Reads sequences from the source and writes process sequences to sink.
+				   Reads sequences from the source and writes processed sequences to sink.
 				 */
 				virtual std::size_t process(IInputAdapter<sequence_type>& source, IOutputAdapter<sequence_type>& sink) = 0;
 		};
@@ -157,8 +157,9 @@ namespace ea
 		   @tparam TGenomeBase a genome base class
 		   @param source a population
 		   @param sink destination to write sequences to
+		   @param elements a list of pipeline elements
 		   @param terminator condition to check after each iteration
-		   @return number of written sequences
+		   @return number of sequences written to sink
 
 		   Processes a pipeline.
 		 */
