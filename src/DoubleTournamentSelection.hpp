@@ -100,12 +100,12 @@ namespace ea
 					_rnd->get_int32_seq(0, input.size() - 1, enemies, Q);
 					_rnd->get_int32_seq(1, 100, prohability, Q);
 
-					float f0 = _base.fitness(input.at(challengers[i]));
+					double f0 = _base.fitness(input.at(challengers[i]));
 					ASSERT_FP_NORMALITY(f0);
 
 					for(j = 0; j < Q; ++j)
 					{
-						float f1 = _base.fitness(input.at(enemies[j]));
+						double f1 = _base.fitness(input.at(enemies[j]));
 						ASSERT_FP_NORMALITY(f1);
 
 						if(prohability[j] <= P && compare(f0, f1))

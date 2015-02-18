@@ -5,9 +5,9 @@
 class Fitness
 {
 	public:
-		float operator()(const ea::Sequence<int32_t>* const &seq) const
+		double operator()(const ea::Sequence<int32_t>* const &seq) const
 		{
-			float avg = 0;
+			double avg = 0;
 
 			for(ea::sequence_len_t i = 0; i < ea::sequence_len(seq); ++i)
 			{

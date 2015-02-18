@@ -147,7 +147,7 @@ namespace ea
 			   Calculates the fitness of a sequence.
 			 */
 
-			virtual float fitness(const TSequence& sequence) = 0;
+			virtual double fitness(const TSequence& sequence) = 0;
 
 			/**
 			   @param sequence a sequence

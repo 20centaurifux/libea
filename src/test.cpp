@@ -40,9 +40,9 @@ template<typename TSequence>
 class TestFitness
 {
 	public:
-		float operator()(const TSequence* const& seq) const
+		double operator()(const TSequence* const& seq) const
 		{
-			float f = 0;
+			double f = 0;
 
 			for(auto i = 0; i < seq->len; ++i)
 			{
@@ -57,9 +57,9 @@ template<typename TSequence>
 class TestBinaryFitness
 {
 	public:
-		float operator()(const TSequence* const& seq) const
+		double operator()(const TSequence* const& seq) const
 		{
-			float f = 0;
+			double f = 0;
 
 			for(auto i = 0; i < seq->len; ++i)
 			{
@@ -77,9 +77,9 @@ template<typename TSequence>
 class TestStringFitness
 {
 	public:
-		float operator()(const TSequence* const& seq) const
+		double operator()(const TSequence* const& seq) const
 		{
-			float f = 0;
+			double f = 0;
 
 			for(auto i = 0; i < seq->len; ++i)
 			{

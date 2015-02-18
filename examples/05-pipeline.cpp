@@ -34,9 +34,9 @@ static map<City, Point> Cities = {
 class Fitness
 {
 	public:
-		float operator()(const Route &seq) const
+		double operator()(const Route &seq) const
 		{
-			float f = 0;
+			double f = 0;
 
 			for(ea::sequence_len_t i = 0; i < sequence_len(seq) - 1; ++i)
 			{

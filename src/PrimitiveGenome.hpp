@@ -309,7 +309,7 @@ namespace ea
 				return sequence->len;
 			}
 
-			virtual float fitness(TSequence* const& sequence) override
+			virtual double fitness(TSequence* const& sequence) override
 			{
 				return fitness_func(sequence);
 			}
@@ -422,7 +422,7 @@ namespace ea
 		/*! Flags. */
 		uint8_t flags;
 		/*! Cached fitness value. */
-		float fitness;
+		double fitness;
 		/*! Cached hash value. */
 		hash_t hash;
 	};
@@ -460,7 +460,7 @@ namespace ea
 				return sequence->hash;
 			}
 
-			float fitness(CSequence<TGene>* const& sequence) override
+			double fitness(CSequence<TGene>* const& sequence) override
 			{
 				// test if fitness has already been calculated:
 				if(sequence->flags & PSEQ_FLAG_FITNESS_SET)

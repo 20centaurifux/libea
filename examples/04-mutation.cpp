@@ -8,9 +8,9 @@ typedef ea::Sequence<bool> Sequence;
 class Fitness
 {
 	public:
-		float operator()(const Sequence* const &seq) const
+		double operator()(const Sequence* const &seq) const
 		{
-			float count = 0;
+			double count = 0;
 
 			for(ea::sequence_len_t i = 0; i < ea::sequence_len(seq); ++i)
 			{
