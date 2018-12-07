@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <set>
+#include <vector>
 #include <limits>
 #include "AGenome.hpp"
 #include "InputAdapter.hpp"
