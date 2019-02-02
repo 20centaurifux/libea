@@ -114,7 +114,7 @@ class RandomTest : public CPPUNIT_NS::TestFixture
 
 			std::vector<int> unique;
 
-			std::unique_copy(begin(numbers), end(numbers), std::back_insert_iterator(unique));
+			std::unique_copy(begin(numbers), end(numbers), std::back_inserter(unique));
 
 			CPPUNIT_ASSERT_EQUAL((size_t)MAX_DISTINCT_NUMBERS, unique.size());
 		}
@@ -141,7 +141,7 @@ class FitnessTest : public CPPUNIT_NS::TestFixture
 
 		void setUp()
 		{
-			std::generate_n(std::back_insert_iterator(population), POPULATION_SIZE, [&]()
+			std::generate_n(std::back_inserter(population), POPULATION_SIZE, [&]()
 			{
 				Genome g(GENOME_SIZE);
 

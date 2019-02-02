@@ -1,5 +1,5 @@
 CPP=g++
-CPPFLAGS=-std=c++17 -Wall -O0 -g
+CPPFLAGS=-std=c++14 -Wall -O0 -g
 LDFLAGS=-lcppunit
 
 all:
