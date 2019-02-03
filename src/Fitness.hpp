@@ -2,14 +2,16 @@
 #define EA_FITNESS_HPP
 
 #include <map>
+#include <vector>
+#include <limits>
 
-namespace ea::utils
+namespace ea::fitness
 {
 	template<typename PopulationInputIterator, typename GenotypeInputIterator>
-	std::function<double(const PopulationInputIterator, const size_t)>
-	fitness_by_index(const std::function<double(const GenotypeInputIterator, const GenotypeInputIterator)> fn)
+	std::function<double(PopulationInputIterator, const size_t)>
+	fitness_by_index(std::function<double(GenotypeInputIterator, GenotypeInputIterator)> fn)
 	{
-		return [fn](const PopulationInputIterator first, const size_t index)
+		return [fn](PopulationInputIterator first, size_t index)
 		{
 			auto genotype = *(first + index);
 
@@ -21,11 +23,11 @@ namespace ea::utils
 	class MemoizeFitnessByIndex
 	{
 		public:
-			MemoizeFitnessByIndex(const std::function<double(const GenotypeInputIterator, const GenotypeInputIterator)> fn)
+			MemoizeFitnessByIndex(std::function<double(GenotypeInputIterator, GenotypeInputIterator)> fn)
 				: fn(fitness_by_index<PopulationInputIterator>(fn))
 			{}
 
-			double operator()(const PopulationInputIterator population, const size_t index)
+			double operator()(PopulationInputIterator population, const size_t index)
 			{
 				double fitness;
 				auto found = cache.find(index);
@@ -44,15 +46,77 @@ namespace ea::utils
 			}
 
 		private:
-			 const std::function<double(const PopulationInputIterator, const size_t)> fn;
+			 const std::function<double(PopulationInputIterator, const size_t)> fn;
 			 std::map<size_t, double> cache;
 	};
 
 	template<typename PopulationInputIterator, typename GenotypeInputIterator>
-	std::function<double(const PopulationInputIterator, const size_t)> memoize_fitness_by_index(const std::function<double(const GenotypeInputIterator, const GenotypeInputIterator)> fn)
+	std::function<double(PopulationInputIterator, const size_t)>
+	memoize_fitness_by_index(std::function<double(GenotypeInputIterator, GenotypeInputIterator)> fn)
 	{
 		return MemoizeFitnessByIndex<PopulationInputIterator, GenotypeInputIterator>(fn);
+	}
+
+	template<typename PopulationInputIterator, typename Fitness>
+	double mean(PopulationInputIterator first, PopulationInputIterator last, Fitness fn)
+	{
+		double sum = 0.0;
+		size_t size = 0;
+
+		std::for_each(first, last, [&fn, &sum, &size](auto genotype)
+		{
+			sum += fn(begin(genotype), end(genotype));
+			++size;
+		});
+
+		return size > 0 ? sum / size
+		                : std::numeric_limits<double>::quiet_NaN();
+	}
+
+	template<typename PopulationInputIterator, typename Fitness>
+	double median(PopulationInputIterator first, PopulationInputIterator last, Fitness fn)
+	{
+		std::vector<double> values;
+
+		std::for_each(first, last, [&values, &fn](auto g)
+		{
+			values.push_back(fn(begin(g), end(g)));
+		});
+
+		std::sort(begin(values), end(values));
+
+		return values.size() > 0 ? values[(end(values) - begin(values)) / 2]
+		                         : std::numeric_limits<double>::quiet_NaN();
+	}
+
+	template<typename PopulationInputIterator, typename Fitness, typename Compare = std::greater<double>>
+	PopulationInputIterator fittest(PopulationInputIterator first, PopulationInputIterator last, Fitness fn)
+	{
+		static Compare cmp;
+		size_t length = (size_t)std::distance(first, last);
+		size_t index = 0;
+		double fitness = 0.0;
+
+		if(first != last)
+		{
+			fitness = fn(begin(*first), end(*first));
+		}
+
+		for(size_t i = 1; i < length; ++i)
+		{
+			auto genotype = *(first + i);
+			double new_fitness = fn(begin(genotype), end(genotype));
+
+			if(cmp(fitness, new_fitness) < 1)
+			{
+				index = i;
+				fitness = new_fitness;
+			}
+		};
+
+		return first + index;
 	}
 }
 
 #endif
+

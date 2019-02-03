@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
+#include <cmath>
 
 #include "Utils.hpp"
 
@@ -128,9 +129,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(RandomTest);
 
 #include "Fitness.hpp"
 
-class FitnessTest : public CPPUNIT_NS::TestFixture
+class FitnessByIndexTest : public CPPUNIT_NS::TestFixture
 {
-	CPPUNIT_TEST_SUITE(FitnessTest);
+	CPPUNIT_TEST_SUITE(FitnessByIndexTest);
 	CPPUNIT_TEST(fitness_by_index);
 	CPPUNIT_TEST(memoized_fitness_by_index);
 	CPPUNIT_TEST_SUITE_END();
@@ -159,12 +160,12 @@ class FitnessTest : public CPPUNIT_NS::TestFixture
 	protected:
 		void fitness_by_index()
 		{
-			compare_fitness_functions(ea::utils::fitness_by_index<Population::iterator, Genome::iterator>(fitness));
+			compare_fitness_functions(ea::fitness::fitness_by_index<Population::iterator, Genome::iterator>(fitness));
 		}
 
 		void memoized_fitness_by_index()
 		{
-			compare_fitness_functions(ea::utils::memoize_fitness_by_index<Population::iterator, Genome::iterator>(fitness));
+			compare_fitness_functions(ea::fitness::memoize_fitness_by_index<Population::iterator, Genome::iterator>(fitness));
 		}
 
 	private:
@@ -203,7 +204,138 @@ class FitnessTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(FitnessTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(FitnessByIndexTest);
+
+class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(FitnessUtilitiesTest);
+	CPPUNIT_TEST(mean);
+	CPPUNIT_TEST(mean_empty);
+	CPPUNIT_TEST(median);
+	CPPUNIT_TEST(median_empty);
+	CPPUNIT_TEST(fittest);
+	CPPUNIT_TEST(fittest_empty);
+	CPPUNIT_TEST_SUITE_END();
+
+	public:
+		using Genome = std::vector<int>;
+		using Population = std::vector<Genome>;
+		using Fitness = std::function<double(Genome::iterator, Genome::iterator)>;
+
+	protected:
+		void mean()
+		{
+			Population population;
+			size_t size = 1;
+
+			std::generate_n(std::back_inserter(population), 10, [&size]()
+			{
+				Genome g;
+
+				for(size_t i = 0; i < size; ++i)
+				{
+					g.push_back(i + 1);
+				}
+
+				++size;
+
+				return g;
+			});
+
+			auto fn = [](const Genome::iterator first, const Genome::iterator last)
+			{
+				double factorial = 1;
+
+				std::for_each(first, last, [&factorial](const int n)
+				{
+					factorial *= n;
+				});
+
+				return factorial;
+			};
+
+			double mean = ea::fitness::mean(begin(population), end(population), fn);
+
+			CPPUNIT_ASSERT(std::abs(mean - 403791.3) < std::numeric_limits<double>::epsilon());
+		}
+
+		void mean_empty()
+		{
+			test_empty_set_returns_nan(ea::fitness::mean<Population::iterator, Fitness>);
+		}
+
+		void median()
+		{
+			Population population;
+
+			ea::random::RandomEngine engine = ea::random::default_engine();
+			std::uniform_int_distribution<> dist(1, 100);
+
+			std::generate_n(std::back_inserter(population), 8192, [&dist, &engine]()
+			{
+				size_t length = 100;
+
+				if(dist(engine) <= 20)
+				{
+					length /= 10;
+				}
+
+				return Genome(length);
+			});
+
+			double median = ea::fitness::median(begin(population), end(population), std::distance<Genome::iterator>);
+
+			CPPUNIT_ASSERT(std::abs(median - 100) < std::numeric_limits<double>::epsilon());
+		}
+
+		void median_empty()
+		{
+			test_empty_set_returns_nan(ea::fitness::median<Population::iterator, Fitness>);
+		}
+
+		void fittest()
+		{
+			Population population;
+
+			size_t length = 1;
+
+			std::generate_n(std::back_inserter(population), 100, [&length]()
+			{
+				return Genome(length++);
+			});
+	
+			std::generate_n(std::back_inserter(population), 100, [&length]()
+			{
+				return Genome(--length);
+			});
+
+			auto fittest = ea::fitness::fittest(begin(population), end(population), std::distance<Genome::iterator>);
+
+			CPPUNIT_ASSERT(fittest->size() == 100);
+		}
+
+		void fittest_empty()
+		{
+			Population population;
+
+			auto pos = ea::fitness::fittest(begin(population), end(population), std::distance<Genome::iterator>);
+
+			CPPUNIT_ASSERT(pos == end(population));
+		}
+
+	private:
+		template<typename Fn>
+		void test_empty_set_returns_nan(Fn fn)
+		{
+			Population population;
+
+			double value = fn(begin(population), end(population), std::distance<Genome::iterator>);
+
+			CPPUNIT_ASSERT(std::fpclassify(value) == FP_NAN);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(FitnessUtilitiesTest);
 
 int main(int argc, char* argv[])
 {

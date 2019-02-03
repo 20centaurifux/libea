@@ -12,7 +12,7 @@ namespace ea::random
 	const RandomEngine &default_engine();
 
 	template<class InputIterator>
-	void fill_n(InputIterator first, const size_t count, int min, int max)
+	void fill_n(InputIterator first, const size_t count, const int min, const int max)
 	{
 		RandomEngine eng = default_engine();
 		std::uniform_int_distribution<> dist(min, max);
@@ -24,7 +24,7 @@ namespace ea::random
 	};
 
 	template<class InputIterator>
-	void fill_distinct_n(InputIterator first, const size_t count, int min, int max)
+	void fill_distinct_n(InputIterator first, const size_t count, const int min, const int max)
 	{
 		RandomEngine eng = default_engine();
 		std::uniform_int_distribution<> dist(min, max);
