@@ -4,6 +4,9 @@
 #include <map>
 #include <vector>
 #include <limits>
+#include <iterator>
+#include <cfenv>
+#include <stdexcept>
 
 namespace ea::fitness
 {
@@ -63,9 +66,17 @@ namespace ea::fitness
 		double sum = 0.0;
 		size_t size = 0;
 
+		std::feclearexcept(FE_OVERFLOW);
+
 		std::for_each(first, last, [&fn, &sum, &size](auto genotype)
 		{
 			sum += fn(begin(genotype), end(genotype));
+
+			if(std::fetestexcept(FE_OVERFLOW))
+			{
+				throw std::overflow_error("Arithmetic overflow.");
+			}
+
 			++size;
 		});
 
@@ -92,27 +103,29 @@ namespace ea::fitness
 	template<typename PopulationInputIterator, typename Fitness, typename Compare = std::greater<double>>
 	PopulationInputIterator fittest(PopulationInputIterator first, PopulationInputIterator last, Fitness fn)
 	{
+		using difference_type = typename std::iterator_traits<PopulationInputIterator>::difference_type;
+
 		static Compare cmp;
-		size_t length = (size_t)std::distance(first, last);
-		size_t index = 0;
+		difference_type length = std::distance(first, last);
+		difference_type index = 0;
 		double fitness = 0.0;
 
-		if(first != last)
+		if(length > 0)
 		{
 			fitness = fn(begin(*first), end(*first));
-		}
 
-		for(size_t i = 1; i < length; ++i)
-		{
-			auto genotype = *(first + i);
-			double new_fitness = fn(begin(genotype), end(genotype));
-
-			if(cmp(fitness, new_fitness) < 1)
+			for(difference_type i = 1; i < length; ++i)
 			{
-				index = i;
-				fitness = new_fitness;
-			}
-		};
+				auto genotype = *(first + i);
+				double new_fitness = fn(begin(genotype), end(genotype));
+
+				if(cmp(fitness, new_fitness) < 1)
+				{
+					index = i;
+					fitness = new_fitness;
+				}
+			};
+		}
 
 		return first + index;
 	}
