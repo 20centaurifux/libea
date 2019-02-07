@@ -123,7 +123,7 @@ class RandomTest : public CPPUNIT_NS::TestFixture
 
 			ea::random::fill_distinct_n_int(begin(numbers), MAX_DISTINCT_NUMBERS, -MAX_DISTINCT_NUMBERS, MAX_DISTINCT_NUMBERS);
 
-			CPPUNIT_ASSERT_EQUAL((size_t)MAX_DISTINCT_NUMBERS, numbers.size());
+			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(MAX_DISTINCT_NUMBERS), numbers.size());
 		}
 
 		void fill_distinct_n_int_range()
@@ -148,7 +148,7 @@ class RandomTest : public CPPUNIT_NS::TestFixture
 
 			std::unique_copy(begin(numbers), end(numbers), std::back_inserter(unique));
 
-			CPPUNIT_ASSERT_EQUAL((size_t)MAX_DISTINCT_NUMBERS, unique.size());
+			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(MAX_DISTINCT_NUMBERS), unique.size());
 		}
 
 		void fill_distinct_n_int_difference()
@@ -240,11 +240,11 @@ class FitnessByIndexTest : public CPPUNIT_NS::TestFixture
 
 		static double fitness(const DefaultTestGenome::iterator first, const DefaultTestGenome::iterator last)
 		{
-			return (double)std::accumulate(first,
-			                               last,
-			                               0,
-			                               [](int total, int n)
-			                               { return total + n; }) / std::distance(first, last);
+			return static_cast<double>(std::accumulate(first,
+			                                           last,
+			                                           0,
+			                                           [](int total, int n)
+			                                           { return total + n; }) / std::distance(first, last));
 		}
 
 		void compare_fitness_functions(std::function<double(const DefaultTestPopulation::iterator, const size_t index)> fn)
@@ -396,6 +396,75 @@ class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FitnessUtilitiesTest);
 
+template<typename Compare = std::greater<double>, typename Selection>
+static void default_selection_test(Selection select)
+{
+	DefaultTestPopulation population;
+
+	std::generate_n(std::back_inserter(population), 10000, [&]()
+	{
+		DefaultTestGenome g;
+
+		ea::random::fill_n_int(std::back_inserter(g), 10, 1, 100);
+
+		return g;
+	});
+
+	std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
+	fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
+	{
+		return static_cast<double>(std::accumulate(first, last, 0, [](int total, int n) { return total + n; }));
+	};
+
+	DefaultTestPopulation children;
+
+	select(begin(population), end(population), 100, fn, std::back_inserter(children));
+
+	CPPUNIT_ASSERT(children.size() == 100);
+
+	double a = ea::fitness::mean(begin(population), end(population), fn);
+	double b = ea::fitness::mean(begin(children), end(children), fn);
+
+	CPPUNIT_ASSERT(Compare()(b, a));
+}
+
+#include "TournamentSelection.hpp"
+
+class TournamentSelectionTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(TournamentSelectionTest);
+	CPPUNIT_TEST(default_selection_test);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void default_selection_test()
+		{
+			::default_selection_test<>(ea::selection::Tournament<DefaultTestPopulation::iterator>());
+			::default_selection_test<std::less<double>>(ea::selection::Tournament<DefaultTestPopulation::iterator, std::less<double>>());
+		}
+
+		void invalid_args()
+		{
+			CPPUNIT_ASSERT_THROW(ea::selection::Tournament<DefaultTestPopulation::iterator>(0), std::invalid_argument);
+
+			ea::selection::Tournament<DefaultTestPopulation::iterator> op(5);
+
+			DefaultTestPopulation population;
+			DefaultTestPopulation children; 
+
+			std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
+			fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
+			{
+				return 0;
+			};
+
+			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 3, fn, std::back_inserter(children)), std::length_error);
+			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 10, fn, std::back_inserter(children)), std::length_error);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(TournamentSelectionTest);
 int main(int argc, char* argv[])
 {
 	CPPUNIT_NS::TestResult testresult;

@@ -1,115 +1,100 @@
-/***************************************************************************
-    begin........: November 2012
-    copyright....: Sebastian Fedrau
-    email........: sebastian.fedrau@gmail.com
- ***************************************************************************/
+#ifndef EA_TOURNAME_SELECTION
 
-/***************************************************************************
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License v3 as published by
-    the Free Software Foundation.
+#include <iterator>
+#include <limits>
+#include <stdexcept>
 
-    This program is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License v3 for more details.
- ***************************************************************************/
-/**
-   @file TournamentSelection.hpp
-   @brief Implementation of the tournament selection.
-   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
- */
+#include "Random.hpp"
+#include "Utils.hpp"
+#include "Fitness.hpp"
 
-#ifndef TOURNAMENTSELECTION_H
-#define TOURNAMENTSELECTION_H
-
-#include <assert.h>
-#include <memory>
-#include "IIndexSelection.hpp"
-#include "ARandomNumberGenerator.hpp"
-
-namespace ea
+namespace ea::selection
 {
-	/**
-	   @addtogroup Operators
-	   @{
-	   	@addtogroup Selection
-		@{
-	 */
-
-	/**
-	   @class TournamentSelection
-	   @tparam TGenomeBase genome base class
-	   @tparam Compare a compare function
-	   @tparam Q number of enemies
-	   @tparam P prohability (0..100) that the fitter individual gets selected
-	   @brief Implementation of tournament selection.
-	 */
-	template<typename TGenomeBase, typename Compare = std::greater<double>, const int32_t Q = 3, const int32_t P = 65>
-	class TournamentSelection : public IIndexSelection<TGenomeBase>
+	template<typename InputIterator, typename Compare = std::greater<double>>
+	class Tournament
 	{
 		public:
-			/**
-			   @param rnd instance of a random number generator
-			 */
-			TournamentSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
-				: _rnd(rnd)
+
+			Tournament(const size_t Q = 3)
+				: Q(Q)
 			{
-				assert(rnd != nullptr);
-				assert(P >= 1 && P <= 100);
-				assert(Q >= 1);
-			}
-
-			TournamentSelection()
-			{
-				assert(P >= 1 && P <= 100);
-				assert(Q >= 1);
-
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
-			~TournamentSelection() {}
-
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output) override
-			{
-				size_t index;
-				size_t size = 0;
-				int32_t enemies[Q];
-				int32_t prohability[Q];
-				static Compare compare;
-
-				assert(input.size() > Q);
-
-				while(size != count)
+				if(Q == 0)
 				{
-					index = _rnd->get_int32(0, input.size() - 1);
-					_rnd->get_int32_seq(0, input.size() - 1, enemies, Q);
-					_rnd->get_int32_seq(1, 100, prohability, Q);
-
-					for(uint32_t i = 0; i < Q; ++i)
-					{
-						if(prohability[i] <= P && compare(_base.fitness(input.at(enemies[i])), _base.fitness(input.at(index))))
-						{
-							index = enemies[i];
-						}
-					}
-
-					output.push(index);
-					++size;
+					throw std::invalid_argument("Q cannot be zero.");
 				}
 			}
 
+			template<typename Fitness, typename OutputIterator>
+			void operator()(InputIterator first, InputIterator last, const size_t count, Fitness fitness, OutputIterator result)
+			{
+				length = std::distance(first, last);
+
+				if(length <= Q)
+				{
+					throw std::length_error("Q exceeds population size.");
+				}
+
+				index_dist = std::uniform_int_distribution<difference_type>(0, length - 1);
+
+				utils::repeat(count, [&]()
+				{
+					select(first, last, fitness, result);
+				});
+			}
+
 		private:
-			static TGenomeBase _base;
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
+			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
+
+			const size_t Q;
+
+			random::RandomEngine engine = random::default_engine();
+			Compare compare;
+			difference_type length;
+			std::uniform_int_distribution<difference_type> index_dist;
+
+			template<typename Fitness, typename OutputIterator>
+			void select(InputIterator first, InputIterator last, Fitness fitness, OutputIterator result)
+			{
+				std::vector<difference_type> enemies(Q);
+
+				random::fill_distinct_n_int(begin(enemies), Q, static_cast<difference_type>(0), length - 1);
+
+				auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
+				difference_type index;
+
+				do
+				{
+					index = random_index();
+				} while(std::find(begin(enemies), end(enemies), index) != end(enemies));
+
+				std::for_each(begin(enemies), end(enemies), [&](difference_type i)
+				{
+					index = compare_genotypes(first, index, i, fitness_by_index);
+				});
+
+				*result = *(first + index);
+				++result;
+			}
+
+			difference_type random_index()
+			{
+				return index_dist(engine);
+			}
+
+			template<typename Fitness>
+			difference_type compare_genotypes(InputIterator first, const difference_type a, const difference_type b, Fitness fitness) const
+			{
+				difference_type index = b;
+
+				if(compare(fitness(first, a), fitness(first, b)))
+				{
+					index = a;
+				}
+
+				return index;
+			}
 	};
-
-	template<typename TGenomeBase, typename Compare, const int32_t Q, const int32_t P>
-	TGenomeBase TournamentSelection<TGenomeBase, Compare, Q, P>::_base;
-
-	/**
-		   @}
-	   @}
-	 */
 }
+
 #endif
+
