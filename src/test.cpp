@@ -421,7 +421,7 @@ static void fitness_increases(Selection select, const size_t size = 10000, const
 	{
 		DefaultTestGenome g;
 
-		ea::random::fill_n_int(std::back_inserter(g), 50, 1, 100);
+		ea::random::fill_n_int(std::back_inserter(g), 10, 1, 1000);
 
 		return g;
 	});
@@ -438,6 +438,7 @@ static void fitness_increases(Selection select, const size_t size = 10000, const
 
 	double a = ea::fitness::mean(begin(population), end(population), fn);
 	double b = ea::fitness::mean(begin(children), end(children), fn);
+
 
 	CPPUNIT_ASSERT(Compare()(b, a));
 }
@@ -579,6 +580,36 @@ class DoubleTournamentSelectionTest : public CPPUNIT_NS::TestFixture
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentSelectionTest);
+
+#include "FittestSelection.hpp"
+
+class FittestSelectionTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(FittestSelectionTest);
+	CPPUNIT_TEST(select_children);
+	CPPUNIT_TEST(fitness_increases);
+	CPPUNIT_TEST(is_subset);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void select_children()
+		{
+			::select_children(ea::selection::Fittest<DefaultTestPopulation::iterator>());
+		}
+
+		void fitness_increases()
+		{
+			::fitness_increases(ea::selection::Fittest<DefaultTestPopulation::iterator>());
+			::fitness_increases<std::less<double>>(ea::selection::Fittest<DefaultTestPopulation::iterator, std::less<double>>());
+		}
+
+		void is_subset()
+		{
+			::is_subset(ea::selection::Fittest<DefaultTestPopulation::iterator>());
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(FittestSelectionTest);
 
 int main(int argc, char* argv[])
 {
