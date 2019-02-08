@@ -303,14 +303,7 @@ class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
 
 			auto fn = [](const DefaultTestGenome::iterator first, const DefaultTestGenome::iterator last)
 			{
-				double factorial = 1;
-
-				std::for_each(first, last, [&factorial](const int n)
-				{
-					factorial *= n;
-				});
-
-				return factorial;
+				return static_cast<double>(std::accumulate(first, last, 1, [](int factorial, int n) { return factorial * n; }));
 			};
 
 			double mean = ea::fitness::mean(begin(population), end(population), fn);
@@ -396,16 +389,39 @@ class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FitnessUtilitiesTest);
 
-template<typename Compare = std::greater<double>, typename Selection>
-static void default_selection_test(Selection select)
+template<typename Selection>
+static void select_children(Selection select, const size_t size = 1000, const size_t count = 100)
 {
 	DefaultTestPopulation population;
 
-	std::generate_n(std::back_inserter(population), 10000, [&]()
+	std::generate_n(std::back_inserter(population), size, [&]()
+	{
+		return DefaultTestGenome(10);
+	});
+
+	std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
+	fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
+	{
+		return 0.0;
+	};
+
+	DefaultTestPopulation children;
+
+	select(begin(population), end(population), count, fn, std::back_inserter(children));
+
+	CPPUNIT_ASSERT(children.size() == count);
+}
+
+template<typename Compare = std::greater<double>, typename Selection>
+static void fitness_increases(Selection select, const size_t size = 10000, const size_t count = 100)
+{
+	DefaultTestPopulation population;
+
+	std::generate_n(std::back_inserter(population), size, [&]()
 	{
 		DefaultTestGenome g;
 
-		ea::random::fill_n_int(std::back_inserter(g), 10, 1, 100);
+		ea::random::fill_n_int(std::back_inserter(g), 50, 1, 100);
 
 		return g;
 	});
@@ -418,9 +434,7 @@ static void default_selection_test(Selection select)
 
 	DefaultTestPopulation children;
 
-	select(begin(population), end(population), 100, fn, std::back_inserter(children));
-
-	CPPUNIT_ASSERT(children.size() == 100);
+	select(begin(population), end(population), count, fn, std::back_inserter(children));
 
 	double a = ea::fitness::mean(begin(population), end(population), fn);
 	double b = ea::fitness::mean(begin(children), end(children), fn);
@@ -428,20 +442,77 @@ static void default_selection_test(Selection select)
 	CPPUNIT_ASSERT(Compare()(b, a));
 }
 
+template<typename Selection>
+static void is_subset(Selection select, const size_t size = 1000, const size_t count = 10)
+{
+	DefaultTestPopulation population;
+
+	std::generate_n(std::back_inserter(population), size, [&]()
+	{
+		DefaultTestGenome g;
+
+		ea::random::fill_n_int(std::back_inserter(g), 10, 1, 100);
+
+		return g;
+	});
+
+	std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
+	fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
+	{
+		return static_cast<double>(std::accumulate(first, last, 1, [](int factorial, int n) { return factorial * n; }));
+	};
+
+	DefaultTestPopulation children;
+
+	select(begin(population), end(population), count, fn, std::back_inserter(children));
+
+	std::for_each(begin(children), end(children), [&population](auto a)
+	{
+		auto match = std::find_if(begin(population), end(population), [&a](auto b)
+		{
+			bool equal = a.size() == b.size();
+			size_t i = 0;
+
+			while(equal && i < a.size())
+			{
+				equal = a[i] == b[i];
+				++i;
+			}
+
+			return equal;
+		});
+
+		CPPUNIT_ASSERT(match != end(population));
+	});
+}
+
+
 #include "TournamentSelection.hpp"
 
 class TournamentSelectionTest : public CPPUNIT_NS::TestFixture
 {
 	CPPUNIT_TEST_SUITE(TournamentSelectionTest);
-	CPPUNIT_TEST(default_selection_test);
+	CPPUNIT_TEST(select_children);
+	CPPUNIT_TEST(fitness_increases);
+	CPPUNIT_TEST(is_subset);
 	CPPUNIT_TEST(invalid_args);
 	CPPUNIT_TEST_SUITE_END();
 
 	protected:
-		void default_selection_test()
+		void select_children()
 		{
-			::default_selection_test<>(ea::selection::Tournament<DefaultTestPopulation::iterator>());
-			::default_selection_test<std::less<double>>(ea::selection::Tournament<DefaultTestPopulation::iterator, std::less<double>>());
+			::select_children(ea::selection::Tournament<DefaultTestPopulation::iterator>());
+		}
+
+		void fitness_increases()
+		{
+			::fitness_increases(ea::selection::Tournament<DefaultTestPopulation::iterator>());
+			::fitness_increases<std::less<double>>(ea::selection::Tournament<DefaultTestPopulation::iterator, std::less<double>>());
+		}
+
+		void is_subset()
+		{
+			::is_subset(ea::selection::Tournament<DefaultTestPopulation::iterator>());
 		}
 
 		void invalid_args()
@@ -465,6 +536,50 @@ class TournamentSelectionTest : public CPPUNIT_NS::TestFixture
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TournamentSelectionTest);
+
+#include "DoubleTournamentSelection.hpp"
+
+class DoubleTournamentSelectionTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(DoubleTournamentSelectionTest);
+	CPPUNIT_TEST(select_children);
+	CPPUNIT_TEST(is_subset);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void select_children()
+		{
+			::select_children(ea::selection::DoubleTournament<DefaultTestPopulation::iterator>());
+		}
+
+		void is_subset()
+		{
+			::is_subset(ea::selection::DoubleTournament<DefaultTestPopulation::iterator>());
+		}
+
+		void invalid_args()
+		{
+			CPPUNIT_ASSERT_THROW(ea::selection::DoubleTournament<DefaultTestPopulation::iterator>(0), std::invalid_argument);
+
+			ea::selection::DoubleTournament<DefaultTestPopulation::iterator> op(5);
+
+			DefaultTestPopulation population;
+			DefaultTestPopulation children;
+
+			std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
+			fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
+			{
+				return 0;
+			};
+
+			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 3, fn, std::back_inserter(children)), std::length_error);
+			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 10, fn, std::back_inserter(children)), std::length_error);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(DoubleTournamentSelectionTest);
+
 int main(int argc, char* argv[])
 {
 	CPPUNIT_NS::TestResult testresult;
