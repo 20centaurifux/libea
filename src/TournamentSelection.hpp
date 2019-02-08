@@ -1,4 +1,5 @@
-#ifndef EA_TOURNAME_SELECTION
+#ifndef EA_TOURNAMENT_SELECTION
+#define EA_TOURNAMENT_SELECTION
 
 #include <iterator>
 #include <limits>
@@ -29,7 +30,7 @@ namespace ea::selection
 			{
 				length = std::distance(first, last);
 
-				if(length <= Q)
+				if(length < 0 || static_cast<typename std::make_unsigned<difference_type>::type>(length) <= Q)
 				{
 					throw std::length_error("Q exceeds population size.");
 				}
