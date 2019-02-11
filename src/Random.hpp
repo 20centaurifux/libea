@@ -5,9 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <stdexcept>
-#include <cmath>
 #include <limits>
-#include <type_traits>
 
 namespace ea::random
 {
@@ -20,6 +18,18 @@ namespace ea::random
 	{
 		RandomEngine eng = default_engine();
 		std::uniform_int_distribution<T> dist(min, max);
+
+		std::generate_n(first, count, [&dist, &eng]()
+		{
+			return dist(eng);
+		});
+	};
+
+	template<typename InputIterator, typename T>
+	void fill_n_real(InputIterator first, const size_t count, const T min, const T max)
+	{
+		RandomEngine eng = default_engine();
+		std::uniform_real_distribution<T> dist(min, max);
 
 		std::generate_n(first, count, [&dist, &eng]()
 		{

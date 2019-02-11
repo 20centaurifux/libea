@@ -1,5 +1,5 @@
-#ifndef EA_TOURNAMENT_SELECTION
-#define EA_TOURNAMENT_SELECTION
+#ifndef EA_TOURNAMENT_SELECTION_HPP
+#define EA_TOURNAMENT_SELECTION_HPP
 
 #include <iterator>
 #include <limits>
@@ -15,7 +15,6 @@ namespace ea::selection
 	class Tournament
 	{
 		public:
-
 			Tournament(const size_t Q = 3)
 				: Q(Q)
 			{
@@ -49,7 +48,6 @@ namespace ea::selection
 			const size_t Q;
 
 			random::RandomEngine engine = random::default_engine();
-			Compare compare;
 			difference_type length;
 			std::uniform_int_distribution<difference_type> index_dist;
 
@@ -83,11 +81,11 @@ namespace ea::selection
 			}
 
 			template<typename Fitness>
-			difference_type compare_genotypes(InputIterator first, const difference_type a, const difference_type b, Fitness fitness) const
+			static difference_type compare_genotypes(InputIterator first, const difference_type a, const difference_type b, Fitness fitness)
 			{
 				difference_type index = b;
 
-				if(compare(fitness(first, a), fitness(first, b)))
+				if(Compare()(fitness(first, a), fitness(first, b)))
 				{
 					index = a;
 				}

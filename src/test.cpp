@@ -413,7 +413,7 @@ static void select_children(Selection select, const size_t size = 1000, const si
 }
 
 template<typename Compare = std::greater<double>, typename Selection>
-static void fitness_increases(Selection select, const size_t size = 10000, const size_t count = 100)
+static void fitness_increases(Selection select, const size_t size = 10000, const size_t count = 1000)
 {
 	DefaultTestPopulation population;
 
@@ -421,7 +421,7 @@ static void fitness_increases(Selection select, const size_t size = 10000, const
 	{
 		DefaultTestGenome g;
 
-		ea::random::fill_n_int(std::back_inserter(g), 10, 1, 1000);
+		ea::random::fill_n_int(std::back_inserter(g), 10, -100, 100);
 
 		return g;
 	});
@@ -438,7 +438,6 @@ static void fitness_increases(Selection select, const size_t size = 10000, const
 
 	double a = ea::fitness::mean(begin(population), end(population), fn);
 	double b = ea::fitness::mean(begin(children), end(children), fn);
-
 
 	CPPUNIT_ASSERT(Compare()(b, a));
 }
@@ -610,6 +609,36 @@ class FittestSelectionTest : public CPPUNIT_NS::TestFixture
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FittestSelectionTest);
+
+#include "FitnessProportionalSelection.hpp"
+
+class FitnessProportionalSelection : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(FitnessProportionalSelection);
+	CPPUNIT_TEST(select_children);
+	CPPUNIT_TEST(fitness_increases);
+	CPPUNIT_TEST(is_subset);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void select_children()
+		{
+			::select_children(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>());
+		}
+
+		void fitness_increases()
+		{
+			::fitness_increases(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>());
+			::fitness_increases<std::less<double>>(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>(ea::selection::Proportionality::inverse));
+		}
+
+		void is_subset()
+		{
+			::is_subset(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>());
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalSelection);
 
 int main(int argc, char* argv[])
 {

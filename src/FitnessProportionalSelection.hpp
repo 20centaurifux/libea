@@ -1,373 +1,153 @@
-/***************************************************************************
-    begin........: November 2012
-    copyright....: Sebastian Fedrau
-    email........: sebastian.fedrau@gmail.com
- ***************************************************************************/
+#ifndef EA_FITNESSPROPORTIONALSELECTION_HPP
+#define EA_FITNESSPROPORTIONALSELECTION_HPP
 
-/***************************************************************************
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License v3 as published by
-    the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License v3 for more details.
- ***************************************************************************/
-/**
-   @file FitnessProportionalSelection.hpp
-   @brief Implementation of the fitness-proportional selection.
-   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
- */
-
-#ifndef FITNESSPROPORTIONALSELECTION_H
-#define FITNESSPROPORTIONALSELECTION_H
-
-#include <assert.h>
-#include <stdlib.h>
+#include <iterator>
+#include <limits>
+#include <cfenv>
+#include <stdexcept>
 #include <vector>
-#include <algorithm>
-#include <functional>
-#include <memory>
-#include "IIndexSelection.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "algorithms.hpp"
 
-namespace ea
+#include "Random.hpp"
+
+namespace ea::selection
 {
-	/**
-	   @addtogroup Operators
-	   @{
-	   	@addtogroup Selection
-		@{
-	 */
-
-	/**
-	   @class FitnessProportionalSelection
-	   @tparam TGenomeBase genome base class
-	   @brief Implementation of fitness-proportional selection. Use this operator
-	          with positive fitness values only.
-	 */
-	template<typename TGenomeBase>
-	class FitnessProportionalSelection : public IIndexSelection<TGenomeBase>
+	enum class Proportionality
 	{
-		public:
-			/**
-			   @param rnd instance of a random number generator
-			 */
-			FitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd)
-			{
-				assert(rnd != nullptr);
-				rnd = rnd;
-			}
-
-			FitnessProportionalSelection()
-			{
-				rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
-			~FitnessProportionalSelection() {}
-
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output) override
-			{
-				double* sums;
-
-				assert(input.size() >= 2);
-				assert(count > 0);
-
-				sums = new double[input.size()];
-
-				cumulate(sums, input);
-				select_genomes(input, sums, count, output);
-
-				delete[] sums;
-			}
-
-		protected:
-			/*! A genome base class. */
-			static TGenomeBase base;
-			/*! A random number generator. */
-			std::shared_ptr<ARandomNumberGenerator> rnd;
-
-			/**
-			   @param sums an array holding cumulated fitness values
-			   @param input a population
-			   @param align value to add to each fitness value
-
-			   Fills an array with cumulated fitness values.
-			 */
-			void cumulate(double* sums, IInputAdapter<typename TGenomeBase::sequence_type>& input, const double align = 0) const
-			{
-				double fitness = base.fitness(input.at(0));
-
-				sums[0] = chk_add(fitness, align);
-
-				for(size_t i = 1; i < input.size(); ++i)
-				{
-					fitness = base.fitness(input.at(i));
-					sums[i] = chk_add({ sums[i - 1], fitness, align });
-				}
-			}
-
-			/**
-			   @param input a population
-			   @param sums an array containing cumulated fitness values
-			   @param count number of individuals to select
-			   @param output location to write selected genomes to
-
-			   Selects genomes respecting the cumulated fitness values.
-			 */
-			void select_genomes(IInputAdapter<typename TGenomeBase::sequence_type>& input, const double* sums, const size_t count, IOutputAdapter<size_t>& output) const
-			{
-				double* numbers;
-				double max;
-				size_t range[2];
-
-				max = sums[input.size() - 1];
-				assert(max > 0);
-
-				numbers = new double[count];
-
-				rnd->get_double_seq(0, max, numbers, count);
-
-				for(size_t i = 0; i < count; ++i)
-				{
-					range[0] = 0;
-					range[1] = input.size() - 1;
-
-					output.push(find(sums, range, numbers[i]));
-				}
-
-				delete[] numbers;
-			}
-
-			/**
-			   @param sums array containing cumulated fitness values
-			   @param range range of the search
-			   @param n value to search
-			   @return index of the found value
-
-			   Searches for a value in the cumulated fitness value array.
-			 */
-			static size_t find(const double* sums, size_t range[2], const double n)
-			{
-				size_t mid;
-
-				ASSERT_FP_NORMALITY(n);
-				assert(range[0] <= range[1]);
-				assert(n >= 0.0);
-				assert(sums[range[1]] >= n);
-
-				while(range[1] - range[0] > 0)
-				{
-					mid = (range[1] - range[0]) / 2 + range[0];
-
-					if(sums[mid] > n)
-					{
-						range[1] = (range[1] == mid) ? range[1] - 1 : mid;
-					}
-					else
-					{
-						range[0] = (range[0] == mid) ? range[0] + 1 : mid;
-					}
-				}
-
-				return range[0];
-			}
+		direct,
+		inverse
 	};
 
-	template<typename TGenomeBase>
-	TGenomeBase FitnessProportionalSelection<TGenomeBase>::base;
-
-	/**
-	   @class AlignedFitnessProportionalSelection
-	   @tparam TGenomeBase genome base class
-	   @brief Implementation of fitness-proportional selection. This operator aligns
-	          fitness values and can be used with positive and negative numbers.
-	 */
-	template<typename TGenomeBase>
-	class AlignedFitnessProportionalSelection : public FitnessProportionalSelection<TGenomeBase>
+	template<typename InputIterator>
+	class FitnessProportional
 	{
 		public:
-			/**
-			   @param rnd instance of a random number generator
-			 */
-			AlignedFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd) : FitnessProportionalSelection<TGenomeBase>(rnd) {}
+			FitnessProportional(Proportionality proportionality = Proportionality::direct)
+				: proportionality(proportionality)
+			{}
 
-			AlignedFitnessProportionalSelection() : FitnessProportionalSelection<TGenomeBase>() {}
-
-			~AlignedFitnessProportionalSelection() {}
-
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output)
+			template<typename Fitness, typename OutputIterator>
+			void operator()(InputIterator first, InputIterator last, const size_t count, Fitness fitness, OutputIterator result)
 			{
-				double s;
-				double* sums;
-				double align = 0.0;
+				std::vector<Slice> wheel;
 
-				assert(input.size() >= 2);
-				assert(count > 0);
+				const size_t length = insert_slices(first, last, fitness, std::back_inserter(wheel));
 
-				if((s = smallest(input)) < 0)
+				if(count > 0 && length == 0)
 				{
-					assert_addition(abs(s), abs(s));
-					align = abs(s) * 2;
+					throw std::length_error("Population is empty.");
 				}
 
-				sums = new double[input.size()];
+				std::sort(begin(wheel), end(wheel));
 
-				this->cumulate(sums, input, align);
-				this->select_genomes(input, sums, count, output);
+				const double sum = align(begin(wheel), end(wheel));
 
-				delete[] sums;
+				if(sum == 0) // all fitness values are zero
+				{
+					std::fill_n(result, count, *first);
+				}
+				else
+				{
+					accumulate(begin(wheel), end(wheel), sum);
+
+					std::vector<double> numbers;
+
+					random::fill_n_real(std::back_inserter(numbers), count, 0.0, 1.0);
+
+					std::for_each(begin(numbers), end(numbers), [&](const double n)
+					{
+						auto slice = std::upper_bound(begin(wheel), end(wheel), n, [](const double n, const Slice &slice)
+						{
+							return n < slice.size;
+						});
+
+						if(proportionality == Proportionality::inverse)
+						{
+							auto offset = std::distance(slice, std::prev(end(wheel)));
+
+							slice = begin(wheel) + offset;
+						}
+
+						*result = *(first + slice->index);
+						++result;
+					});
+				}
 			}
 
 		private:
-			using FitnessProportionalSelection<TGenomeBase>::base;
-
-			static double smallest(IInputAdapter<typename TGenomeBase::sequence_type>& input)
+			typedef struct _Slice
 			{
-				double min;
-				double fitness;
+				size_t index;
+				double size;
 
-				input.first();
-				min = base.fitness(input.current());
-				ASSERT_FP_NORMALITY(min);
-				input.next();
-
-				while(!input.end())
+				bool operator<(const struct _Slice& rhs) const
 				{
-					fitness = base.fitness(input.current());
-					ASSERT_FP_NORMALITY(fitness);
+					return size < rhs.size;
+				}
+			} Slice;
 
-					if(fitness < min)
+			const Proportionality proportionality;
+
+			template<typename Fitness, typename OutputIterator>
+			static size_t insert_slices(InputIterator first, InputIterator last, Fitness fitness, OutputIterator result)
+			{
+				return std::accumulate(first, last, 0, [&fitness, &result](const size_t index, auto &g)
+				{
+					if(index == std::numeric_limits<size_t>::max())
 					{
-						min = fitness;
+						throw std::overflow_error("Arithmetic overflow.");
 					}
 
-					input.next();
-				}
+					*result = { index, fitness(begin(g), end(g)) };
+					++result;
 
-				return min;
+					return index + 1;
+				});
+			}
+
+			template<typename Iterator>
+			static double align(Iterator first, Iterator last)
+			{
+				std::feclearexcept(FE_OVERFLOW);
+
+				const double alignment = std::abs(std::min(0.0, first->size)) * 2;
+
+				test_fe_overflow();
+
+				return std::accumulate(first, last, 0.0, [&alignment](double sum, Slice &slice)
+				{
+					slice.size += alignment;
+					test_fe_overflow();
+
+					sum += slice.size;
+					test_fe_overflow();
+
+					return sum;
+				});
+			}
+
+			template<typename Iterator>
+			static void accumulate(Iterator first, Iterator last, const double sum)
+			{
+				double total = 0.0;
+
+				std::for_each(first, last, [&total, &sum](Slice &slice)
+				{
+					slice.size /= sum;
+					slice.size += total;
+
+					total = slice.size;
+				});
+			}
+
+			static void test_fe_overflow()
+			{
+				if(std::fetestexcept(FE_OVERFLOW))
+				{
+					throw std::overflow_error("Arithmetic overflow.");
+				}
 			}
 	};
-
-	/**
-	   @class MinimizingFitnessProportionalSelection
-	   @tparam TGenomeBase genome base class
-	   @brief Implementation of fitness-proportional selection for minimization
-	          problems. This operator can be used with positive and negative
-	          numbers.
-	 */
-	template<typename TGenomeBase>
-	class MinimizingFitnessProportionalSelection : public FitnessProportionalSelection<TGenomeBase>
-	{
-		public:
-			using FitnessProportionalSelection<TGenomeBase>::base;
-			using FitnessProportionalSelection<TGenomeBase>::rnd;
-
-			/**
-			   @param rnd instance of a random number generator
-			 */
-			MinimizingFitnessProportionalSelection(std::shared_ptr<ARandomNumberGenerator> rnd) : FitnessProportionalSelection<TGenomeBase>(rnd) {}
-
-			MinimizingFitnessProportionalSelection() : FitnessProportionalSelection<TGenomeBase>() {}
-
-			~MinimizingFitnessProportionalSelection() {}
-
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output)
-			{
-				std::vector<typename TGenomeBase::sequence_type> ordered;
-				double* sums;
-				double align = 0.0;
-				size_t i = 1;
-				size_t range[2];
-				double fitness;
-
-				assert(input.size() >= 2);
-				assert(count > 0);
-
-				// sort genomes ascending by their fitness values:
-				while(!input.end())
-				{
-					ordered.push_back(input.current());
-					input.next();
-				}
-
-				std::sort(begin(ordered), end(ordered),
-				          []
-				          (const typename TGenomeBase::sequence_type& a, const typename TGenomeBase::sequence_type& b)
-				          {
-				          	static TGenomeBase base;
-
-				          	return base.cmp(a, b) > 0;
-				          });
-
-				// cumulate (aligned) fitness values:
-				sums = new double[input.size()];
-				sums[0] = base.fitness(ordered[0]);
-
-				if(sums[0] < 0)
-				{
-					assert_addition(abs(sums[0]), abs(sums[0]));
-					align = abs(sums[0]) * 2;
-					sums[0] = chk_add(sums[0], align);
-				}
-
-				for(auto iter = begin(ordered) + 1; iter < end(ordered); ++iter, ++i)
-				{
-					fitness = base.fitness(*iter);
-					sums[i] = chk_add({ sums[i - 1], fitness, align });
-				}
-
-				// select genomes:
-				auto numbers = new double[count];
-				rnd->get_double_seq(0, sums[ordered.size() - 1], numbers, count);
-
-				for(i = 0; i < count; ++i)
-				{
-					range[0] = 0;
-					range[1] = ordered.size() - 1;
-
-					auto index = this->find(sums, range, numbers[i]);
-
-					assert(index < ordered.size());
-
-					index = chk_sub({ ordered.size(), (size_t)1, index });
-
-					output.push(map_sequence(input, ordered[index]));
-				}
-
-				// cleanup:
-				delete[] numbers;
-				delete[] sums;
-			}
-
-		private:
-			static size_t map_sequence(IInputAdapter<typename TGenomeBase::sequence_type>& input, typename TGenomeBase::sequence_type& seq)
-			{
-				size_t index = 0;
-
-				input.first();
-
-				while(!input.end())
-				{
-					if(!base.cmp(input.current(), seq))
-					{
-						return index;
-					}
-
-					input.next(), ++index;
-				}
-
-				std::abort(); // should never be reached 
-
-				return 0;
-			}
-	};
-
-	/**
-		   @}
-	   @}
-	 */
 }
+
 #endif
+

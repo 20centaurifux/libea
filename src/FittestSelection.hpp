@@ -1,5 +1,5 @@
-#ifndef EA_FITTEST_SELECTION
-#define EA_FITTEST_SELECTION
+#ifndef EA_FITTEST_SELECTION_HPP
+#define EA_FITTEST_SELECTION_HPP
 
 #include <limits>
 #include <stdexcept>
@@ -42,12 +42,11 @@ namespace ea::selection
 		private:
 			typedef struct _Genotype
 			{
-				size_t index;
-				double fitness;
+				const size_t index;
+				const double fitness;
 
 				bool operator<(const struct _Genotype& rhs) const
 				{
-
 					return Compare()(fitness, rhs.fitness);
 				}
 			} Genotype;

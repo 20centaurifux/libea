@@ -1,5 +1,5 @@
-#ifndef EA_DOUBLE_TOURNAMENT_SELECTION
-#define EA_DOUBLE_TOURNAMENT_SELECTION
+#ifndef EA_DOUBLE_TOURNAMENT_SELECTION_HPP
+#define EA_DOUBLE_TOURNAMENT_SELECTION_HPP
 
 #include <iterator>
 #include <limits>
@@ -16,7 +16,6 @@ namespace ea::selection
 	class DoubleTournament
 	{
 		public:
-
 			DoubleTournament(const size_t Q = 10)
 				: Q(Q)
 			{
@@ -46,7 +45,6 @@ namespace ea::selection
 				}
 
 				auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
-				Compare compare;
 
 				std::multiset<Genotype> genotypes;
 
@@ -60,7 +58,7 @@ namespace ea::selection
 
 					std::for_each(begin(enemies), end(enemies), [&](difference_type j)
 					{
-						if(compare(fitness_by_index(first, i), fitness_by_index(first, j)))
+						if(Compare()(fitness_by_index(first, i), fitness_by_index(first, j)))
 						{
 							++g.score;
 						}
@@ -81,7 +79,7 @@ namespace ea::selection
 
 			typedef struct _Genotype
 			{
-				difference_type index;
+				const difference_type index;
 				size_t score;
 
 				bool operator<(const struct _Genotype& rhs) const
