@@ -1,109 +1,55 @@
-/***************************************************************************
-    begin........: November 2012
-    copyright....: Sebastian Fedrau
-    email........: sebastian.fedrau@gmail.com
- ***************************************************************************/
+#ifndef EA_BITSTRING_MUTATION_HPP
+#define EA_BITSTRING_MUTATION_HPP
 
-/***************************************************************************
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License v3 as published by
-    the Free Software Foundation.
+#include <iterator>
+#include <vector>
+#include <stdexcept>
 
-    This program is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License v3 for more details.
- ***************************************************************************/
-/**
-   @file BitStringMutation.hpp
-   @brief Mutation operator flipping at least one random gene.
-   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
- */
+#include "Random.hpp"
 
-#ifndef BITSTRINGMUTATION_H
-#define BITSTRINGMUTATION_H
-
-#include <assert.h>
-#include <memory>
-#include "AMutation.hpp"
-#include "TR1UniformDistribution.hpp"
-
-namespace ea
+namespace ea::mutation
 {
-	/**
-	   @addtogroup Operators
-	   @{
-	   	@addtogroup Mutation
-		@{
-	 */
-
-	/**
-	   @class BitStringMutation
-	   @tparam TGenomeBase a genome base class
-	   @tparam P prohability (0..100) to flip a gene
-	   @brief A mutation operator flipping at least one random gene.
-	 */
-	template<class TGenomeBase, const int32_t P = 50>
-	class BitStringMutation : public AMutation<TGenomeBase>
+	class BitString
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
-			BitStringMutation()
+			BitString(const double probability = 0.8)
+				: probability(probability)
 			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
+				if(probability <= 0.0 || probability >= 1.0)
+				{
+					throw std::invalid_argument("Probability out of range.");
+				}
 			}
 
-			/**
-			   @param rnd instance of a random number generator
-			 */
-			BitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd)
+			template<typename InputIterator>
+			void operator()(InputIterator first, InputIterator last)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
-			}
-
-			virtual ~BitStringMutation() {}
-
-			void mutate(sequence_type& sequence) override
-			{
-				static TGenomeBase base;
-				int32_t* prohabilities;
-				sequence_len_t len;
 				bool flipped = false;
-
-				len = base.len(sequence);
-
-				assert(P >= 1 && P <= 100);
-				assert(len > 0);
-
-				prohabilities = new int32_t[len];
+				const auto length = std::distance(first, last);
+				std::vector<double> probabilities(length);
 
 				while(!flipped)
 				{
-					_rnd->get_int32_seq(1, 100, prohabilities, len);
+					std::vector<double> probabilities(length);
+					random::fill_n_real(begin(probabilities), length, 0.0, 1.0);
 
-					for(sequence_len_t i = 0; i < len; ++i)
+					auto n = begin(probabilities);
+
+					for(auto g = first; g != last; g++, n++)
 					{
-						if(prohabilities[i] <= P)
+						if(*n <= probability)
 						{
-							base.set(sequence, i, !base.get(sequence, i));
+							*g = !*g;
 							flipped = true;
 						}
 					}
 				}
-
-				delete[] prohabilities;
 			}
 
 		private:
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
+			const double probability;
 	};
-
-	/**
-		   @}
-	   @}
-	 */
 }
+
 #endif
+

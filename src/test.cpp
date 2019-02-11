@@ -407,6 +407,7 @@ static void select_children(Selection select, const size_t size = 1000, const si
 
 	DefaultTestPopulation children;
 
+	select(begin(population), end(population), 0, fn, std::back_inserter(children));
 	select(begin(population), end(population), count, fn, std::back_inserter(children));
 
 	CPPUNIT_ASSERT(children.size() == count);
@@ -639,6 +640,38 @@ class FitnessProportionalSelection : public CPPUNIT_NS::TestFixture
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalSelection);
+
+#include "BitStringMutation.hpp"
+
+class BitStringMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(BitStringMutationTest);
+	CPPUNIT_TEST(mutate);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void mutate()
+		{
+			std::vector<bool> a(100);
+			std::vector<bool> b(100);
+
+			ea::random::fill_n_int(begin(a), 100, 0, 1);
+			std::copy(begin(a), end(a), std::back_inserter(b));
+
+			ea::mutation::BitString()(begin(a), end(a));
+
+			CPPUNIT_ASSERT(std::equal(begin(a), end(a), begin(b)) == false);
+		}
+
+		void invalid_args()
+		{
+			CPPUNIT_ASSERT_THROW(ea::mutation::BitString(-0.1), std::invalid_argument);
+			CPPUNIT_ASSERT_THROW(ea::mutation::BitString(1.1), std::invalid_argument);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(BitStringMutationTest);
 
 int main(int argc, char* argv[])
 {
