@@ -1,10 +1,33 @@
+/***************************************************************************
+    begin........: November 2012
+    copyright....: Sebastian Fedrau
+    email........: sebastian.fedrau@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License v3 as published by
+    the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License v3 for more details.
+ ***************************************************************************/
+/**
+   @file DoubleTournamentSelection.hpp
+   @brief Compares the fitness of all individuals to Q random opponents.
+          The chromosomes with the most victories are selected.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
+ */
 #ifndef EA_DOUBLE_TOURNAMENT_SELECTION_HPP
 #define EA_DOUBLE_TOURNAMENT_SELECTION_HPP
 
 #include <iterator>
 #include <limits>
+#include <vector>
+#include <algorithm>
 #include <stdexcept>
-#include <set>
 
 #include "Random.hpp"
 #include "Utils.hpp"
@@ -12,11 +35,26 @@
 
 namespace ea::selection
 {
+	/**
+	   @addtogroup Selection
+	   @{
+	 */
+
+	/**
+	   @class DoubleTournament
+	   @brief Compares the fitness of all individuals to Q random opponents.
+                  The chromosomes with the most victories are selected.
+	 */
 	template<typename InputIterator, typename Compare = std::greater<double>>
 	class DoubleTournament
 	{
 		public:
-			DoubleTournament(const size_t Q = 10)
+			/**
+			   @param Q number of random opponents each individual is compared to
+
+			   Throws std::invalid_argument if Q is zero.
+			 */
+			explicit DoubleTournament(const size_t Q = 10)
 				: Q(Q)
 			{
 				if(Q == 0)
@@ -25,71 +63,85 @@ namespace ea::selection
 				}
 			}
 
+			/**
+			   @tparam Fitness fitness function object: double fun(InputIterator first, InputIterator last)
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first first individual of a population
+			   @param last points to the past-the-end element in the sequence
+			   @param fitness a fitness function
+			   @param N number of individuals to select from the population
+			   @param result beginning of the destination range
+
+			   Selects \p N individuals from a population and copies them to \p result.
+
+			   Throws std::length_error if \p Q or \p N exceeds the population size.
+			 */
 			template<typename Fitness, typename OutputIterator>
-			void operator()(InputIterator first, InputIterator last, const size_t count, Fitness fitness, OutputIterator result)
+			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
 			{
-				auto length = std::distance(first, last);
+				const auto length = std::distance(first, last);
 
 				if(length < 0 || static_cast<typename std::make_unsigned<difference_type>::type>(length) <= Q)
 				{
 					throw std::length_error("Q exceeds population size.");
 				}
 
-				std::vector<difference_type> challengers(count);
-
-				random::fill_distinct_n_int(begin(challengers), count, static_cast<difference_type>(0), length - 1);
-
-				if(std::numeric_limits<difference_type>::max() < count)
+				if(N > 0 && N >= static_cast<typename std::make_unsigned<difference_type>::type>(length))
 				{
-					throw std::overflow_error("Arithmetic overflow.");
+					throw std::length_error("N exceeds population size.");
 				}
 
 				auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
 
-				std::multiset<Genotype> genotypes;
+				std::vector<Score> indeces;
+				difference_type i = 0;
 
-				for(size_t i = 0; i < count; ++i)
+				for(auto chromosome = first; chromosome != last; ++chromosome, ++i)
 				{
-					Genotype g = { challengers[i], 0 };
+					Score score = { i, 0 };
 
-					std::vector<difference_type> enemies(Q);
+					std::vector<difference_type> opponents(Q);
 
-					random::fill_distinct_n_int(begin(enemies), Q, static_cast<difference_type>(0), length - 1);
+					random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type>(0), length - 1);
 
-					std::for_each(begin(enemies), end(enemies), [&](difference_type j)
+					std::for_each(begin(opponents), end(opponents), [&](difference_type j)
 					{
 						if(Compare()(fitness_by_index(first, i), fitness_by_index(first, j)))
 						{
-							++g.score;
+							++score.value;
 						}
 					});
 
-					genotypes.insert(g);
+					indeces.push_back(score);
 				}
 
-				std::for_each(begin(genotypes), end(genotypes), [&](const Genotype& g)
+				std::sort(begin(indeces), end(indeces));
+
+				std::transform(begin(indeces), begin(indeces) + N, result, [&](auto &score)
 				{
-					*result = *(first + g.index);
-					++result;
+					return *(first + score.offset);
 				});
 			}
 
 		private:
 			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
-			typedef struct _Genotype
+			typedef struct _Score
 			{
-				const difference_type index;
-				size_t score;
+				difference_type offset;
+				size_t value;
 
-				bool operator<(const struct _Genotype& rhs) const
+				bool operator<(const struct _Score& rhs) const
 				{
-					return score > rhs.score;
+					return value > rhs.value;
 				}
-			} Genotype;
+			} Score;
 
 			const size_t Q;
 	};
+
+	/*! @} */
 }
 
 #endif

@@ -1,3 +1,24 @@
+/***************************************************************************
+    begin........: November 2012
+    copyright....: Sebastian Fedrau
+    email........: sebastian.fedrau@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License v3 as published by
+    the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License v3 for more details.
+ ***************************************************************************/
+/**
+   @file Random.hpp
+   @brief Random number generation utilities.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
+ */
 #ifndef EA_RANDOM_HPP
 #define EA_RANDOM_HPP
 
@@ -9,12 +30,33 @@
 
 namespace ea::random
 {
+	/**
+	   @addtogroup Utils
+	   @{
+	 */
+
+	/*! Default random engine. */
 	using RandomEngine = std::mt19937;
 
+	/**
+	   @return a new instance of the default random engine
+
+	   Creates and seeds an instance of the default random engine.
+	 */
 	RandomEngine default_engine();
 
-	template<typename InputIterator, typename T>
-	void fill_n_int(InputIterator first, const size_t count, const T min, const T max)
+	/**
+	   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+	   @tparam T the type of numbers generated
+	   @param first iterator pointing to the first element of the range
+	   @param count number of values to generate
+	   @param min minimum potentially generated value
+	   @param max maximum potentially generated value
+
+	   Writes \p count random integer values to a destination range.
+	 */
+	template<typename OutputIterator, typename T>
+	void fill_n_int(OutputIterator first, const size_t count, const T min, const T max)
 	{
 		RandomEngine eng = default_engine();
 		std::uniform_int_distribution<T> dist(min, max);
@@ -25,8 +67,18 @@ namespace ea::random
 		});
 	};
 
-	template<typename InputIterator, typename T>
-	void fill_n_real(InputIterator first, const size_t count, const T min, const T max)
+	/**
+	   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+	   @tparam T the type of numbers generated
+	   @param first iterator pointing to the first element of the range
+	   @param count number of values to generate
+	   @param min minimum potentially generated value
+	   @param max maximum potentially generated value
+
+	   Writes \p count random floating-point values to a destination range.
+	 */
+	template<typename OutputIterator, typename T>
+	void fill_n_real(OutputIterator first, const size_t count, const T min, const T max)
 	{
 		RandomEngine eng = default_engine();
 		std::uniform_real_distribution<T> dist(min, max);
@@ -37,8 +89,20 @@ namespace ea::random
 		});
 	};
 
-	template<typename InputIterator, typename T>
-	void fill_distinct_n_int(InputIterator first, const size_t count, const T min, const T max)
+	/**
+	   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+	   @tparam T the type of numbers generated
+	   @param first iterator pointing to the first element of the range
+	   @param count number of values to generate
+	   @param min minimum potentially generated value
+	   @param max maximum potentially generated value
+
+	   Writes a distinct collection of \p count random integer values to a destination range.
+
+	   Throws std::invalid_argument or std::overflow_error if the specified range is invalid.
+	 */
+	template<typename OutputIterator, typename T>
+	void fill_distinct_n_int(OutputIterator first, const size_t count, const T min, const T max)
 	{
 		if(count > 0)
 		{
@@ -55,7 +119,7 @@ namespace ea::random
 				throw std::overflow_error("Interval endpoints out of range.");
 			}
 
-			T distance = max - min;
+			const T distance = max - min;
 
 			if(static_cast<typename std::make_unsigned<T>::type>(distance) < count - 1) // interval is closed
 			{
@@ -79,6 +143,8 @@ namespace ea::random
 			std::copy(begin(numbers), end(numbers), first);
 		}
 	};
+
+	/*! @} */
 }
 
 #endif

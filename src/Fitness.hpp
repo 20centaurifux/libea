@@ -1,36 +1,110 @@
+/***************************************************************************
+    begin........: November 2012
+    copyright....: Sebastian Fedrau
+    email........: sebastian.fedrau@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License v3 as published by
+    the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License v3 for more details.
+ ***************************************************************************/
+/**
+   @file Fitness.hpp
+   @brief Fitness related utility functions.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
+ */
 #ifndef EA_FITNESS_HPP
 #define EA_FITNESS_HPP
 
+#include <numeric>
+#include <functional>
+#include <algorithm>
+#include <iterator>
 #include <map>
 #include <vector>
 #include <limits>
-#include <iterator>
 #include <cfenv>
 #include <stdexcept>
 
 namespace ea::fitness
 {
-	template<typename PopulationInputIterator, typename GenotypeInputIterator>
-	std::function<double(PopulationInputIterator, const size_t)>
-	fitness_by_index(std::function<double(GenotypeInputIterator, GenotypeInputIterator)> fn)
-	{
-		return [fn](PopulationInputIterator first, size_t index)
-		{
-			auto genotype = *(first + index);
+	/**
+	   @addtogroup Utils
+	   @{
+	 */
 
-			return fn(std::begin(genotype), std::end(genotype));
+	/**
+	   @tparam PopulationIterator iterator type pointing to a chromosome
+
+	   Use this template to get the chromosome's iterator type.
+	 */
+	template<typename PopulationIterator>
+	using ChromosomeIterator = typename std::iterator_traits<PopulationIterator>::value_type::iterator;
+
+	/**
+	   @tparam PopulationIterator iterator type pointing to a chromosome
+
+	   Fitness function object.
+	 */
+	template<typename PopulationIterator>
+	using FitnessFunction = std::function<double(ChromosomeIterator<PopulationIterator>,
+	                                             ChromosomeIterator<PopulationIterator>)>;
+
+	/**
+	   @tparam PopulationIterator must meet the requirements of LegacyRandomAccessIterator
+	   @param fn a fitness function
+	   @return a new function object
+
+	   Wraps a fitness function & returns a new function object to get the fitness
+	   of a chromosome by index.
+	 */	
+	template<typename PopulationIterator>
+	std::function<double(PopulationIterator, const size_t)>
+	fitness_by_index(FitnessFunction<PopulationIterator> fn)
+	{
+		return [fn](PopulationIterator first, const size_t index)
+		{
+			auto &chromosome = *(first + index);
+
+			return fn(std::begin(chromosome), std::end(chromosome));
 		};
 	}
 
-	template<typename PopulationInputIterator, typename GenotypeInputIterator>
+	/**
+	   @tparam PopulationIterator must meet the requirements of LegacyRandomAccessIterator
+	   @param fn a fitness function
+	   @return a functor wrapping a fitness function
+
+	   Generates a functor to get the fitness of a chromosome by index. The fitness value
+	   is cached for each index.
+	 */	
+	template<typename PopulationIterator>
 	class MemoizeFitnessByIndex
 	{
 		public:
-			MemoizeFitnessByIndex(std::function<double(GenotypeInputIterator, GenotypeInputIterator)> fn)
-				: fn(fitness_by_index<PopulationInputIterator>(fn))
+			/**
+			   @param fn a fitness functions
+
+			   Creates the functor and wraps the given fitness function.
+			 */
+			explicit MemoizeFitnessByIndex(FitnessFunction<PopulationIterator> fn)
+				: fn(fitness_by_index<PopulationIterator>(fn))
 			{}
 
-			double operator()(PopulationInputIterator population, const size_t index)
+			/**
+			   @param population iterator pointing to the first chromosome of a population
+			   @param index index of the desired chromosome
+			   @return fitness of the chromosome at the specifed position
+
+			   Returns and caches the fitness of a chromosome at the given position.
+			 */
+			double operator()(PopulationIterator population, const size_t index)
 			{
 				double fitness;
 				auto found = cache.find(index);
@@ -49,49 +123,78 @@ namespace ea::fitness
 			}
 
 		private:
-			 const std::function<double(PopulationInputIterator, const size_t)> fn;
-			 std::map<size_t, double> cache;
+			const std::function<double(PopulationIterator, const size_t)> fn;
+			std::map<size_t, double> cache;
 	};
 
-	template<typename PopulationInputIterator, typename GenotypeInputIterator>
-	std::function<double(PopulationInputIterator, const size_t)>
-	memoize_fitness_by_index(std::function<double(GenotypeInputIterator, GenotypeInputIterator)> fn)
+	/**
+	   @tparam PopulationIterator must meet the requirements of LegacyRandomAccessIterator
+	   @param fn a fitness function
+	   @return a new function object
+
+	   Wraps a fitness function & returns a new function object to get the fitness
+	   of a chromosome by index. The fitness is cached for each index.
+	 */	
+	template<typename PopulationIterator>
+	std::function<double(PopulationIterator, const size_t)>
+	memoize_fitness_by_index(FitnessFunction<PopulationIterator> fn)
 	{
-		return MemoizeFitnessByIndex<PopulationInputIterator, GenotypeInputIterator>(fn);
+		return MemoizeFitnessByIndex<PopulationIterator>(fn);
 	}
 
-	template<typename PopulationInputIterator, typename Fitness>
-	double mean(PopulationInputIterator first, PopulationInputIterator last, Fitness fn)
+	/**
+	   @tparam PopulationIterator must meet the requirements of LegacyInputIterator
+	   @param first iterator pointing to the first chromosome of a population
+	   @param last iterator pointing to the end (element after the last element) of a population
+	   @param fn a fitness function
+	   @return mean fitness
+
+	   Calculates the mean fitness value of a population by applying the given fitness
+	   function \p fn to all chromosomes of the range \p first to \p last.
+
+	   Throws std::overflow_error if the total fitness exceeds the supported maximum.
+	 */	
+	template<typename PopulationIterator>
+	double mean(PopulationIterator first, PopulationIterator last, FitnessFunction<PopulationIterator> fn)
 	{
-		double sum = 0.0;
-		size_t size = 0;
+		const auto distance = std::distance(first, last);
 
 		std::feclearexcept(FE_OVERFLOW);
 
-		std::for_each(first, last, [&fn, &sum, &size](auto genotype)
+		const double sum = std::accumulate(first, last, 0.0, [&fn](double sum, auto chromosome)
 		{
-			sum += fn(begin(genotype), end(genotype));
+			sum += fn(begin(chromosome), end(chromosome));
 
 			if(std::fetestexcept(FE_OVERFLOW))
 			{
 				throw std::overflow_error("Arithmetic overflow.");
 			}
 
-			++size;
+			return sum;
 		});
 
-		return size > 0 ? sum / size
-		                : std::numeric_limits<double>::quiet_NaN();
+		return distance > 0 ? sum / distance
+		                    : std::numeric_limits<double>::quiet_NaN();
 	}
 
-	template<typename PopulationInputIterator, typename Fitness>
-	double median(PopulationInputIterator first, PopulationInputIterator last, Fitness fn)
+	/**
+	   @tparam PopulationIterator must meet the requirements of LegacyInputIterator
+	   @param first iterator pointing to the first chromosome of a population
+	   @param last iterator pointing to the end (element after the last element) of a population
+	   @param fn a fitness function
+	   @return mean fitness
+
+	   Calculates the median fitness value of a population by applying the given fitness
+	   function \p fn to all chromosomes of the range \p first to \p last.
+	 */	
+	template<typename PopulationIterator>
+	double median(PopulationIterator first, PopulationIterator last, FitnessFunction<PopulationIterator> fn)
 	{
 		std::vector<double> values;
 
-		std::for_each(first, last, [&values, &fn](auto g)
+		std::for_each(first, last, [&values, &fn](auto chromosome)
 		{
-			values.push_back(fn(begin(g), end(g)));
+			values.push_back(fn(begin(chromosome), end(chromosome)));
 		});
 
 		std::sort(begin(values), end(values));
@@ -100,35 +203,45 @@ namespace ea::fitness
 		                         : std::numeric_limits<double>::quiet_NaN();
 	}
 
-	template<typename PopulationInputIterator, typename Fitness, typename Compare = std::greater<double>>
-	PopulationInputIterator fittest(PopulationInputIterator first, PopulationInputIterator last, Fitness fn)
-	{
-		using difference_type = typename std::iterator_traits<PopulationInputIterator>::difference_type;
+	/**
+	   @tparam PopulationIterator must meet the requirements of LegacyInputIterator
+	   @tparam Compare function to compare fitness values
+	   @param first iterator pointing to the first chromosome of a population
+	   @param last iterator pointing to the end (element after the last element) of a population
+	   @param fn a fitness function
+	   @return iterator to the fittest chromosome
 
-		static Compare cmp;
-		difference_type length = std::distance(first, last);
-		difference_type index = 0;
+	   Finds the fittest chromosome by applying the function \p fn to all chromosomes
+	   of the range \p first to \p last.
+	 */	
+	template<typename PopulationIterator, typename Compare = std::greater<double>>
+	PopulationIterator fittest(PopulationIterator first, PopulationIterator last, FitnessFunction<PopulationIterator> fn)
+	{
+		auto fittest = first;
 		double fitness = 0.0;
 
-		if(length > 0)
+		if(fittest != last)
 		{
-			fitness = fn(begin(*first), end(*first));
+			fitness = fn(begin(*fittest), end(*fittest));
 
-			for(difference_type i = 1; i < length; ++i)
+			auto opponent = first;
+
+			while(++opponent != last)
 			{
-				auto genotype = *(first + i);
-				double new_fitness = fn(begin(genotype), end(genotype));
+				double new_fitness = fn(begin(*opponent), end(*opponent));
 
-				if(cmp(fitness, new_fitness) < 1)
+				if(Compare()(new_fitness, fitness))
 				{
-					index = i;
+					fittest = opponent;
 					fitness = new_fitness;
 				}
-			};
+			}
 		}
 
-		return first + index;
+		return fittest;
 	}
+
+	/*! @} */
 }
 
 #endif

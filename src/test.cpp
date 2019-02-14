@@ -224,12 +224,12 @@ class FitnessByIndexTest : public CPPUNIT_NS::TestFixture
 	protected:
 		void fitness_by_index()
 		{
-			compare_fitness_functions(ea::fitness::fitness_by_index<DefaultTestPopulation::iterator, DefaultTestGenome::iterator>(fitness));
+			compare_fitness_functions(ea::fitness::fitness_by_index<DefaultTestPopulation::iterator>(fitness));
 		}
 
 		void memoized_fitness_by_index()
 		{
-			compare_fitness_functions(ea::fitness::memoize_fitness_by_index<DefaultTestPopulation::iterator, DefaultTestGenome::iterator>(fitness));
+			compare_fitness_functions(ea::fitness::memoize_fitness_by_index<DefaultTestPopulation::iterator>(fitness));
 		}
 
 	private:
@@ -301,7 +301,7 @@ class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
 				return g;
 			});
 
-			auto fn = [](const DefaultTestGenome::iterator first, const DefaultTestGenome::iterator last)
+			auto fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
 			{
 				return static_cast<double>(std::accumulate(first, last, 1, [](int factorial, int n) { return factorial * n; }));
 			};
@@ -313,7 +313,7 @@ class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
 
 		void mean_empty()
 		{
-			test_empty_set_returns_nan(ea::fitness::mean<DefaultTestPopulation::iterator, Fitness>);
+			test_empty_set_returns_nan(ea::fitness::mean<DefaultTestPopulation::iterator>);
 		}
 
 		void median()
@@ -335,14 +335,17 @@ class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
 				return DefaultTestGenome(length);
 			});
 
-			double median = ea::fitness::median(begin(population), end(population), std::distance<DefaultTestGenome::iterator>);
+			double median = ea::fitness::median(begin(population), end(population), [](auto first, auto last)
+			{
+				return static_cast<double>(std::distance(first, last));
+			});
 
 			CPPUNIT_ASSERT(std::abs(median - 100) < std::numeric_limits<double>::epsilon());
 		}
 
 		void median_empty()
 		{
-			test_empty_set_returns_nan(ea::fitness::median<DefaultTestPopulation::iterator, Fitness>);
+			test_empty_set_returns_nan(ea::fitness::median<DefaultTestPopulation::iterator>);
 		}
 
 		void fittest()
@@ -407,7 +410,7 @@ static void select_children(Selection select, const size_t size = 1000, const si
 
 	DefaultTestPopulation children;
 
-	select(begin(population), end(population), 0, fn, std::back_inserter(children));
+	/* select(begin(population), end(population), 0, fn, std::back_inserter(children)); */
 	select(begin(population), end(population), count, fn, std::back_inserter(children));
 
 	CPPUNIT_ASSERT(children.size() == count);
@@ -589,6 +592,7 @@ class FittestSelectionTest : public CPPUNIT_NS::TestFixture
 	CPPUNIT_TEST(select_children);
 	CPPUNIT_TEST(fitness_increases);
 	CPPUNIT_TEST(is_subset);
+	CPPUNIT_TEST(invalid_args);
 	CPPUNIT_TEST_SUITE_END();
 
 	protected:
@@ -606,6 +610,22 @@ class FittestSelectionTest : public CPPUNIT_NS::TestFixture
 		void is_subset()
 		{
 			::is_subset(ea::selection::Fittest<DefaultTestPopulation::iterator>());
+		}
+
+		void invalid_args()
+		{
+			ea::selection::Fittest<DefaultTestPopulation::iterator> op;
+
+			DefaultTestPopulation population;
+			DefaultTestPopulation children;
+
+			std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
+			fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
+			{
+				return 0;
+			};
+
+			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 10, fn, std::back_inserter(children)), std::length_error);
 		}
 };
 
@@ -653,10 +673,14 @@ class BitStringMutationTest : public CPPUNIT_NS::TestFixture
 	protected:
 		void mutate()
 		{
-			std::vector<bool> a(100);
+			std::vector<bool> a;
+
+			ea::mutation::BitString()(begin(a), end(a));
+
+			ea::random::fill_n_int(std::back_inserter(a), 100, 0, 1);
+
 			std::vector<bool> b(100);
 
-			ea::random::fill_n_int(begin(a), 100, 0, 1);
 			std::copy(begin(a), end(a), std::back_inserter(b));
 
 			ea::mutation::BitString()(begin(a), end(a));

@@ -1,38 +1,101 @@
-#ifndef EA_FITNESSPROPORTIONALSELECTION_HPP
-#define EA_FITNESSPROPORTIONALSELECTION_HPP
+/***************************************************************************
+    begin........: November 2012
+    copyright....: Sebastian Fedrau
+    email........: sebastian.fedrau@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License v3 as published by
+    the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License v3 for more details.
+ ***************************************************************************/
+/**
+   @file FitnessProportionalSelection.hpp
+   @brief The probability for being selected is proportional to the
+          fitness value of an individual.
+   @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
+ */
+#ifndef EA_FITNESS_PROPORTIONAL_SELECTION_HPP
+#define EA_FITNESS_PROPORTIONAL_SELECTION_HPP
 
 #include <iterator>
-#include <limits>
-#include <cfenv>
 #include <stdexcept>
 #include <vector>
+#include <complex>
+#include <numeric>
+#include <limits>
+#include <algorithm>
+#include <cfenv>
 
 #include "Random.hpp"
 
 namespace ea::selection
 {
+	/**
+	   @addtogroup Selection
+	   @{
+	 */
+
+	/**
+	   @enum Proportionality
+	   @brief Proportionality type.
+	 */
 	enum class Proportionality
 	{
+		/*! Probability is directly proportional to fitness value. */
 		direct,
+		/*! Probability is inversely proportional to fitness value. */
 		inverse
 	};
 
+	/**
+	   @class FitnessProportional
+
+	   Selects N individuals from a population. The probability for being selected
+	   is proportional to the fitness value of an individual.
+	 */
 	template<typename InputIterator>
 	class FitnessProportional
 	{
 		public:
+			/**
+			   @param proportionality specifies if probability is directly or inversely
+			                          proportional to the fitness value
+
+			   Initializes the functor.
+			 */
 			FitnessProportional(Proportionality proportionality = Proportionality::direct)
 				: proportionality(proportionality)
 			{}
 
+			/**
+			   @tparam Fitness fitness function object: double fun(InputIterator first, InputIterator last)
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first first individual of a population
+			   @param last points to the past-the-end element in the sequence
+			   @param fitness a fitness function
+			   @param N number of individuals to select from the population
+			   @param result beginning of the destination range
+
+			   Selects \p N individuals from a population and copies them to \p result.
+
+			   Throws std::length_error if population is empty or std::overflow_error if an
+			   overflow occurs.
+			 */
 			template<typename Fitness, typename OutputIterator>
-			void operator()(InputIterator first, InputIterator last, const size_t count, Fitness fitness, OutputIterator result)
+			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
 			{
 				std::vector<Slice> wheel;
 
 				const size_t length = insert_slices(first, last, fitness, std::back_inserter(wheel));
 
-				if(count > 0 && length == 0)
+				if(N > 0 && length == 0)
 				{
 					throw std::length_error("Population is empty.");
 				}
@@ -43,7 +106,7 @@ namespace ea::selection
 
 				if(sum == 0) // all fitness values are zero
 				{
-					std::fill_n(result, count, *first);
+					std::fill_n(result, N, *first);
 				}
 				else
 				{
@@ -51,7 +114,7 @@ namespace ea::selection
 
 					std::vector<double> numbers;
 
-					random::fill_n_real(std::back_inserter(numbers), count, 0.0, 1.0);
+					random::fill_n_real(std::back_inserter(numbers), N, 0.0, 1.0);
 
 					std::for_each(begin(numbers), end(numbers), [&](const double n)
 					{
@@ -97,8 +160,7 @@ namespace ea::selection
 						throw std::overflow_error("Arithmetic overflow.");
 					}
 
-					*result = { index, fitness(begin(g), end(g)) };
-					++result;
+					*result++ = { index, fitness(begin(g), end(g)) };
 
 					return index + 1;
 				});
@@ -128,14 +190,12 @@ namespace ea::selection
 			template<typename Iterator>
 			static void accumulate(Iterator first, Iterator last, const double sum)
 			{
-				double total = 0.0;
-
-				std::for_each(first, last, [&total, &sum](Slice &slice)
+				std::accumulate(first, last, 0.0, [sum](const double total, Slice &slice)
 				{
 					slice.size /= sum;
 					slice.size += total;
 
-					total = slice.size;
+					return slice.size;
 				});
 			}
 
@@ -147,6 +207,8 @@ namespace ea::selection
 				}
 			}
 	};
+
+	/*! @} */
 }
 
 #endif
