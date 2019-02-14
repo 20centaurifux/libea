@@ -19,70 +19,64 @@
    @brief Mutation operator swapping three genes.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_DOUBLE_SWAP_MUTATION_HPP
+#define EA_DOUBLE_SWAP_MUTATION_HPP
 
-#ifndef DOUBLESWAPMUTATION_H
-#define DOUBLESWAPMUTATION_H
+#include <iterator>
+#include <vector>
+#include <stdexcept>
 
-#include <assert.h>
-#include <memory>
-#include "AMutation.hpp"
-#include "TR1UniformDistribution.hpp"
+#include "Random.hpp"
 
-namespace ea
+namespace ea::mutation
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Mutation
 	   @{
-	   	@addtogroup Mutation
-		@{
 	 */
 
 	/**
-	   @class DoubleSwapMutation
-	   @tparam TGenomeBase a genome base class
-	   @brief A mutation operator swapping three genes.
+	   @class DoubleSwap
+	   @brief Swaps three genes.
 	 */
-	template<class TGenomeBase>
-	class DoubleSwapMutation : public AMutation<TGenomeBase>
+	class DoubleSwap
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
 			/**
-			   @param rnd instance of a random number generator
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @param first points to the first element of a chromosome
+			   @param last points to the end of a chromosome
+
+			   Swaps three genes.
+
+			   Throws std::length_error if the chromosome contains less than three genes.
 			 */
-			DoubleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
-
-			DoubleSwapMutation()
+			template<typename InputIterator>
+			void operator()(InputIterator first, InputIterator last) const
 			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
+				using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
+
+				const difference_type length = std::distance(first, last);
+
+				if(length < 3)
+				{
+					throw std::length_error("Chromosome too short.");
+				}
+
+				std::vector<difference_type> indeces(3);
+
+				random::fill_distinct_n_int(begin(indeces), 3, static_cast<difference_type>(0), length - 1);
+
+				auto chromosome = *(first + indeces[0]);
+
+				*(first + indeces[0]) = *(first + indeces[1]);
+				*(first + indeces[1]) = *(first + indeces[2]);
+				*(first + indeces[2]) = chromosome;
 			}
-
-			virtual ~DoubleSwapMutation() {}
-
-			void mutate(sequence_type& sequence)
-			{
-				static TGenomeBase base;
-				int32_t offsets[3];
-
-				assert(base.len(sequence) > 2);
-
-				_rnd->get_unique_int32_seq(0, base.len(sequence) - 1, offsets, 3);
-
-				auto seq = base.get(sequence, offsets[0]);
-				base.set(sequence, offsets[0], base.get(sequence, offsets[1]));
-				base.set(sequence, offsets[1], base.get(sequence, offsets[2]));
-				base.set(sequence, offsets[2], seq);
-			}
-
-		private:
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

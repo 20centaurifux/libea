@@ -679,7 +679,7 @@ class BitStringMutationTest : public CPPUNIT_NS::TestFixture
 
 			ea::random::fill_n_int(std::back_inserter(a), 100, 0, 1);
 
-			std::vector<bool> b(100);
+			std::vector<bool> b;
 
 			std::copy(begin(a), end(a), std::back_inserter(b));
 
@@ -696,6 +696,45 @@ class BitStringMutationTest : public CPPUNIT_NS::TestFixture
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(BitStringMutationTest);
+
+#include "DoubleSwapMutation.hpp"
+
+class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(DoubleSwapMutationTest);
+	CPPUNIT_TEST(mutate);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void mutate()
+		{
+			DefaultTestGenome a(10);
+
+			ea::random::fill_distinct_n_int(begin(a), 10, 0, 10);
+
+			DefaultTestGenome b;
+
+			CPPUNIT_ASSERT_THROW(ea::mutation::DoubleSwap()(begin(b), begin(b)), std::length_error);
+
+			std::copy(begin(a), end(a), std::back_inserter(b));
+
+			ea::mutation::DoubleSwap()(begin(a), end(a));
+
+			size_t differences = 0;
+
+			for(size_t i = 0; i < 10; ++i)
+			{
+				if(a[i] != b[i])
+				{
+					++differences;
+				}
+			}
+
+			CPPUNIT_ASSERT(differences == 3);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
 
 int main(int argc, char* argv[])
 {
