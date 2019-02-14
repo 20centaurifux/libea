@@ -736,6 +736,45 @@ class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
 
+#include "SingleSwapMutation.hpp"
+
+class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(SingleSwapMutationTest);
+	CPPUNIT_TEST(mutate);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void mutate()
+		{
+			DefaultTestGenome a(10);
+
+			ea::random::fill_distinct_n_int(begin(a), 10, 0, 10);
+
+			DefaultTestGenome b;
+
+			CPPUNIT_ASSERT_THROW(ea::mutation::SingleSwap()(begin(b), begin(b)), std::length_error);
+
+			std::copy(begin(a), end(a), std::back_inserter(b));
+
+			ea::mutation::SingleSwap()(begin(a), end(a));
+
+			size_t differences = 0;
+
+			for(size_t i = 0; i < 10; ++i)
+			{
+				if(a[i] != b[i])
+				{
+					++differences;
+				}
+			}
+
+			CPPUNIT_ASSERT(differences == 2);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
+
 int main(int argc, char* argv[])
 {
 	CPPUNIT_NS::TestResult testresult;

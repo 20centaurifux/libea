@@ -19,73 +19,63 @@
    @brief Mutation operator swapping two genes.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_SINGLE_SWAP_MUTATION_HPP
+#define EA_SINGLE_SWAP_MUTATION_HPP
 
-#ifndef SINGLESWAPMUTATION_H
-#define SINGLESWAPMUTATION_H
+#include <iterator>
+#include <vector>
+#include <stdexcept>
 
-#include <assert.h>
-#include <memory>
-#include "AMutation.hpp"
-#include "TR1UniformDistribution.hpp"
+#include "Random.hpp"
 
-namespace ea
+namespace ea::mutation
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Mutation
 	   @{
-	   	@addtogroup Mutation
-		@{
 	 */
 
 	/**
-	   @class SingleSwapMutation
-	   @tparam TGenomeBase a genome base class
-	   @brief A mutation operator swapping two genes.
+	   @class SingleSwap
+	   @brief Swaps two genes.
 	 */
-	template<class TGenomeBase>
-	class SingleSwapMutation : public AMutation<TGenomeBase>
+	class SingleSwap
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
-			SingleSwapMutation()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @param first points to the first element of a chromosome
+			   @param last points to the end of a chromosome
+
+			   Swaps two genes.
+
+			   Throws std::length_error if the chromosome contains less than two genes.
 			 */
-			SingleSwapMutation(std::shared_ptr<ARandomNumberGenerator> rnd)
+			template<typename InputIterator>
+			void operator()(InputIterator first, InputIterator last) const
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
+				using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
+
+				const difference_type length = std::distance(first, last);
+
+				if(length < 2)
+				{
+					throw std::length_error("Chromosome too short.");
+				}
+
+				std::vector<difference_type> indeces(2);
+
+				random::fill_distinct_n_int(begin(indeces), 2, static_cast<difference_type>(0), length - 1);
+
+				auto chromosome = *(first + indeces[0]);
+
+				*(first + indeces[0]) = *(first + indeces[1]);
+				*(first + indeces[1]) = chromosome;
 			}
-
-			virtual ~SingleSwapMutation() {}
-
-			void mutate(sequence_type& sequence)
-			{
-				static TGenomeBase base;
-				int32_t offsets[2];
-
-				assert(base.len(sequence) > 1);
-
-				_rnd->get_unique_int32_seq(0, base.len(sequence) - 1, offsets, 2);
-
-				auto seq = base.get(sequence, offsets[0]);
-				base.set(sequence, offsets[0], base.get(sequence, offsets[1]));
-				base.set(sequence, offsets[1], seq);
-			}
-
-		private:
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+
