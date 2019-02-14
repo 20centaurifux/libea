@@ -74,11 +74,11 @@ namespace ea::mutation
 
 					auto n = begin(probabilities);
 
-					for(auto g = first; g != last; g++, n++)
+					for(auto c = first; c != last; ++c, ++n)
 					{
 						if(*n <= probability)
 						{
-							*g = !*g;
+							*c = !*c;
 							flipped = true;
 						}
 					}

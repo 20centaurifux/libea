@@ -19,50 +19,42 @@
    @brief Mutation operator flipping all genes.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_INVERSE_BITSTRING_MUTATION_HPP
+#define EA_INVERSE_BITSTRING_MUTATION_HPP
 
-#ifndef INVERSEBITSTRINGMUTATION_H
-#define INVERSEBITSTRINGMUTATION_H
-
-#include <stdint.h>
-#include "AMutation.hpp"
-
-namespace ea
+namespace ea::mutation
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Mutation
 	   @{
-	   	@addtogroup Mutation
-		@{
 	 */
 
 	/**
-	   @class InverseBitStringMutation
-	   @tparam TGenomeBase a genome base class
-	   @brief A mutation operator flipping all genes.
+	   @class SingleSwap
+	   @brief Flips all genes.
 	 */
-	template<class TGenomeBase>
-	class InverseBitStringMutation : public AMutation<TGenomeBase>
+	class InverseBitString
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
+			/**
+			   @tparam InputIterator must meet the requirements of LegacyInputIterator
+			   @param first points to the first element of a chromosome
+			   @param last points to the end of a chromosome
 
-			virtual ~InverseBitStringMutation() {}
-
-			void mutate(sequence_type& sequence) override
+			   Flips all genes.
+			 */
+			template<typename InputIterator>
+			void operator()(InputIterator first, InputIterator last) const
 			{
-				static TGenomeBase base;
-
-				for(sequence_len_t i = 0; i < base.len(sequence); ++i)
+				for(auto c = first; c != last; ++c)
 				{
-					base.set(sequence, i, !base.get(sequence, i));
+					*c = !*c;
 				}
 			}
 	};
 
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+
