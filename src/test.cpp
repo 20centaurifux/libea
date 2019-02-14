@@ -768,6 +768,45 @@ class InverseBitStringMutationTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(InverseBitStringMutationTest);
 
+#include "SingleBitStringMutation.hpp"
+
+class SingleBitStringMutation : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(SingleBitStringMutation);
+	CPPUNIT_TEST(mutate);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void mutate()
+		{
+			std::vector<bool> a;
+
+			ea::mutation::BitString()(begin(a), end(a));
+
+			ea::random::fill_n_int(std::back_inserter(a), 100, 0, 1);
+
+			std::vector<bool> b;
+
+			std::copy(begin(a), end(a), std::back_inserter(b));
+
+			ea::mutation::SingleBitString()(begin(a), end(a));
+
+			size_t differences = 0;
+
+			for(size_t i = 0; i < 100; ++i)
+			{
+				if(a[i] != b[i])
+				{
+					++differences;
+				}
+			}
+
+			CPPUNIT_ASSERT(differences = 1);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(SingleBitStringMutation);
+
 #include "SingleSwapMutation.hpp"
 
 class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture

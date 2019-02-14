@@ -16,74 +16,65 @@
  ***************************************************************************/
 /**
    @file SingleBitStringMutation.hpp
-   @brief Mutation operator flipping a random gene.
+   @brief Flips a random gene.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_SINGLE_BITSTRING_MUTATION_HPP
+#define EA_SINGLE_BITSTRING_MUTATION_HPP
 
-#ifndef SINGLEBITSTRINGMUTATION_H
-#define SINGLEBITSTRINGMUTATION_H
+#include <iterator>
+#include <stdexcept>
 
-#include <assert.h>
-#include <memory>
-#include "AMutation.hpp"
-#include "TR1UniformDistribution.hpp"
+#include "Random.hpp"
 
-namespace ea
+namespace ea::mutation
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Mutation
 	   @{
-	   	@addtogroup Mutation
-		@{
 	 */
 
 	/**
-	   @class SingleBitStringMutation
-	   @tparam TGenomeBase a genome base class
-	   @brief A mutation operator flipping a random gene.
+	   @class SingleBitString
+	   @brief Flips a random gene.
 	 */
-	template<class TGenomeBase>
-	class SingleBitStringMutation : public AMutation<TGenomeBase>
+	class SingleBitString
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
-			SingleBitStringMutation()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
+			   @tparam InputIterator must meet the requirements of LegacyInputIterator
+			   @param first points to the first element of a chromosome
+			   @param last points to the end of a chromosome
+
+			   Flips a random gene.
+
+			   Throws std::length_error if chromosome is empty.
 			 */
-			SingleBitStringMutation(std::shared_ptr<ARandomNumberGenerator> rnd)
+			template<typename InputIterator>
+			void operator()(InputIterator first, InputIterator last) const
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
+				using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
+
+				const difference_type length = std::distance(first, last);
+	
+				if(length == 0)
+				{
+					throw std::length_error("Chromosome is empty.");
+				}
+
+				random::RandomEngine eng = random::default_engine();
+				std::uniform_int_distribution<difference_type> dist(0, length - 1);
+
+				const difference_type offset = dist(eng);
+
+				std::advance(first, offset);
+
+				*first = !*first;
 			}
-
-			virtual ~SingleBitStringMutation() {}
-
-			void mutate(sequence_type& sequence) override
-			{
-				static TGenomeBase base;
-				sequence_len_t index;
-
-				assert(base.len(sequence) > 0);
-
-				index = _rnd->get_int32(0, base.len(sequence) - 1);
-
-				base.set(sequence, index, !base.get(sequence, index));
-			}
-
-		private:
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
 	};
 
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+
