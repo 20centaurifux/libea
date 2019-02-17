@@ -17,7 +17,8 @@
 /**
    @file FitnessProportionalSelection.hpp
    @brief The probability for being selected is proportional to the
-          fitness value of an individual.
+          fitness value of an individual. Several chromosomes from the population
+	  are selected by repeated random sampling.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 #ifndef EA_FITNESS_PROPORTIONAL_SELECTION_HPP
@@ -153,14 +154,14 @@ namespace ea::selection
 			template<typename Fitness, typename OutputIterator>
 			static size_t insert_slices(InputIterator first, InputIterator last, Fitness fitness, OutputIterator result)
 			{
-				return std::accumulate(first, last, 0, [&fitness, &result](const size_t index, auto &g)
+				return std::accumulate(first, last, 0, [&fitness, &result](const size_t index, auto &chromosome)
 				{
 					if(index == std::numeric_limits<size_t>::max())
 					{
 						throw std::overflow_error("Arithmetic overflow.");
 					}
 
-					*result++ = { index, fitness(begin(g), end(g)) };
+					*result++ = { index, fitness(begin(chromosome), end(chromosome)) };
 
 					return index + 1;
 				});

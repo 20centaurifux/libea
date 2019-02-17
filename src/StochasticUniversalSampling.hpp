@@ -16,120 +16,134 @@
  ***************************************************************************/
 /**
    @file StochasticUniversalSampling.hpp
-   @brief Implementation of stochastic universal sampling.
+   @brief The probability for being selected is proportional to the
+          fitness value of an individual. A single random value to sample all
+	  of the solutions is used.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_STOCHASTIC_UNIVERSAL_SAMPLING_HPP
+#define EA_STOCHASTIC_UNIVERSAL_SAMPLING_HPP
 
-#ifndef STOCHASTICUNIVERSALSAMPLING_H
-#define STOCHASTICUNIVERSALSAMPLING_H
+#include <iterator>
+#include <stdexcept>
+#include <vector>
+#include <complex>
+#include <numeric>
+#include <limits>
+#include <algorithm>
+#include <cfenv>
 
-#include <assert.h>
-#include <memory>
-#include "IIndexSelection.hpp"
-#include "ARandomNumberGenerator.hpp"
+#include "Random.hpp"
+#include "Utils.hpp"
 
-namespace ea
+namespace ea::selection
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Selection
 	   @{
-	   	@addtogroup Selection
-		@{
 	 */
 
 	/**
 	   @class StochasticUniversalSampling
-	   @tparam TGenomeBase genome base class
-	   @brief Implementation of stochastic universal sampling. This operator can only be
-	          used with positive fitness values.
+
+	   Selects N individuals from a population. The probability for being selected
+	   is proportional to the fitness value of an individual.
 	 */
-	template<typename TGenomeBase>
-	class StochasticUniversalSampling : public IIndexSelection<TGenomeBase>
+	template<typename InputIterator>
+	class StochasticUniversalSampling
 	{
 		public:
 			/**
-			   @param rnd instance of a random number generator
+			   @tparam Fitness fitness function object: double fun(InputIterator first, InputIterator last)
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first first individual of a population
+			   @param last points to the past-the-end element in the sequence
+			   @param fitness a fitness function
+			   @param N number of individuals to select from the population
+			   @param result beginning of the destination range
+
+			   Selects \p N individuals from a population and copies them to \p result.
+
+			   Throws std::length_error if population is empty or std::overflow_error if an
+			   overflow occurs.
 			 */
-			StochasticUniversalSampling(std::shared_ptr<ARandomNumberGenerator> rnd)
+			template<typename Fitness, typename OutputIterator>
+			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
-			}
+				std::vector<double> sums;
 
-			StochasticUniversalSampling()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
+				const double min = collect(first, last, fitness, std::back_inserter(sums));
 
-			~StochasticUniversalSampling() {}
-
-			void select(IInputAdapter<typename TGenomeBase::sequence_type>& input, const size_t count, IOutputAdapter<size_t>& output) override
-			{
-				double* sums;
-				sequence_len_t i = 0;
-				sequence_len_t j = 0;
-				double u;
-				double interval;
-				sequence_len_t range[2];
-
-				sums = new double[input.size()];
-				sums[0] = _base.fitness(input.current());
-
-				for(i = 1; i < input.size(); ++i)
+				if(N > 0 && sums.size() == 0)
 				{
-					sums[i] = sums[i - 1] + _base.fitness(input.at(i));
+					throw std::length_error("Population is empty.");
 				}
 
-				interval = sums[input.size() - 1] / count;
-				u = _rnd->get_double(0, interval);
+				const double total = accumulate(begin(sums), end(sums), min);
 
-				for(i = 0; i < count; ++i)
+				random::RandomEngine eng = random::default_engine();
+				std::uniform_real_distribution<double> dist(0.0, total / N);
+
+				double u = dist(eng);
+				auto upper = begin(sums);
+
+				utils::repeat(N, [&]()
 				{
-					range[0] = j;
-					range[1] = input.size() - 1;
+					upper = std::upper_bound(begin(sums), end(sums), u);
 
-					j = find_index(sums, range, u);
+					const auto offset = std::distance(begin(sums), upper);
 
-					output.push(j);
+					*result++ = *(first + offset);
 
-					u += interval;
-				}
-
-				delete[] sums;
+					u += total / N;
+				});
 			}
 
 		private:
-			static TGenomeBase _base;
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
-
-			inline sequence_len_t find_index(const double* sums, sequence_len_t range[2], const double n) const
+			template<typename Fitness, typename OutputIterator>
+			static double collect(InputIterator first, InputIterator last, Fitness fitness, OutputIterator result)
 			{
-				sequence_len_t mid;
-
-				while(range[1] - range[0] > 1)
+				return std::accumulate(first, last, 0.0, [&fitness, &result](const double min, auto &chromosome)
 				{
-					mid = (range[1] - range[0]) / 2 + range[0];
+					double f = fitness(begin(chromosome), end(chromosome));
 
-					if(sums[mid] > n)
-					{
-						range[1] = mid;
-					}
-					else
-					{
-						range[0] = mid;
-					}
+					*result++ = f;
+
+					return std::min(f, min);
+				});
+			}
+
+			template<typename Iterator>
+			static double accumulate(Iterator first, Iterator last, const double min)
+			{
+				const double alignment = std::abs(std::min(0.0, min)) * 2;
+
+				if(std::fetestexcept(FE_OVERFLOW))
+				{
+					throw std::overflow_error("Arithmetic overflow.");
 				}
 
-				return range[1];
+				double sum = 0.0;
+
+				while(first != last)
+				{
+					sum += *first + alignment;
+
+					if(std::fetestexcept(FE_OVERFLOW))
+					{
+						throw std::overflow_error("Arithmetic overflow.");
+					}
+
+					*first++ = sum;
+				}
+
+				return sum;
 			}
 	};
 
-	template<typename TGenomeBase>
-	TGenomeBase StochasticUniversalSampling<TGenomeBase>::_base;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

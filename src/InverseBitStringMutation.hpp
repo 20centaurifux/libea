@@ -30,7 +30,7 @@ namespace ea::mutation
 	 */
 
 	/**
-	   @class SingleSwap
+	   @class InverseBitString
 	   @brief Flips all genes.
 	 */
 	class InverseBitString
