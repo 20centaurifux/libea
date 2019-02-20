@@ -16,123 +16,126 @@
  ***************************************************************************/
 /**
    @file CutAndSpliceCrossover.hpp
-   @brief Implementation of the cut-and-splice crossover operator.
+   @brief Cuts two chromosomes and links both substrings.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
 
-#ifndef CUTANDSPLICECROSSOVER_H
-#define CUTANDSPLICECROSSOVER_H
+#ifndef EA_CUT_AND_SPLICE_CROSSOVER_HPP
+#define EA_CUT_AND_SPLICE_CROSSOVER_HPP
 
-#include <assert.h>
-#include <memory>
-#include <random>
+#include <tuple>
+#include <iterator>
 #include <limits>
-#include "ACrossover.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
-#include "algorithms.hpp"
+#include <stdexcept>
 
-namespace ea
+#include "Random.hpp"
+
+namespace ea::crossover
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
 	 */
 
 	/**
-	   @class CutAndSpliceCrossover
-	   @tparam TGenomeBase a genome base class
-	   @brief Implementation of the cut-and-splice crossover operator.
+	   @class CutAndSplice
+	   @tparam Chromosome chromosome sequence type
+
+	   Cuts two chromosomes and links both substrings. Two offstrings are generated.
 	 */
-	template<typename TGenomeBase>
-	class CutAndSpliceCrossover : public ea::ACrossover<TGenomeBase>
+	template<typename Chromosome>
+	class CutAndSplice
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
-			CutAndSpliceCrossover()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
+			   @tparam InputIterator must meet the requirements of LegacyInputIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first1 points to the first element of the first chromosome
+			   @param last1 points to the end of the first chromosome
+			   @param first2 points to the first element of the second chromosome
+			   @param last2 points to the end of the second chromosome
+			   @param result beginning of the destination range
+			   @return number of offsprings written to \p result
+			   
+			   Combines two parents and generates new offspring.
+
+			   Throws std::length_error if the length of at least one chromosome is below 3
+			   and std::overflow_error if an overflow occurs.
 			 */
-			CutAndSpliceCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			template<typename InputIterator, typename OutputIterator>
+			size_t operator()(InputIterator first1,
+			                  InputIterator last1,
+			                  InputIterator first2,
+			                  InputIterator last2,
+			                  OutputIterator result)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
-			}
+				difference_type<InputIterator> length1, sep1;
 
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
-			{
-				uint32_t m, i, sep1, sep2, len;
+				std::tie(length1, sep1) = separate(first1, last1);
 
-				assert(_base.len(a) > 2);
-				assert(_base.len(b) > 2);
+				difference_type<InputIterator> length2, sep2;
 
-				m = sep1 = _rnd->get_int32(1, _base.len(a) - 2);
-				sep2 = _rnd->get_int32(1, _base.len(b) - 2);
+				std::tie(length2, sep2) = separate(first2, last2);
 
-				// create first individual:
-				len = chk_add(sep1, (uint32_t)_base.len(b));
-				len = chk_sub(len, sep2);
-
-				assert(len < MAX_SEQUENCE_LEN);
-
-				auto individual = _base.create(len);
-
-				for(i = 0; i < sep1; ++i)
-				{
-					_base.set(individual, i, _base.get(a, i));
-				}
-
-				for(i = sep2; i < _base.len(b); ++i)
-				{
-					_base.set(individual, m++, _base.get(b, i));
-				}
-
-				output.push(individual);
-
-				// create second individual:
-				len = chk_add(sep2, (uint32_t)_base.len(a));
-				len = chk_sub(len, sep1);
-
-				assert(len < MAX_SEQUENCE_LEN);
-
-				individual = _base.create(len);
-
-				for(i = 0; i < sep2; ++i)
-				{
-					_base.set(individual, i, _base.get(b, i));
-				}
-
-				m = sep2;
-
-				for(i = sep1; i < _base.len(a); ++i)
-				{
-					_base.set(individual, m++, _base.get(a, i));
-				}
-
-				output.push(individual);
+				append(first1, sep1, first2, sep2, length2, result);
+				append(first2, sep2, first1, sep1, length1, result);
 
 				return 2;
 			}
 
 		private:
-			static TGenomeBase _base;
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
+			template<typename InputIterator>
+			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
+
+			random::RandomEngine eng = random::default_engine();
+
+			template<typename InputIterator>
+			std::tuple<difference_type<InputIterator>, difference_type<InputIterator>>
+			separate(InputIterator first, InputIterator last)
+			{
+				const difference_type<InputIterator> length = std::distance(first, last);
+
+				if(length <= 2)
+				{
+					throw std::length_error("Population too small.");
+				}
+
+				std::uniform_int_distribution<difference_type<InputIterator>> dist(1, length - 2);
+
+				return std::make_tuple(length, dist(eng));
+			}
+
+			template<typename InputIterator, typename OutputIterator>
+			static void append(InputIterator first1,
+			                   const difference_type<InputIterator> sep1,
+			                   InputIterator first2,
+			                   const difference_type<InputIterator> sep2,
+			                   const difference_type<InputIterator> length2,
+			                   OutputIterator result)
+			{
+				if(std::numeric_limits<difference_type<InputIterator>>::max() - sep1 < length2 - sep2)
+				{
+					throw std::overflow_error("Arithmetic overflow.");
+				}
+
+				const difference_type<InputIterator> length = sep1 + (length2 - sep2);
+
+				Chromosome chromosome(length);
+
+				auto iter = begin(chromosome);
+
+				std::copy_n(first1, sep1, iter);
+				std::advance(iter, sep1);
+
+				std::advance(first2, sep2);
+				std::copy_n(first2, length2 - sep2, iter);
+
+				*result++ = chromosome;
+			}
 	};
 
-	template<typename TGenomeBase>
-	TGenomeBase CutAndSpliceCrossover<TGenomeBase>::_base;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

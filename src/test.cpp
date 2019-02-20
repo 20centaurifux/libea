@@ -894,6 +894,61 @@ class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
 
+template<typename Crossover>
+void crossover(Crossover crossover, const size_t expected_size)
+{
+	DefaultTestGenome a(10);
+
+	ea::random::fill_distinct_n_int(begin(a), 10, 0, 10);
+
+	DefaultTestGenome b(10);
+
+	ea::random::fill_distinct_n_int(begin(b), 10, 100, 110);
+
+	DefaultTestPopulation offsprings;
+
+	size_t n = crossover(begin(a), end(a), begin(b), end(b), std::back_inserter(offsprings));
+
+	CPPUNIT_ASSERT(n == expected_size);
+	CPPUNIT_ASSERT(offsprings.size() == expected_size);
+}
+
+#include "CutAndSpliceCrossover.hpp"
+
+class CutAndSpliceCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(CutAndSpliceCrossoverTest);
+	CPPUNIT_TEST(crossover);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void crossover()
+		{
+			::crossover(ea::crossover::CutAndSplice<DefaultTestGenome>(), 2);
+		}
+
+		void invalid_args()
+		{
+			DefaultTestGenome a(2);
+
+			ea::random::fill_distinct_n_int(begin(a), 2, 0, 10);
+
+			DefaultTestGenome b(10);
+
+			ea::random::fill_distinct_n_int(begin(b), 10, 100, 110);
+
+			DefaultTestPopulation offsprings;
+
+			ea::crossover::CutAndSplice<DefaultTestGenome> op;
+
+			CPPUNIT_ASSERT_THROW(op(begin(a), end(a), begin(b), end(b), std::back_inserter(offsprings)), std::length_error);
+			CPPUNIT_ASSERT_THROW(op(begin(b), end(b), begin(a), end(a), std::back_inserter(offsprings)), std::length_error);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceCrossoverTest);
+
 int main(int argc, char* argv[])
 {
 	CPPUNIT_NS::TestResult testresult;
