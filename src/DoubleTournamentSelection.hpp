@@ -42,10 +42,11 @@ namespace ea::selection
 
 	/**
 	   @class DoubleTournament
+	   @tparam Compare function to compare fitness values
 	   @brief Compares the fitness of all individuals to Q random opponents.
                   The chromosomes with the most victories are selected.
 	 */
-	template<typename InputIterator, typename Compare = std::greater<double>>
+	template<typename Compare = std::greater<double>>
 	class DoubleTournament
 	{
 		public:
@@ -77,35 +78,35 @@ namespace ea::selection
 
 			   Throws std::length_error if \p Q or \p N exceeds the population size.
 			 */
-			template<typename Fitness, typename OutputIterator>
+			template<typename InputIterator, typename Fitness, typename OutputIterator>
 			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
 			{
 				const auto length = std::distance(first, last);
 
-				if(length < 0 || static_cast<typename std::make_unsigned<difference_type>::type>(length) <= Q)
+				if(length < 0 || static_cast<typename std::make_unsigned<difference_type<InputIterator>>::type>(length) <= Q)
 				{
 					throw std::length_error("Q exceeds population size.");
 				}
 
-				if(N > 0 && N >= static_cast<typename std::make_unsigned<difference_type>::type>(length))
+				if(N > 0 && N >= static_cast<typename std::make_unsigned<difference_type<InputIterator>>::type>(length))
 				{
 					throw std::length_error("N exceeds population size.");
 				}
 
 				auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
 
-				std::vector<Score> indeces;
-				difference_type i = 0;
+				std::vector<Score<InputIterator>> indeces;
+				difference_type<InputIterator> i = 0;
 
 				for(auto chromosome = first; chromosome != last; ++chromosome, ++i)
 				{
-					Score score = { i, 0 };
+					Score<InputIterator> score = { i, 0 };
 
-					std::vector<difference_type> opponents(Q);
+					std::vector<difference_type<InputIterator>> opponents(Q);
 
-					random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type>(0), length - 1);
+					random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type<InputIterator>>(0), length - 1);
 
-					std::for_each(begin(opponents), end(opponents), [&](difference_type j)
+					std::for_each(begin(opponents), end(opponents), [&](difference_type<InputIterator> j)
 					{
 						if(Compare()(fitness_by_index(first, i), fitness_by_index(first, j)))
 						{
@@ -125,18 +126,20 @@ namespace ea::selection
 			}
 
 		private:
+			template<typename InputIterator>
 			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
-			typedef struct _Score
+			template<typename InputIterator>
+			struct Score
 			{
-				difference_type offset;
+				difference_type<InputIterator> offset;
 				size_t value;
 
-				bool operator<(const struct _Score& rhs) const
+				bool operator<(const struct Score& rhs) const
 				{
 					return value > rhs.value;
 				}
-			} Score;
+			};
 
 			const size_t Q;
 	};

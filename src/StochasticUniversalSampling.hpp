@@ -49,7 +49,6 @@ namespace ea::selection
 	   Selects N individuals from a population. The probability for being selected
 	   is proportional to the fitness value of an individual.
 	 */
-	template<typename InputIterator>
 	class StochasticUniversalSampling
 	{
 		public:
@@ -68,7 +67,7 @@ namespace ea::selection
 			   Throws std::length_error if population is empty or std::overflow_error if an
 			   overflow occurs.
 			 */
-			template<typename Fitness, typename OutputIterator>
+			template<typename InputIterator, typename Fitness, typename OutputIterator>
 			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
 			{
 				std::vector<double> sums;
@@ -101,7 +100,7 @@ namespace ea::selection
 			}
 
 		private:
-			template<typename Fitness, typename OutputIterator>
+			template<typename InputIterator, typename Fitness, typename OutputIterator>
 			static double collect(InputIterator first, InputIterator last, Fitness fitness, OutputIterator result)
 			{
 				return std::accumulate(first, last, 0.0, [&fitness, &result](const double min, auto &chromosome)

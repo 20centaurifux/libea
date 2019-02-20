@@ -41,10 +41,11 @@ namespace ea::selection
 
 	/**
 	   @class Tournament
+	   @tparam Compare function to compare fitness values
 	   @brief Selects N random individuals from a population. Then the fitness of each
 	          chromosome is compared to Q random opponents. The fittest individual is chosen.
 	 */
-	template<typename InputIterator, typename Compare = std::greater<double>>
+	template<typename Compare = std::greater<double>>
 	class Tournament
 	{
 		public:
@@ -76,63 +77,53 @@ namespace ea::selection
 
 			   Throws std::length_error if \p Q exceeds the population size.
 			 */
-			template<typename Fitness, typename OutputIterator>
+			template<typename InputIterator, typename Fitness, typename OutputIterator>
 			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
 			{
-				length = std::distance(first, last);
+				difference_type<InputIterator> length = std::distance(first, last);
 
-				if(length < 0 || static_cast<typename std::make_unsigned<difference_type>::type>(length) <= Q)
+				if(length < 0 || static_cast<typename std::make_unsigned<difference_type<InputIterator>>::type>(length) <= Q)
 				{
 					throw std::length_error("Q exceeds population size.");
 				}
 
-				index_dist = std::uniform_int_distribution<difference_type>(0, length - 1);
+				random::RandomEngine engine = random::default_engine();
+				std::uniform_int_distribution<difference_type<InputIterator>> index_dist(0, length - 1);
 
 				utils::repeat(N, [&]()
 				{
-					select(first, last, fitness, result);
+					std::vector<difference_type<InputIterator>> opponents(Q);
+
+					random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type<InputIterator>>(0), length - 1);
+
+					auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
+					difference_type<InputIterator> index = index_dist(engine);
+
+					while(std::find(begin(opponents), end(opponents), index) != end(opponents))
+					{
+						index = index_dist(engine);
+					}
+
+					*result++ = *(first + std::accumulate(begin(opponents), end(opponents), index, [&](auto index, auto i)
+					{
+						return compare_genotypes(first, index, i, fitness_by_index);
+					}));
 				});
 			}
 
 		private:
+			template<typename InputIterator>
 			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
 			const size_t Q;
 
-			random::RandomEngine engine = random::default_engine();
-			difference_type length;
-			std::uniform_int_distribution<difference_type> index_dist;
-
-			template<typename Fitness, typename OutputIterator>
-			void select(InputIterator first, InputIterator last, Fitness fitness, OutputIterator result)
+			template<typename InputIterator, typename Fitness>
+			static difference_type<InputIterator> compare_genotypes(InputIterator first,
+			                                                        const difference_type<InputIterator> a,
+			                                                        const difference_type<InputIterator> b,
+			                                                        Fitness fitness)
 			{
-				std::vector<difference_type> opponents(Q);
-
-				random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type>(0), length - 1);
-
-				auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
-				difference_type index = random_index();
-
-				while(std::find(begin(opponents), end(opponents), index) != end(opponents))
-				{
-					index = random_index();
-				}
-
-				*result++ = *(first + std::accumulate(begin(opponents), end(opponents), index, [&](auto index, auto i)
-				{
-					return compare_genotypes(first, index, i, fitness_by_index);
-				}));
-			}
-
-			difference_type random_index()
-			{
-				return index_dist(engine);
-			}
-
-			template<typename Fitness>
-			static difference_type compare_genotypes(InputIterator first, const difference_type a, const difference_type b, Fitness fitness)
-			{
-				difference_type index = b;
+				difference_type<InputIterator> index = b;
 
 				if(Compare()(fitness(first, a), fitness(first, b)))
 				{

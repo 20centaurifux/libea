@@ -35,9 +35,10 @@ namespace ea::selection
 
 	/**
 	   @class Fittest
+	   @tparam Compare function to compare fitness values
 	   @brief Selects the N fittest individuals.
 	 */
-	template<typename InputIterator, typename Compare = std::greater<double>>
+	template<typename Compare = std::greater<double>>
 	class Fittest
 	{
 		public:
@@ -56,14 +57,14 @@ namespace ea::selection
 			   Throws std::length_error if N exceeds population size or std::overflow_error
 			   if the number of individuals exceeds size_t.
 			 */
-			template<typename Fitness, typename OutputIterator>
+			template<typename InputIterator, typename Fitness, typename OutputIterator>
 			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
 			{
 				std::multiset<Chromosome> chromosomes;
 				size_t i = 0;
 
 				for(auto p = first; p != last; ++p, ++i)
-				{ 
+				{
 					chromosomes.insert({ i, fitness(begin(*p), end(*p)) });
 
 					if(i == std::numeric_limits<size_t>::max())
@@ -86,16 +87,16 @@ namespace ea::selection
 			}
 
 		private:
-			typedef struct _Chromosome
+			struct Chromosome
 			{
 				const size_t index;
 				const double fitness;
 
-				bool operator<(const struct _Chromosome& rhs) const
+				bool operator<(const struct Chromosome& rhs) const
 				{
 					return Compare()(fitness, rhs.fitness);
 				}
-			} Chromosome;
+			};
 	};
 
 	/*! @} */

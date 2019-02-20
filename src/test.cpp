@@ -410,7 +410,7 @@ static void select_children(Selection select, const size_t size = 1000, const si
 
 	DefaultTestPopulation children;
 
-	/* select(begin(population), end(population), 0, fn, std::back_inserter(children)); */
+	select(begin(population), end(population), 0, fn, std::back_inserter(children));
 	select(begin(population), end(population), count, fn, std::back_inserter(children));
 
 	CPPUNIT_ASSERT(children.size() == count);
@@ -490,6 +490,30 @@ static void is_subset(Selection select, const size_t size = 1000, const size_t c
 	});
 }
 
+template<typename Error, typename Selection>
+void select_error(Selection op, size_t size = 0, size_t count = 0)
+{
+	DefaultTestPopulation population;
+
+	std::generate_n(std::back_inserter(population), size, [&]()
+	{
+		DefaultTestGenome g;
+
+		ea::random::fill_n_int(std::back_inserter(g), 10, -100, 100);
+
+		return g;
+	});
+
+	DefaultTestPopulation children; 
+
+	std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
+	fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
+	{
+		return 0;
+	};
+
+	CPPUNIT_ASSERT_THROW(op(begin(population), end(population), count, fn, std::back_inserter(children)), Error);
+}
 
 #include "TournamentSelection.hpp"
 
@@ -505,37 +529,27 @@ class TournamentSelectionTest : public CPPUNIT_NS::TestFixture
 	protected:
 		void select_children()
 		{
-			::select_children(ea::selection::Tournament<DefaultTestPopulation::iterator>());
+			::select_children(ea::selection::Tournament<>());
 		}
 
 		void fitness_increases()
 		{
-			::fitness_increases(ea::selection::Tournament<DefaultTestPopulation::iterator>());
-			::fitness_increases<std::less<double>>(ea::selection::Tournament<DefaultTestPopulation::iterator, std::less<double>>());
+			::fitness_increases(ea::selection::Tournament<>());
+			::fitness_increases<std::less<double>>(ea::selection::Tournament<std::less<double>>());
 		}
 
 		void is_subset()
 		{
-			::is_subset(ea::selection::Tournament<DefaultTestPopulation::iterator>());
+			::is_subset(ea::selection::Tournament<>());
 		}
 
 		void invalid_args()
 		{
-			CPPUNIT_ASSERT_THROW(ea::selection::Tournament<DefaultTestPopulation::iterator>(0), std::invalid_argument);
+			CPPUNIT_ASSERT_THROW(ea::selection::Tournament<>(0), std::invalid_argument);
 
-			ea::selection::Tournament<DefaultTestPopulation::iterator> op(5);
+			ea::selection::Tournament<> op(5);
 
-			DefaultTestPopulation population;
-			DefaultTestPopulation children; 
-
-			std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
-			fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
-			{
-				return 0;
-			};
-
-			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 3, fn, std::back_inserter(children)), std::length_error);
-			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 10, fn, std::back_inserter(children)), std::length_error);
+			select_error<std::length_error>(op, 4, 3);
 		}
 };
 
@@ -547,6 +561,7 @@ class DoubleTournamentSelectionTest : public CPPUNIT_NS::TestFixture
 {
 	CPPUNIT_TEST_SUITE(DoubleTournamentSelectionTest);
 	CPPUNIT_TEST(select_children);
+	CPPUNIT_TEST(fitness_increases);
 	CPPUNIT_TEST(is_subset);
 	CPPUNIT_TEST(invalid_args);
 	CPPUNIT_TEST_SUITE_END();
@@ -554,31 +569,28 @@ class DoubleTournamentSelectionTest : public CPPUNIT_NS::TestFixture
 	protected:
 		void select_children()
 		{
-			::select_children(ea::selection::DoubleTournament<DefaultTestPopulation::iterator>());
+			::select_children(ea::selection::DoubleTournament<>());
 		}
 
 		void is_subset()
 		{
-			::is_subset(ea::selection::DoubleTournament<DefaultTestPopulation::iterator>());
+			::is_subset(ea::selection::DoubleTournament<>());
+		}
+
+		void fitness_increases()
+		{
+			::fitness_increases(ea::selection::DoubleTournament<>());
+			::fitness_increases<std::less<double>>(ea::selection::DoubleTournament<std::less<double>>());
 		}
 
 		void invalid_args()
 		{
-			CPPUNIT_ASSERT_THROW(ea::selection::DoubleTournament<DefaultTestPopulation::iterator>(0), std::invalid_argument);
+			CPPUNIT_ASSERT_THROW(ea::selection::DoubleTournament<>(0), std::invalid_argument);
 
-			ea::selection::DoubleTournament<DefaultTestPopulation::iterator> op(5);
+			ea::selection::DoubleTournament<> op(5);
 
-			DefaultTestPopulation population;
-			DefaultTestPopulation children;
-
-			std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
-			fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
-			{
-				return 0;
-			};
-
-			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 3, fn, std::back_inserter(children)), std::length_error);
-			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 10, fn, std::back_inserter(children)), std::length_error);
+			select_error<std::length_error>(op, 4, 3);
+			select_error<std::length_error>(op, 10, 11);
 		}
 };
 
@@ -598,34 +610,25 @@ class FittestSelectionTest : public CPPUNIT_NS::TestFixture
 	protected:
 		void select_children()
 		{
-			::select_children(ea::selection::Fittest<DefaultTestPopulation::iterator>());
+			::select_children(ea::selection::Fittest<>());
 		}
 
 		void fitness_increases()
 		{
-			::fitness_increases(ea::selection::Fittest<DefaultTestPopulation::iterator>());
-			::fitness_increases<std::less<double>>(ea::selection::Fittest<DefaultTestPopulation::iterator, std::less<double>>());
+			::fitness_increases(ea::selection::Fittest<>());
+			::fitness_increases<std::less<double>>(ea::selection::Fittest<std::less<double>>());
 		}
 
 		void is_subset()
 		{
-			::is_subset(ea::selection::Fittest<DefaultTestPopulation::iterator>());
+			::is_subset(ea::selection::Fittest<>());
 		}
 
 		void invalid_args()
 		{
-			ea::selection::Fittest<DefaultTestPopulation::iterator> op;
+			ea::selection::Fittest<> op;
 
-			DefaultTestPopulation population;
-			DefaultTestPopulation children;
-
-			std::function<double(DefaultTestGenome::iterator, DefaultTestGenome::iterator)>
-			fn = [](DefaultTestGenome::iterator first, DefaultTestGenome::iterator last)
-			{
-				return 0;
-			};
-
-			CPPUNIT_ASSERT_THROW(op(begin(population), end(population), 10, fn, std::back_inserter(children)), std::length_error);
+			select_error<std::length_error>(op, 10, 11);
 		}
 };
 
@@ -639,27 +642,72 @@ class FitnessProportionalSelection : public CPPUNIT_NS::TestFixture
 	CPPUNIT_TEST(select_children);
 	CPPUNIT_TEST(fitness_increases);
 	CPPUNIT_TEST(is_subset);
+	CPPUNIT_TEST(invalid_args);
 	CPPUNIT_TEST_SUITE_END();
 
 	protected:
 		void select_children()
 		{
-			::select_children(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>());
+			::select_children(ea::selection::FitnessProportional());
 		}
 
 		void fitness_increases()
 		{
-			::fitness_increases(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>());
-			::fitness_increases<std::less<double>>(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>(ea::selection::Proportionality::inverse));
+			::fitness_increases(ea::selection::FitnessProportional());
+			::fitness_increases<std::less<double>>(ea::selection::FitnessProportional(ea::selection::Proportionality::inverse));
 		}
 
 		void is_subset()
 		{
-			::is_subset(ea::selection::FitnessProportional<DefaultTestPopulation::iterator>());
+			::is_subset(ea::selection::FitnessProportional());
+		}
+
+		void invalid_args()
+		{
+			ea::selection::FitnessProportional op;
+
+			select_error<std::length_error>(op, 0, 1);
 		}
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FitnessProportionalSelection);
+
+#include "StochasticUniversalSampling.hpp"
+
+class StochasticUniversalSamplingTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(StochasticUniversalSamplingTest);
+	CPPUNIT_TEST(select_children);
+	CPPUNIT_TEST(fitness_increases);
+	CPPUNIT_TEST(is_subset);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void select_children()
+		{
+			::select_children(ea::selection::StochasticUniversalSampling());
+		}
+
+		void fitness_increases()
+		{
+			::fitness_increases(ea::selection::StochasticUniversalSampling());
+		}
+
+		void is_subset()
+		{
+			::is_subset(ea::selection::StochasticUniversalSampling());
+		}
+
+		void invalid_args()
+		{
+			ea::selection::StochasticUniversalSampling op;
+
+			select_error<std::length_error>(op, 0, 1);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(StochasticUniversalSamplingTest);
 
 #include "BitStringMutation.hpp"
 
