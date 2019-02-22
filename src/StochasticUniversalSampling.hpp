@@ -91,8 +91,12 @@ namespace ea::selection
 				{
 					upper = std::upper_bound(begin(sums), end(sums), u);
 
-					const auto offset = std::distance(begin(sums), upper);
+					if(upper == end(sums))
+					{
+						std::advance(upper, -1);
+					}
 
+					const auto offset = std::distance(begin(sums), upper);
 					*result++ = *(first + offset);
 
 					u += total / N;
