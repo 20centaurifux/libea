@@ -895,15 +895,17 @@ class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
 
 template<typename Crossover>
-void crossover(Crossover crossover, const size_t expected_size)
+void crossover(Crossover crossover, const size_t expected_size,
+               const size_t count1, const size_t min1, const size_t max1,
+               const size_t count2, const size_t min2, const size_t max2)
 {
-	DefaultTestGenome a(10);
+	DefaultTestGenome a(count1);
 
-	ea::random::fill_distinct_n_int(begin(a), 10, 0, 10);
+	ea::random::fill_distinct_n_int(begin(a), count1, min1, max1);
 
-	DefaultTestGenome b(10);
+	DefaultTestGenome b(count2);
 
-	ea::random::fill_distinct_n_int(begin(b), 10, 100, 110);
+	ea::random::fill_distinct_n_int(begin(b), count2, min2, max2);
 
 	DefaultTestPopulation offsprings;
 
@@ -925,29 +927,46 @@ class CutAndSpliceCrossoverTest : public CPPUNIT_NS::TestFixture
 	protected:
 		void crossover()
 		{
-			::crossover(ea::crossover::CutAndSplice<DefaultTestGenome>(), 2);
+			::crossover(ea::crossover::CutAndSplice<DefaultTestGenome>(), 2, 10, 0, 9, 10, 100, 109);
 		}
 
 		void invalid_args()
 		{
-			DefaultTestGenome a(2);
-
-			ea::random::fill_distinct_n_int(begin(a), 2, 0, 10);
-
-			DefaultTestGenome b(10);
-
-			ea::random::fill_distinct_n_int(begin(b), 10, 100, 110);
-
-			DefaultTestPopulation offsprings;
-
 			ea::crossover::CutAndSplice<DefaultTestGenome> op;
 
-			CPPUNIT_ASSERT_THROW(op(begin(a), end(a), begin(b), end(b), std::back_inserter(offsprings)), std::length_error);
-			CPPUNIT_ASSERT_THROW(op(begin(b), end(b), begin(a), end(a), std::back_inserter(offsprings)), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 2, 0, 9, 10, 100, 109), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 10, 0, 9, 2, 100, 109), std::length_error);
 		}
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceCrossoverTest);
+
+#include "EdgeRecombinationCrossover.hpp"
+
+class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(EdgeRecombinationCrossoverTest);
+	CPPUNIT_TEST(crossover);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void crossover()
+		{
+			::crossover(ea::crossover::EdgeRecombination<DefaultTestGenome>(), 1, 10, 0, 9, 10, 0, 9);
+		}
+
+		void invalid_args()
+		{
+			ea::crossover::EdgeRecombination<DefaultTestGenome> op;
+
+			CPPUNIT_ASSERT_THROW(::crossover(op, 1, 2, 0, 9, 10, 0, 9), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 1, 10, 0, 9, 2, 0, 9), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 1, 10, 0, 9, 10, 100, 109), std::logic_error);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
 
 int main(int argc, char* argv[])
 {

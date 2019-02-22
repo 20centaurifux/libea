@@ -16,272 +16,181 @@
  ***************************************************************************/
 /**
    @file EdgeRecombinationCrossover.hpp
-   @brief Implementation of the edge recombination crossover operator.
+   @brief Creates a path that is similar to a set of existing paths by looking at
+          the edges rather than the vertices.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
- */
+*/
+#ifndef EA_EDGE_RECOMBINATION_CROSSOVER_HPP
+#define EA_EDGE_RECOMBINATION_CROSSOVER_HPP
 
-#ifndef EDGERECOMBINATION_CROSSOVER_H
-#define EDGERECOMBINATION_CROSSOVER_H
+#include <iterator>
+#include <set>
+#include <map>
+#include <tuple>
+#include <algorithm>
+#include <stdexcept>
 
-#include <assert.h>
-#include <string.h>
-#include <memory>
-#include <random>
-#include "ACrossover.hpp"
-#include "algorithms.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
+#include "Random.hpp"
+#include "Utils.hpp"
 
-namespace ea
+namespace ea::crossover
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
-	 */
+	*/
 
 	/**
-	   @class EdgeRecombinationCrossover
-	   @tparam TGenomeBase a genome base class
-	   @tparam LessThan optional functor to test if a gene is smaller than another one
-	   @brief Implementation of the edge recombination crossover operator.
-	 */
-	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
-	class EdgeRecombinationCrossover : public ACrossover<TGenomeBase>
+	   @class EdgeRecombination
+	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
+	   @brief Creates a path that is similar to a set of existing paths by looking at
+	          the edges rather than the vertices.
+	*/
+	template<typename Chromosome>
+	class EdgeRecombination
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
-			/*! Gene datatype. */
-			typedef typename TGenomeBase::gene_type gene_type;
-
-			EdgeRecombinationCrossover()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
-			 */
-			EdgeRecombinationCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first1 points to the first element of the first chromosome
+			   @param last1 points to the end of the first chromosome
+			   @param first2 points to the first element of the second chromosome
+			   @param last2 points to the end of the second chromosome
+			   @param result beginning of the destination range
+			   @return number of offsprings written to \p result
+
+			   Combines two parents and generates a single offspring.
+
+			   Throws std::length_error or std::logic_error if the genes of the parent
+			   chromosomes aren't the same.
+			*/
+			template<typename InputIterator, typename OutputIterator>
+			size_t operator()(InputIterator first1,
+					  InputIterator last1,
+					  InputIterator first2,
+					  InputIterator last2,
+					  OutputIterator result)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
-			}
+				const difference_type<InputIterator> length = std::distance(first1, last1);
 
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
-			{
-				Neighbors* nblist;
-				std::map<gene_type, Neighbors*, LessThan> nbs;
-				uint32_t count;
-				sequence_len_t len, i;
-				int32_t index;
-
-				len = _base.len(a);
-
-				assert(len > 0);
-				assert(set_equals<TGenomeBase>(a, b));
-
-				// initialize neighbor lists:
-				nblist = new Neighbors[len];
-				memset(nblist, 0, len * sizeof(Neighbors));
-
-				for(i = 0; i < len; ++i)
+				if(length != std::distance(first2, last2))
 				{
-					count = 0;
-
-					add_neighbors(a, i, nblist[i].genes, count);
-					index = _base.index_of(b, _base.get(a, i));
-					add_neighbors(b, index, nblist[i].genes, count);
-
-					nblist[i].count = count;
-					nbs[_base.get(a, i)] = nblist + i;
+					throw std::length_error("Chromosome lengths have to be equal.");
 				}
 
-				// create child individual:
-				gene_type x;
-				Neighbors* n;
-				Neighbors* next_nb;
-				uint32_t next_count[5], j = 0;
-				sequence_len_t child_i = 0;
-				gene_type next_gene[5][5];
+				std::uniform_int_distribution<difference_type<InputIterator>> dist(0, length - 1);
+				difference_type<InputIterator> offset = dist(eng);
 
-				auto child = _base.create(len);
+				NeighborMap map = build_map(first1, last1, first2, last2);
+				std::vector<Gene> offspring;
 
-				// get initial gene:
-				x = _rnd->get_int32(0, 1) ? _base.get(a, 0) : _base.get(b, 0);
-
-				for(;;)
+				while(offspring.size() != static_cast<typename std::make_unsigned<difference_type<InputIterator>>::type>(length))
 				{
-					// insert gene into child individual:
-					_base.set(child, child_i,  x);
+					Gene neighbor = *(first1 + offset);
 
-					// check if child is completed:
-					if(++child_i == len)
-					{
-						break;
-					}
+					offspring.push_back(neighbor);
 
-					// remove x from all neighbor lists:
-					n = nbs[x];
+					remove_neighbor<InputIterator>(map, neighbor);
 
-					for(j = 0; j < n->count; ++j)
-					{
-						remove_neighbor(nbs[n->genes[j]], x);
-					}
+					GeneSequence neighbors = map[neighbor];
 
-					// find next gene:
-					if(n->count)
-					{
-						memset(next_count, 0, sizeof(next_count));
-
-						for(j = 0; j < n->count; ++j)
-						{
-							next_nb = nbs[n->genes[j]];
-							next_gene[next_nb->count][next_count[next_nb->count]++] = n->genes[j];
-						}
-
-						for(j = 4; j >= 0; --j)
-						{
-							if(next_count[j] || !j)
-							{
-								if(next_count[j] == 1)
-								{
-									x = next_gene[j][0];
-								}
-								else
-								{
-									x = next_gene[j][_rnd->get_int32(0, next_count[j] - 1)];
-								}
-
-								break;
-							}
-						}
-					}
-					else
+					if(neighbors.size() == 0)
 					{
 						do
 						{
-							x = _base.get(a, _rnd->get_int32(0, len - 1));
-						} while(gene_exists(child, child_i, x));
+							offset = dist(eng);
+						} while(std::find(begin(offspring), end(offspring), *(first1 + offset)) == end(offspring));
+					}
+					else
+					{
+						typename GeneSequence::iterator it = best_neighbor(map, begin(neighbors), end(neighbors));
+						InputIterator match = std::find(first1, last1, *it);
+
+						offset = std::distance(first1, match);
 					}
 				}
 
-				// append child:
-				output.push(child);
+				Chromosome chromosome(length);
 
-				// free memory:
-				delete[] nblist;
+				std::move(begin(offspring), end(offspring), begin(chromosome));
+
+				*result++ = chromosome;
 
 				return 1;
 			}
 
 		private:
-			typedef struct
+			using Gene = typename Chromosome::value_type;
+			using GeneSequence = typename std::set<Gene>;
+			using NeighborMap = typename std::map<Gene, GeneSequence>;
+
+			template<typename InputIterator>
+			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
+
+			random::RandomEngine eng = random::default_engine();
+
+			template<typename InputIterator>
+			NeighborMap build_map(InputIterator first1,
+			                     InputIterator last1,
+			                     InputIterator first2,
+			                     InputIterator last2)
 			{
-				gene_type genes[4];
-				uint32_t count;
-			} Neighbors;
+				NeighborMap map;
 
-			static TGenomeBase _base;
-			static LessThan _less_than;
-
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
-
-			void add_neighbors(const sequence_type& individual, const sequence_len_t index, gene_type neighbors[4], uint32_t& count)
-			{
-				sequence_len_t len = _base.len(individual);
-
-				if(index)
+				for(InputIterator pos1 = first1; pos1 != last1; ++pos1)
 				{
-					add_neighbor(neighbors, count, _base.get(individual, index - 1));
-				}
-				else
-				{
-					add_neighbor(neighbors, count, _base.get(individual, len - 1));
+					GeneSequence neighbors;
 
+					neighbors.insert(*utils::prev(pos1, first1, last1));
+					neighbors.insert(*utils::next(pos1, first1, last1));
+
+					InputIterator pos2 = std::find(first2, last2, *pos1);
+
+					if(pos2 == last2)
+					{
+						throw std::logic_error("Chromosomes aren't equal.");
+					}
+
+					neighbors.insert(*utils::prev(pos2, first2, last2));
+					neighbors.insert(*utils::next(pos2, first2, last2));
+
+					map[*pos1] = neighbors;
 				}
 
-				if(index == len - 1)
-				{
-					add_neighbor(neighbors, count, _base.get(individual, 0));
-				}
-				else
-				{
-					add_neighbor(neighbors, count, _base.get(individual, index + 1));
-
-				}
+				return map;
 			}
 
-			void add_neighbor(gene_type neighbors[4], uint32_t& count, gene_type neighbor)
+			template<typename InputIterator>
+			static void remove_neighbor(NeighborMap &map, const Gene &neighbor)
 			{
-				bool found = false;
-
-				if(!count)
+				std::for_each(begin(map), end(map), [&neighbor](auto &kv)
 				{
-					neighbors[0] = neighbor;
-					++count;
-				}
-				else
-				{
-					for(uint32_t i = 0; i < count; ++i)
-					{
-						if(!_less_than(neighbors[i], neighbor) && !_less_than(neighbor, neighbors[i]))
-						{
-							found = true;
-							break;
-						}
-					}
-
-					if(!found)
-					{
-						neighbors[count++] = neighbor;
-					}
-				}
+					kv.second.erase(neighbor);
+				});
 			}
 
-			void remove_neighbor(Neighbors* neighbors, const gene_type gene)
+			template<typename InputIterator>
+			InputIterator best_neighbor(NeighborMap map, InputIterator first, InputIterator last)
 			{
-				for(uint32_t i = 0; i < neighbors->count; ++i)
+				std::vector<InputIterator> shuffled;
+
+				for(InputIterator it = first; it != last; ++it)
 				{
-					if(!_less_than(neighbors->genes[i], gene) && !_less_than(gene, neighbors->genes[i]))
-					{
-						for(uint32_t m = i; m < neighbors->count - 1; ++m)
-						{
-							neighbors->genes[m] = neighbors->genes[m + 1];
-						}
+					shuffled.push_back(it);
+				};
 
-						--neighbors->count;
-						break;
-					}
-				}
-			}
+				std::shuffle(begin(shuffled), end(shuffled), eng);
 
-			inline bool gene_exists(const sequence_type& genome, const sequence_len_t size, const gene_type gene)
-			{
-				for(sequence_len_t i = 0; i < size; ++i)
+				return *std::min_element(begin(shuffled), end(shuffled), [&](InputIterator &a, InputIterator &b)
 				{
-					if(!_less_than(_base.get(genome, i), gene) && !_less_than(gene, _base.get(genome, i)))
-					{
-						return true;
-					}
-				}
-
-				return false;
+					return map[*a].size() < map[*b].size();
+				});
 			}
 	};
 
-	template<typename TGenomeBase, typename LessThan>
-	TGenomeBase EdgeRecombinationCrossover<TGenomeBase, LessThan>::_base;
-
-	template<typename TGenomeBase, typename LessThan>
-	LessThan EdgeRecombinationCrossover<TGenomeBase, LessThan>::_less_than;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

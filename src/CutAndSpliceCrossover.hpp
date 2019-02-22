@@ -19,7 +19,6 @@
    @brief Cuts two chromosomes and links both substrings.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
-
 #ifndef EA_CUT_AND_SPLICE_CROSSOVER_HPP
 #define EA_CUT_AND_SPLICE_CROSSOVER_HPP
 

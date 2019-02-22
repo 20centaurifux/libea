@@ -22,6 +22,8 @@
 #ifndef EA_UTILS_HPP
 #define EA_UTILS_HPP
 
+#include <iterator>
+
 namespace ea::utils
 {
 	/**
@@ -43,6 +45,45 @@ namespace ea::utils
 		{
 			fn();
 		}
+	}
+
+	/**
+	   @tparam InputIterator must meet the requirements of LegacyForwardIterator
+	   @param it an iterator 
+	   @param first iterator pointing to the first element of a sequence
+	   @param last iterator pointing to the end (element after the last element) of a sequence
+	   @return an iterator
+
+	   Returns the successor of \p it. If \p it is the last element of the sequence \p first
+	   is returned.
+	 */
+	template<typename InputIterator>
+	InputIterator next(InputIterator it, InputIterator first, InputIterator last)
+	{
+		InputIterator iterator = std::next(it);
+
+		if(iterator == last)
+		{
+			iterator = first;
+		}
+
+		return iterator;
+	}
+
+	/**
+	   @tparam InputIterator must meet the requirements of LegacyBidirectionalIterator
+	   @param it an iterator 
+	   @param first iterator pointing to the first element of a sequence
+	   @param last iterator pointing to the end (element after the last element) of a sequence
+	   @return an iterator
+
+	   Returns the predecessor of \p it. If \p it has no predecessor the last element of the
+	   sequence is returned.
+	 */
+	template<typename InputIterator>
+	InputIterator prev(InputIterator it, InputIterator first, InputIterator last)
+	{
+		return std::prev(it == first ? last : it);
 	}
 
 	/*! @} */
