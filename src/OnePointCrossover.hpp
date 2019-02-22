@@ -13,105 +13,95 @@
     WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License v3 for more details.
- ***************************************************************************/
+***************************************************************************/
 /**
-   @file OnePointCrossover.hpp
-   @brief Implementation of the one-point crossover operator.
+   @file EdgeRecombinationCrossover.hpp
+   @brief Cuts two chromosomes and links both substrings.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
- */
+*/
+#ifndef EA_ONEPOINT_CROSSOVER_HPP
+#define EA_ONEPOINT_CROSSOVER_HPP
 
-#ifndef ONEPOINTCROSSOVER_H
-#define ONEPOINTCROSSOVER_H
+#include <iterator>
+#include <set>
+#include <map>
+#include <tuple>
+#include <algorithm>
+#include <stdexcept>
 
-#include <assert.h>
-#include <memory>
-#include <random>
-#include <limits>
-#include "ACrossover.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
+#include "Random.hpp"
+#include "Utils.hpp"
 
-namespace ea
+namespace ea::crossover
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
-	 */
+	*/
 
 	/**
-	   @class OnePointCrossover
-	   @tparam TGenomeBase a genome base class
-	   @brief Implementation of the one-point crossover operator.
-	 */
-	template<typename TGenomeBase>
-	class OnePointCrossover : public ea::ACrossover<TGenomeBase>
+	   @class OnePoint
+	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
+	   @brief Cuts two chromosomes and links both substrings.
+	*/
+	template<typename Chromosome>
+	class OnePoint
 	{
 		public:
-			OnePointCrossover()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
-			 */
-			OnePointCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first1 points to the first element of the first chromosome
+			   @param last1 points to the end of the first chromosome
+			   @param first2 points to the first element of the second chromosome
+			   @param last2 points to the end of the second chromosome
+			   @param result beginning of the destination range
+			   @return number of offsprings written to \p result
+
+			   Combines two parents and generates a two offsprings.
+
+			   Throws std::length_error if at least a single chromosome is empty.
+			*/
+			template<typename InputIterator, typename OutputIterator>
+			size_t operator()(InputIterator first1,
+					  InputIterator last1,
+					  InputIterator first2,
+					  InputIterator last2,
+					  OutputIterator result)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
-			}
+				const auto length1 = std::distance(first1, last1);
+				const auto length2 = std::distance(first2, last2);
+				const auto min = std::min(length1, length2);
 
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
+				if (min <= 0)
+				{
+					throw std::length_error("Chromosome is empty.");
+				}
 
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
-			{
-				sequence_len_t separator;
+				std::uniform_int_distribution<typename std::remove_const<decltype(min)>::type> dist(0, min - 1);
+				random::RandomEngine eng = random::default_engine();
+				auto const separator = dist(eng);
 
-				assert(_base.len(a) >= 4);
-				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
+				Chromosome offspring1(length2);
 
-				separator = _rnd->get_int32(1, _base.len(a) - 3);
+				std::copy_n(first1, separator, begin(offspring1));
+				std::copy(first2 + separator, last2, begin(offspring1) + separator);
 
-				output.push(create_child(a, b, separator));
-				output.push(create_child(b, a, separator));
+				*result++ = offspring1;
+
+				Chromosome offspring2(length1);
+
+				std::copy_n(first2, separator, begin(offspring2));
+				std::copy(first1 + separator, last1, begin(offspring2) + separator);
+
+				*result++ = offspring2;
 
 				return 2;
 			}
-
-		private:
-			static TGenomeBase _base;
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
-
-			sequence_type create_child(const sequence_type& a, const sequence_type& b , const sequence_len_t separator)
-			{
-				sequence_len_t i;
-				sequence_type individual;
-
-				individual = _base.create(_base.len(a));
-
-				for(i = 0; i < separator; ++i)
-				{
-					_base.set(individual, i, _base.get(a, i));
-				}
-
-				for(i = separator; i < _base.len(b); ++i)
-				{
-					_base.set(individual, i, _base.get(b, i));
-				}
-
-				return individual;
-			}
 	};
 
-	template<typename TGenomeBase>
-	TGenomeBase OnePointCrossover<TGenomeBase>::_base;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

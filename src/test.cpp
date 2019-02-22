@@ -968,6 +968,32 @@ class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(EdgeRecombinationCrossoverTest);
 
+#include "OnePointCrossover.hpp"
+
+class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(OnePointCrossoverTest);
+	CPPUNIT_TEST(crossover);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void crossover()
+		{
+			::crossover(ea::crossover::OnePoint<DefaultTestGenome>(), 2, 10, 0, 9, 10, 0, 9);
+		}
+
+		void invalid_args()
+		{
+			ea::crossover::OnePoint<DefaultTestGenome> op;
+
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 0, 0, 9, 10, 0, 9), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 10, 0, 9, 0, 0, 9), std::length_error);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
+
 int main(int argc, char* argv[])
 {
 	CPPUNIT_NS::TestResult testresult;
