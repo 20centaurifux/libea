@@ -16,186 +16,114 @@
  ***************************************************************************/
 /**
    @file CycleCrossover.hpp
-   @brief Implementation of the cycle crossover operator.
+   @brief Identifies cycles between parent chromosomes & copies them to offsprings.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_CYCLE_CROSSOVER_HPP
+#define EA_CYCLE_CROSSOVER_HPP
 
-#ifndef CYCLECROSSOVER_H
-#define CYCLECROSSOVER_H
-
-#include <assert.h>
+#include <iterator>
 #include <vector>
-#include <map>
+#include <set>
 #include <algorithm>
-#include "ACrossover.hpp"
-#include "algorithms.hpp"
+#include <stdexcept>
 
-namespace ea
+namespace ea::crossover
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
 	 */
 
 	/**
-	   @class CycleCrossover
-	   @tparam TGenomeBase a genome base class
-	   @tparam LessThan optional functor to test if a gene is smaller than another one
-	   @brief Implementation of the cycle crossover operator.
+	   @class Cycle
+	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
+	   @brief Identifies cycles between parent chromosomes & copies them to two offsprings.
 	 */
-	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
-	class CycleCrossover : public ACrossover<TGenomeBase>
+	template<typename Chromosome>
+	class Cycle
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
+			/**
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first1 points to the first element of the first chromosome
+			   @param last1 points to the end of the first chromosome
+			   @param first2 points to the first element of the second chromosome
+			   @param last2 points to the end of the second chromosome
+			   @param result beginning of the destination range
+			   @return number of offsprings written to \p result
+			   
+			   Combines two parents and generates two offsprings.
 
-			/*! Gene datatype. */
-			typedef typename TGenomeBase::gene_type gene_type;
-
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			   Throws std::length_error or std::logic_error if the genes of the parent
+			   chromosomes aren't the same.
+			 */
+			template<typename InputIterator, typename OutputIterator>
+			size_t operator()(InputIterator first1,
+			                  InputIterator last1,
+			                  InputIterator first2,
+			                  InputIterator last2,
+			                  OutputIterator result)
 			{
-				std::map<gene_type, bool, LessThan> assigned; /* dictionary used to test if a gene
-				                                                 is assigned */
-				std::vector<std::vector<gene_type>*> cycles;  // vector containing the generated cycles
-				size_t count = 1;                        // number of inserted genes
-				sequence_len_t len = _base.len(a);            // genome length
-				sequence_len_t offset = 1;
-				sequence_len_t index = 0;
-				gene_type gene;
-				std::vector<gene_type>* cycle;
+				using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
-				assert(_base.len(a) >= 2);
-				assert(set_equals<TGenomeBase>(a, b));
+				const difference_type length = std::distance(first1, last1);
 
-				// initialize dictionary:
-				for(sequence_len_t i = 0; i < len; ++i)
+				if(length != std::distance(first2, last2))
 				{
-					// mark all genes from individual a as not assigned:
-					assigned[_base.get(a, i)] = false;
+					throw std::length_error("Chromosome lengths have to be equal.");
 				}
 
-				// create initial cycle:
-				cycle = new std::vector<gene_type>();
-				cycles.push_back(cycle);
+				using Genes = std::set<typename std::iterator_traits<InputIterator>::value_type>;
 
-				// insert first gene from the first individual into the initial cycle:
-				cycle->push_back(_base.get(a, 0));
-				assigned[_base.get(a, 0)] = true;
+				Genes assigned;
+				difference_type start = 0;
+				Chromosome offsprings[2] = { Chromosome(length), Chromosome(length) };
+				int cycle = 0;
 
-				// find next gene:
-				next_gene(a, b, index, gene);
-
-				// check if we have inserted all exisiting genes:
-				while(count != len)
+				while(assigned.size() != static_cast<typename std::make_unsigned<difference_type>::type>(length))
 				{
-					// is current gene already assigned?
-					while(!assigned[gene])
+					while(std::find(begin(assigned), end(assigned), *(first1 + start)) != end(assigned))
 					{
-						// insert current gene into current cycle & update counter:
-						cycle->push_back(gene), ++count;
-						assigned[gene] = true;
-
-						// find next gene:
-						next_gene(a, b, index, gene);
+						++start;
 					}
 
-					// check if we have inserted all existing genes:
-					if(count != len)
+					difference_type offset1 = start;
+
+					while(std::find(begin(assigned), end(assigned), *(first1 + offset1)) == end(assigned))
 					{
-						// find next unassigned gene:
-						while(offset < len - 1 && assigned[_base.get(a, offset)])
+						offsprings[cycle][offset1] = *(first1 + offset1);
+
+						assigned.insert(*(first1 + offset1));
+
+						auto match = std::find(first2, last2, *(first1 + offset1));
+
+						if(match == last2)
 						{
-							++offset;
+							throw std::logic_error("Chromosomes aren't equal.");
 						}
 
-						gene = _base.get(a, ((index = offset++)));
+						difference_type offset2 = std::distance(first2, match);
 
-						// create new cycle:
-						cycles.push_back((cycle = new std::vector<gene_type>()));
+						offsprings[!cycle][offset2] = *(first2 + offset2);
+
+						auto next = std::find(first1, last1, *(first2 + offset1));
+
+						offset1 = std::distance(first1, next);
 					}
+
+					cycle = !cycle;
 				}
 
-				// create children:
-				bool flag = true;
-
-				sequence_type child0 = _base.create(len);
-				sequence_type child1 = _base.create(len);
-
-				for(auto iter = begin(cycles); iter != end(cycles); ++iter)
-				{
-					for(sequence_len_t m = 0; m < len; ++m)
-					{
-						if(contains(*iter, _base.get(a, m)))
-						{
-							_base.set(flag ? child0 : child1, m, _base.get(a, m));
-						}
-
-						if(contains(*iter, _base.get(b, m)))
-						{
-							_base.set(flag ? child1 : child0, m, _base.get(b, m));
-						}
-					}
-
-					flag = !flag;
-				}
-
-				// write created children to adapter:
-				output.push(child0);
-				output.push(child1);
-
-				// cleanup:
-				std::for_each(cycles.begin(), cycles.end(), [](std::vector<gene_type>* cycle)
-				{
-					delete cycle;
-				});
+				std::move(begin(offsprings), end(offsprings), result);
 
 				return 2;
 			}
-
-		private:
-			TGenomeBase _base;
-
-			inline bool next_gene(const sequence_type& a, const sequence_type& b, sequence_len_t& index, gene_type& gene) const
-			{
-				int32_t i = _base.index_of(a, _base.get(b, index));
-
-				if(i != -1)
-				{
-					index = i;
-					gene = _base.get(a, index);
-
-					return true;
-				}
-
-				return false;
-			}
-
-			/// @cond INTERNAL
-			struct
-			{
-				bool operator()(const gene_type& a, const gene_type& b)
-				{
-					return !_lessthan(a, b) && !_lessthan(b, a);
-				}
-
-				private:
-					LessThan _lessthan;
-
-			} _equals;
-			/// @endcond
-
-			inline bool contains(typename std::vector<gene_type>* cycle, const gene_type& gene)
-			{
-				return std::search_n(cycle->begin(), cycle->end(), 1, gene, _equals) != cycle->end();
-			}
 	};
 
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

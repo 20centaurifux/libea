@@ -946,6 +946,33 @@ class CutAndSpliceCrossoverTest : public CPPUNIT_NS::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CutAndSpliceCrossoverTest);
 
+#include "CycleCrossover.hpp"
+
+class CycleCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(CycleCrossoverTest);
+	CPPUNIT_TEST(crossover);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void crossover()
+		{
+			::crossover(ea::crossover::Cycle<DefaultTestGenome>(), 2, 10, 0, 9, 10, 0, 9);
+		}
+
+		void invalid_args()
+		{
+			ea::crossover::Cycle<DefaultTestGenome> op;
+
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 2, 0, 9, 10, 100, 109), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 10, 0, 9, 2, 100, 109), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 10, 0, 9, 10, 100, 109), std::logic_error);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(CycleCrossoverTest);
+
 #include "EdgeRecombinationCrossover.hpp"
 
 class EdgeRecombinationCrossoverTest : public CPPUNIT_NS::TestFixture
