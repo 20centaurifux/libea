@@ -16,121 +16,131 @@
  ***************************************************************************/
 /**
    @file OrderedCrossover.hpp
-   @brief Implementation of the ordered crossover operator.
+   @brief Copies a swath of consecutive genes from one parent and places
+          remaining genes in the child in the order in which they appear in
+	  the other parent.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_ORDERED_CROSSOVER_HPP
+#define EA_ORDERED_CROSSOVER_HPP
 
-#ifndef ORDEREDCROSSOVER_H
-#define ORDEREDCROSSOVER_H
+#include <iterator>
+#include <tuple>
+#include <stdexcept>
 
-#include <assert.h>
-#include <memory>
-#include <random>
-#include <limits>
-#include "ACrossover.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
-#include "algorithms.hpp"
+#include "Random.hpp"
 
-namespace ea
+namespace ea::crossover
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
 	 */
 
 	/**
-	   @class OrderedCrossover
-	   @tparam TGenomeBase a genome base class
-	   @tparam LessThan optional functor to test if a gene is smaller than another one
-	   @brief Implementation of the ordered crossover operator.
+	   @class Ordered
+	   @tparam Chromosome chromosome sequence type
+	   @brief Copies a swath of consecutive genes from one parent and places
+	          remaining genes in the child in the order in which they appear in
+	          the other parent.
 	 */
-	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
-	class OrderedCrossover : public ea::ACrossover<TGenomeBase>
+	template<typename Chromosome>
+	class Ordered
 	{
 		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
-			/*! Gene datatype. */
-			typedef typename TGenomeBase::gene_type gene_type;
-
-			OrderedCrossover()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first1 points to the first element of the first chromosome
+			   @param last1 points to the end of the first chromosome
+			   @param first2 points to the first element of the second chromosome
+			   @param last2 points to the end of the second chromosome
+			   @param result beginning of the destination range
+			   @return number of offsprings written to \p result
+			   
+			   Combines two parents and generates two offsprings.
+
+			   Throws std::length_error or std::logic_error if the genes of the parent
+			   chromosomes aren't the same.
 			 */
-			OrderedCrossover(std::shared_ptr<ARandomNumberGenerator> rnd) : _rnd(rnd) {}
-
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
+			template<typename InputIterator, typename OutputIterator>
+			size_t operator()(InputIterator first1,
+			                  InputIterator last1,
+			                  InputIterator first2,
+			                  InputIterator last2,
+			                  OutputIterator result)
 			{
-				sequence_len_t len, separator, i, m = 0;
+				const difference_type<InputIterator> length = std::distance(first1, last1);
 
-				assert(set_equals<TGenomeBase>(a, b));
-				assert(_base.len(a) > 2);
-				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
-
-				len = _base.len(a);
-				separator = _rnd->get_int32(1, len - 2);
-
-				auto individual = _base.create(len);
-
-				for(i = 0; i < separator; ++i)
+				if(length != std::distance(first2, last2))
 				{
-					_base.set(individual, i, _base.get(a, i));
+					throw std::length_error("Chromosome lengths have to be equal.");
 				}
 
-				for(i = separator; i < len; ++i)
-				{
-					while(gene_exists(_base.get(b, m), individual, i))
-					{
-						++m;
-					}
+				append(first1, last1, first2, last2, length, result);
+				append(first2, last2, first1, last1, length, result);
 
-					assert(m < _base.len(b));
-
-					_base.set(individual, i, _base.get(b, m));
-				}
-
-				output.push(individual);
-
-				return 1;
+				return 2;
 			}
 
 		private:
-			static TGenomeBase _base;
-			static LessThan _less_than;
+			template<typename InputIterator>
+			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
-
-			inline bool gene_exists(const gene_type& gene, const sequence_type& individual, const sequence_len_t len)
+			template<typename InputIterator, typename OutputIterator>
+			static void append(InputIterator first1,
+			                   InputIterator last1,
+			                   InputIterator first2,
+			                   InputIterator last2,
+			                   const difference_type<InputIterator> length,
+			                   OutputIterator result)
 			{
-				for(sequence_len_t i = 0; i < len; ++i)
-				{
-					if(!_less_than(gene, _base.get(individual, i)) && !_less_than(_base.get(individual, i), gene))
-					{
-						return true;
-					}
-				}
+				difference_type<InputIterator> from, to;
 
-				return false;
+				std::tie(from, to) = get_range(length);
+
+				Chromosome offspring(length);
+
+				std::copy(first1 + from, first1 + to, begin(offspring) + from);
+
+				difference_type<InputIterator> offset = 0;
+
+				std::for_each(first2, last2, [&](const auto &g2)
+				{
+					if(std::none_of(first1 + from, first1 + to, [&g2](const auto &g1) { return g1 == g2; }))
+					{
+						if(offset == from)
+						{
+							offset = to;
+						}
+
+						if(offset == length)
+						{
+							throw std::logic_error("Chromosomes aren't equal.");
+						}
+
+						offspring[offset] = g2;
+
+						++offset;
+					}
+				});
+
+				*result++ = offspring;
+			}
+
+			template <typename Difference>
+			static std::tuple<Difference, Difference> get_range(const Difference length)
+			{
+				Difference range[2];
+
+				random::fill_distinct_n_int(range, 2, static_cast<Difference>(0), length - 1);
+
+				return std::make_tuple(std::min(range[0], range[1]), std::max(range[0], range[1]));
 			}
 	};
 
-	template<typename TGenomeBase, typename LessThan>
-	TGenomeBase OrderedCrossover<TGenomeBase, LessThan>::_base;
-
-	template<typename TGenomeBase, typename LessThan>
-	LessThan OrderedCrossover<TGenomeBase, LessThan>::_less_than;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

@@ -758,7 +758,7 @@ class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 		{
 			DefaultTestGenome a(10);
 
-			ea::random::fill_distinct_n_int(begin(a), 10, 0, 10);
+			ea::random::fill_distinct_n_int(begin(a), 10, 0, 9);
 
 			DefaultTestGenome b;
 
@@ -868,7 +868,7 @@ class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
 		{
 			DefaultTestGenome a(10);
 
-			ea::random::fill_distinct_n_int(begin(a), 10, 0, 10);
+			ea::random::fill_distinct_n_int(begin(a), 10, 0, 9);
 
 			DefaultTestGenome b;
 
@@ -895,9 +895,14 @@ class SingleSwapMutationTest : public CPPUNIT_NS::TestFixture
 CPPUNIT_TEST_SUITE_REGISTRATION(SingleSwapMutationTest);
 
 template<typename Crossover>
-void crossover(Crossover crossover, const size_t expected_size,
-               const size_t count1, const size_t min1, const size_t max1,
-               const size_t count2, const size_t min2, const size_t max2)
+void crossover(Crossover crossover,
+               const size_t expected_size,
+               const size_t count1,
+               const size_t min1,
+               const size_t max1,
+               const size_t count2,
+               const size_t min2,
+               const size_t max2)
 {
 	DefaultTestGenome a(count1);
 
@@ -993,6 +998,42 @@ class OnePointCrossoverTest : public CPPUNIT_NS::TestFixture
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OnePointCrossoverTest);
+
+#include "OrderedCrossover.hpp"
+
+class OrderedCrossoverTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(OrderedCrossoverTest);
+	CPPUNIT_TEST(crossover);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void crossover()
+		{
+			::crossover(ea::crossover::Ordered<DefaultTestGenome>(), 2, 10, 0, 9, 10, 0, 9);
+		}
+
+		void invalid_args()
+		{
+			ea::crossover::Ordered<DefaultTestGenome> op;
+
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 10, 0, 9, 2, 0, 9), std::length_error);
+			CPPUNIT_ASSERT_THROW(::crossover(op, 2, 2, 0, 9, 10, 0, 9), std::length_error);
+
+			DefaultTestGenome a(10);
+
+			ea::random::fill_distinct_n_int(begin(a), 10, 0, 9);
+
+			DefaultTestGenome b(10);
+
+			DefaultTestPopulation offsprings;
+
+			CPPUNIT_ASSERT_THROW(op(begin(a), end(a), begin(b), end(b), std::back_inserter(offsprings)), std::logic_error);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(OrderedCrossoverTest);
 
 int main(int argc, char* argv[])
 {
