@@ -1,178 +1,209 @@
 /***************************************************************************
-    begin........: November 2012
-    copyright....: Sebastian Fedrau
-    email........: sebastian.fedrau@gmail.com
- ***************************************************************************/
+   begin........: November 2012
+   copyright....: Sebastian Fedrau
+   email........: sebastian.fedrau@gmail.com
+***************************************************************************/
 
 /***************************************************************************
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License v3 as published by
-    the Free Software Foundation.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License v3 as published by
+   the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License v3 for more details.
- ***************************************************************************/
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+   General Public License v3 for more details.
+***************************************************************************/
 /**
    @file PMXCrossover.hpp
-   @brief Implementation of the PMX crossover operator.
+   @brief Copies a swath of consecutive genes from one parent. The corresponding
+          swath from the other parent is sprinkled about in the child.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
- */
+*/
+#ifndef EA_PMX_CROSSOVER_HPP
+#define EA_PMX_CROSSOVER_HPP
 
-#ifndef PMXCROSSOVER_H
-#define PMXCROSSOVER_H
+#include <iterator>
+#include <tuple>
+#include <set>
+#include <stdexcept>
 
-#include <assert.h>
-#include <algorithm>
-#include <map>
-#include <memory>
-#include <random>
-#include "ACrossover.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
-#include "algorithms.hpp"
+#include "Random.hpp"
 
-namespace ea
+namespace ea::crossover
 {
-	/**
-	   @addtogroup Operators
+	 /**
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
-	 */
+	*/
 
 	/**
-	   @class PMXCrossover
-	   @tparam TGenomeBase a genome base class
-	   @tparam LessThan optional functor to test if a gene is smaller than another one
-	   @brief Implementation of the PMX crossover operator.
-	 */
-	template<typename TGenomeBase, typename LessThan = std::less<typename TGenomeBase::gene_type>>
-	class PMXCrossover : public ea::ACrossover<TGenomeBase>
+	   @class PXM
+	   @tparam Chromosome chromosome sequence type
+	   @brief Copies a swath of consecutive genes from one parent. The corresponding
+	          swath from the other parent is sprinkled about in the child.
+	*/
+	template<typename Chromosome>
+	class PMX
 	{
 		public:
-			PMXCrossover()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
-			 */
-			PMXCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first1 points to the first element of the first chromosome
+			   @param last1 points to the end of the first chromosome
+			   @param first2 points to the first element of the second chromosome
+			   @param last2 points to the end of the second chromosome
+			   @param result beginning of the destination range
+			   @return number of offsprings written to \p result
+
+			   Combines two parents and generates two offsprings.
+
+			   Throws std::length_error or std::logic_error if the genes of the parent
+			   chromosomes aren't the same.
+			*/
+			template<typename InputIterator, typename OutputIterator>
+			size_t operator()(InputIterator first1,
+					  InputIterator last1,
+					  InputIterator first2,
+					  InputIterator last2,
+					  OutputIterator result)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
-			}
+				const auto length = std::distance(first1, last1);
 
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
+				if(length != std::distance(first2, last2))
+				{
+					throw std::length_error("Chromosome lengths have to be equal.");
+				}
 
-			/*! Gene datatype. */
-			typedef typename TGenomeBase::gene_type gene_type;
-
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
-			{
-				sequence_len_t offset0, offset1;
-
-				assert(_base.len(a) > 3);
-				assert(set_equals<TGenomeBase>(a, b));
-
-				offset0 = _rnd->get_int32(0, _base.len(a) - 3);
-				offset1 = _rnd->get_int32(offset0 + 1, _base.len(a) - 1);
-
-				output.push(crossover(a, b, offset0, offset1));
-				output.push(crossover(b, a, offset0, offset1));
+				append<InputIterator>({ first1, last1 }, { first2, last2 }, length, result);
+				append<InputIterator>({ first2, last2 }, { first1, last1 }, length, result);
 
 				return 2;
 			}
 
 		private:
-			static TGenomeBase _base;
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
+			template<typename T>
+			using Range = typename std::tuple<T, T>;
 
-			sequence_type crossover(const sequence_type& a, const sequence_type& b, const sequence_len_t offset0, const sequence_len_t offset1) const
+			template<typename InputIterator, typename Difference, typename OutputIterator>
+			static void append(Range<InputIterator> parent1,
+			                   Range<InputIterator> parent2,
+			                   const Difference length,
+			                   OutputIterator result)
 			{
-				std::map<gene_type, bool, LessThan> assigned; // a cache to test if a gene is assigned to the child genome
-				sequence_len_t size, i;
-				gene_type gene;
-				int32_t index;
+				const auto &[first1, last1] = parent1;
+				const auto &[first2, last2] = parent2;
+				const auto[from, to] = generate_swath(length);
 
-				// initialize index array:
-				size = _base.len(a);
+				Chromosome offspring(length);
 
-				// initialize cache:
-				for(i = 0; i < size; ++i)
+				std::copy(first1 + from, first1 + to, begin(offspring) + from);
+
+				std::vector<bool> assigned(length);
+
+				for(auto offset = from; offset < to; ++offset)
 				{
-					assigned[_base.get(a, i)] = false;
-				}
+					const auto index = copy_from_swath<InputIterator>({ first1, last1 },
+					                                                  { from, to },
+					                                                  { first2, last2 },
+					                                                  offset,
+					                                                  begin(offspring));
 
-				// create child genome:
-				sequence_type child = _base.create(size);
-
-				// copy initial genes to child genome:
-				for(i = offset0; i <= offset1; ++i)
-				{
-					gene = _base.get(a, i);
-					_base.set(child, i, gene);
-					assigned[gene] = true;
-				}
-
-				for(i = offset0; i <= offset1; ++i)
-				{
-					gene = _base.get(b, i);
-
-					if(!assigned[gene])
+					if(index != -1)
 					{
-						auto g1 = gene;
+						assigned[index] = true;
+					}
+				}
 
-						for(;;)
+				copy_unassigned<InputIterator>({ first2, last2 },
+				                               { from, to },
+				                               static_cast<Difference>(0),
+				                               assigned,
+				                               begin(offspring));
+
+				*result++ = offspring;
+			}
+
+			template <typename T>
+			static Range<T> generate_swath(const T length)
+			{
+				T swath[2];
+
+				random::fill_distinct_n_int(swath, 2, static_cast<T>(0), length - 1);
+
+				return std::make_tuple(std::min(swath[0], swath[1]), std::max(swath[0], swath[1]));
+			}
+
+			template<typename InputIterator, typename Difference, typename OutputIterator>
+			static Difference copy_from_swath(Range<InputIterator> parent1,
+			                                  const Range<Difference> swath,
+			                                  Range<InputIterator> parent2,
+			                                  const Difference offset2,
+			                                  OutputIterator result)
+			{
+				const auto &[first1, last1] = parent1;
+				const auto [from, to] = swath;
+				const auto &[first2, last2] = parent2;
+				const auto &g2 = *(first2 + offset2);
+				auto index = -1;
+
+				if(std::none_of(first1 + from,
+				                first1 + to,
+				                [&g2](const auto &g1) { return g1 == g2; }))
+				{
+					index = offset2;
+
+					do
+					{
+						const auto g1 = *(first1 + index);
+						const InputIterator match = std::find(first2, last2, g1);
+
+						if(match == last2)
 						{
-							index = _base.index_of(b, g1);
-							auto g0 = _base.get(a, index);
-							index = _base.index_of(b, g0);
-
-							if(index >= offset0 && index <= offset1)
-							{
-								g1 = g0;
-							}
-							else
-							{
-								_base.set(child, index, gene);
-								assigned[gene] = true;
-								break;
-							}
+							throw std::logic_error("Chromosomes aren't equal.");
 						}
-					}
+
+						index = std::distance(first2, match);
+					} while(index >= from && index < to);
+
+					*(result + index) = g2;
 				}
 
-				for(i = 0; i < offset0; ++i)
+				return index;
+			}
+
+			template<typename InputIterator, typename Difference, typename Bitmap, typename OutputIterator>
+			static void copy_unassigned(Range<InputIterator> parent,
+			                            const Range<Difference> swath,
+			                            const Difference offset,
+			                            Bitmap &bitmap,
+			                            OutputIterator offspring)
+			{
+				const auto &[first, last] = parent;
+				const auto[from, to] = swath;
+
+				if(offset < std::distance(first, last))
 				{
-					if(!assigned[(gene = _base.get(b, i))])
-					{
-						_base.set(child, i, gene);
-					}
-				}
+					auto next_offset = to;
 
-				for(i = offset1 + 1; i < size; ++i)
-				{
-					if(!assigned[(gene = _base.get(b, i))])
+					if(offset < from || offset >= to)
 					{
-						_base.set(child, i, gene);
-					}
-				}
+						if(!bitmap[offset])
+						{
+							offspring[offset] = *(first + offset);
+						}
 
-				return child;
+						next_offset = offset + 1;
+					}
+
+					copy_unassigned(parent, swath, next_offset, bitmap, offspring);
+				}
 			}
 	};
 
-	template<typename TGenomeBase, typename LessThan>
-	TGenomeBase PMXCrossover<TGenomeBase, LessThan>::_base;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+
