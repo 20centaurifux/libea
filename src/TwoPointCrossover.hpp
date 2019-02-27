@@ -16,113 +16,113 @@
  ***************************************************************************/
 /**
    @file TwoPointCrossover.hpp
-   @brief Implementation of the two-point crossover operator.
+   @brief Cuts two chromosomes into three parts and links the substrings.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_TWOPOINT_CROSSOVER_HPP
+#define EA_TWOPOINT_CROSSOVER_HPP
 
-#ifndef TWOPOINTCROSSOVER_H
-#define TWOPOINTCROSSOVER_H
+#include <iterator>
+#include <tuple>
+#include <algorithm>
+#include <stdexcept>
 
-#include <assert.h>
-#include <memory>
-#include <random>
-#include <limits>
-#include "ACrossover.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
+#include "Random.hpp"
 
-namespace ea
+namespace ea::crossover
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
-	 */
+	*/
 
 	/**
-	   @class TwoPointCrossover
-	   @tparam TGenomeBase a genome base class
-	   @brief Implementation of the two-point crossover operator.
-	 */
-	template<typename TGenomeBase>
-	class TwoPointCrossover : public ea::ACrossover<TGenomeBase>
+	   @class TwoPoint
+	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
+	   @brief Cuts two chromosomes into three parts and links the substrings.
+	*/
+	template<typename Chromosome>
+	class TwoPoint
 	{
 		public:
-			TwoPointCrossover()
-			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
-			}
-
 			/**
-			   @param rnd instance of a random number generator
-			 */
-			TwoPointCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+			   @param first1 points to the first element of the first chromosome
+			   @param last1 points to the end of the first chromosome
+			   @param first2 points to the first element of the second chromosome
+			   @param last2 points to the end of the second chromosome
+			   @param result beginning of the destination range
+			   @return number of offsprings written to \p result
+
+			   Combines two parents and generates a two offsprings.
+
+			   Throws std::length_error if the length of at least one chromosome is less
+			   than three.
+			*/
+			template<typename InputIterator, typename OutputIterator>
+			size_t operator()(InputIterator first1,
+			                  InputIterator last1,
+			                  InputIterator first2,
+			                  InputIterator last2,
+			                  OutputIterator result)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
-			}
+				const auto length1 = std::distance(first1, last1);
+				const auto length2 = std::distance(first2, last2);
 
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
-
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
-			{
-				sequence_len_t offset0;
-				sequence_len_t offset1;
-
-				assert(_base.len(a) >= 5);
-				assert(_base.len(a) < std::numeric_limits<int32_t>::max());
-
-				offset0 = _rnd->get_int32(1, _base.len(a) - 3);
-
-				assert(_base.len(b) > offset0 + 2);
-				assert(_base.len(b) < std::numeric_limits<int32_t>::max());
-
-				offset1 = _rnd->get_int32(offset0 + 1, _base.len(b) - 1);
-
-				output.push(create_child(b, a, offset0, offset1));
-				output.push(create_child(a, b, offset0, offset1));
+				append(first1, last1, length1, first2, last2, length2, result);
+				append(first2, last2, length2, first1, last1, length1, result);
 
 				return 2;
 			}
 
 		private:
-			static TGenomeBase _base;
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
+			random::RandomEngine eng = random::default_engine();
 
-			sequence_type create_child(const sequence_type& a, const sequence_type& b , const sequence_len_t offset1, const sequence_len_t offset2) const
+			template<typename InputIterator, typename Distance, typename OutputIterator>
+			void append(InputIterator first1,
+			            InputIterator last1,
+			            const Distance length1,
+			            InputIterator first2,
+			            InputIterator last2,
+			            const Distance length2,
+			            OutputIterator result)
 			{
-				sequence_len_t i;
-				sequence_type individual;
+				const auto min = std::min(length1, length2);
 
-				individual = _base.create(_base.len(a));
-
-				for(i = 0; i < offset1; ++i)
+				if (min < 3)
 				{
-					_base.set(individual, i, _base.get(a, i));
+					throw std::length_error("Chromosome too short.");
 				}
 
-				for(i = offset1; i < offset2; ++i)
-				{
-					_base.set(individual, i, _base.get(b, i));
-				}
+				std::uniform_int_distribution<typename std::remove_const<decltype(min)>::type> dist1(0, min - 2);
+				const auto separator1 = dist1(eng);
 
-				for(i = offset2; i < _base.len(a); ++i)
-				{
-					_base.set(individual, i, _base.get(a, i));
-				}
+				std::uniform_int_distribution<typename std::remove_const<decltype(min)>::type> dist2(separator1 + 1, length2 - 1);
+				const auto separator2 = dist2(eng);
 
-				return individual;
+				Chromosome offspring(length2);
+
+				std::copy_n(first1, separator1, begin(offspring));
+				std::copy_n(first2 + separator1, separator2 - separator1, begin(offspring) + separator1);
+				std::copy_n(first1 + separator2, length2  - separator2, begin(offspring) + separator2);
+
+				*result++ = offspring;
+			}
+
+			template<typename Difference>
+			static std::tuple<Difference, Difference> generate_points(const Difference max)
+			{
+				Difference offsets[2];
+
+				random::fill_distinct_n_int(offsets, 2, static_cast<Difference>(1), max - 1);
+
+				return std::make_tuple(std::min(offsets[0], offsets[1]), std::max(offsets[0], offsets[1]));
 			}
 	};
 
-	template<typename TGenomeBase>
-	TGenomeBase TwoPointCrossover<TGenomeBase>::_base;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+

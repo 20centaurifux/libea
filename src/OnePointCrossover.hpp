@@ -15,7 +15,7 @@
     General Public License v3 for more details.
 ***************************************************************************/
 /**
-   @file EdgeRecombinationCrossover.hpp
+   @file OnePointCrossover.hpp
    @brief Cuts two chromosomes and links both substrings.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
 */
