@@ -16,108 +16,85 @@
  ***************************************************************************/
 /**
    @file UniformCrossover.hpp
-   @brief Implementation of the uniform crossover operator.
+   @brief Genes are independently chosen from the two parents according to
+          a 50/50 distribution.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_UNIFORM_CROSSOVER_HPP
+#define EA_UNIFORM_CROSSOVER_HPP
 
-#ifndef UNIFORMCROSSOVER_H
-#define UNIFORMCROSSOVER_H
-
-#include <assert.h>
+#include <iterator>
 #include <algorithm>
-#include <map>
-#include <memory>
-#include <random>
-#include "ACrossover.hpp"
-#include "ARandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
-#include "algorithms.hpp"
+#include <stdexcept>
 
-namespace ea
+#include "Random.hpp"
+
+namespace ea::crossover
 {
 	/**
-	   @addtogroup Operators
+	   @addtogroup Crossover
 	   @{
-	   	@addtogroup Crossover
-		@{
-	 */
+	*/
 
 	/**
-	   @class UniformCrossover
-	   @tparam TGenomeBase a genome base class
-	   @tparam N Ratio between two parents
-	   @brief Implementation of the uniform crossover operator.
-	 */
-	template<typename TGenomeBase, const sequence_len_t N = 2>
-	class UniformCrossover : public ea::ACrossover<TGenomeBase>
+	   @class TwoPoint
+	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
+	   @brief Genes are independently chosen from the two parents according to
+                  a 50/50 distribution.
+	*/
+	template<typename Chromosome>
+	class Uniform
 	{
-		public:
-			/*! Datatype of sequences provided by TGenomeBase. */
-			typedef typename TGenomeBase::sequence_type sequence_type;
+	public:
+		/**
+		   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+		   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
+		   @param first1 points to the first element of the first chromosome
+		   @param last1 points to the end of the first chromosome
+		   @param first2 points to the first element of the second chromosome
+		   @param last2 points to the end of the second chromosome
+		   @param result beginning of the destination range
+		   @return number of offsprings written to \p result
 
-			UniformCrossover()
+		   Combines two parents and generates a two offsprings.
+
+		   Throws std::length_error if length of both chromosomes isn't the same.
+		*/
+		template<typename InputIterator, typename OutputIterator>
+		size_t operator()(InputIterator first1,
+			InputIterator last1,
+			InputIterator first2,
+			InputIterator last2,
+			OutputIterator result)
+		{
+			const auto length = std::distance(first1, last1);
+
+			if (length != std::distance(first2, last2))
 			{
-				_rnd = std::make_shared<TR1UniformDistribution<>>();
+				throw std::length_error("Chromosome lengths have to be equal.");
 			}
 
-			/**
-			   @param rnd instance of a random number generator
-			 */
-			UniformCrossover(std::shared_ptr<ARandomNumberGenerator> rnd)
+			random::RandomEngine eng = random::default_engine();
+			std::uniform_int_distribution<int> dist(0, 1);
+
+			Chromosome offsprings[2] = { Chromosome(length), Chromosome(length) };
+
+			for (auto m = 0; m < length; ++m)
 			{
-				assert(rnd != nullptr);
-				_rnd = rnd;
+				const int i = dist(eng);
+
+				offsprings[i][m] = *(first1 + m);
+				offsprings[!i][m] = *(first2 + m);
 			}
 
-			size_t crossover(const sequence_type& a, const sequence_type& b, ea::IOutputAdapter<sequence_type>& output) override
-			{
-				sequence_type child0;
-				sequence_type child1;
-				int32_t rnd;
-				sequence_len_t len = _base.len(a);
+			std::move(std::begin(offsprings), std::end(offsprings), result);
 
-				assert(len > N);
-				assert(len == _base.len(b));
-
-				child0 = _base.create(len);
-				child1 = _base.create(len);
-
-				for(sequence_len_t i = 0; i < len; ++i)
-				{
-					do
-					{
-						rnd = _rnd->get_int32();
-					} while(!rnd);
-
-					if(rnd % N)
-					{
-						_base.set(child0, i, _base.get(a, i));
-						_base.set(child1, i, _base.get(b, i));
-					}
-					else
-					{
-						_base.set(child0, i, _base.get(b, i));
-						_base.set(child1, i, _base.get(a, i));
-					}
-				}
-
-				output.push(child0);
-				output.push(child1);
-
-				return 2;
-			}
-
-		private:
-			static TGenomeBase _base;
-			std::shared_ptr<ARandomNumberGenerator> _rnd;
+			return 2;
+		}
 	};
 
-	template<typename TGenomeBase, const sequence_len_t N>
-	TGenomeBase UniformCrossover<TGenomeBase, N>::_base;
-
-	/**
-		   @}
-	   @}
-	 */
+	/*! @} */
 }
+
 #endif
+
