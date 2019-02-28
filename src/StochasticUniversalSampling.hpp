@@ -45,9 +45,8 @@ namespace ea::selection
 
 	/**
 	   @class StochasticUniversalSampling
-
-	   Selects N individuals from a population. The probability for being selected
-	   is proportional to the fitness value of an individual.
+	   @brief Selects N individuals from a population. The probability for being selected
+	          is proportional to the fitness value of an individual.
 	 */
 	class StochasticUniversalSampling
 	{

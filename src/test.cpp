@@ -1,4 +1,3 @@
-#include "PMXCrossover.hpp"
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestResult.h>
@@ -1132,6 +1131,83 @@ class UniformCrossoverTest : public CPPUNIT_NS::TestFixture
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UniformCrossoverTest);
+
+#include "Diversity.hpp"
+
+class DiversityTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(DiversityTest);
+	CPPUNIT_TEST(hamming_distance);
+	CPPUNIT_TEST(avg_hamming_distance);
+	CPPUNIT_TEST(shannon_entropy);
+	CPPUNIT_TEST(avg_shannon_entropy);
+	CPPUNIT_TEST(substr_diversity);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void hamming_distance()
+		{
+			const std::string a = "foobar";
+			const std::string b = "FooBar";
+			const std::string c = "foo";
+
+			CPPUNIT_ASSERT(ea::diversity::hamming_distance(begin(a), end(a), begin(b), end(b)) == 2);
+			CPPUNIT_ASSERT_THROW(ea::diversity::hamming_distance(begin(a), end(a), begin(c), end(c)), std::length_error);
+		}
+
+		void avg_hamming_distance()
+		{
+			const std::string strings[3] =
+			{
+				"foobaR",
+				"FooBar",
+				"BarFoo"
+			};
+
+			const double distance = ea::diversity::avg_hamming_distance(begin(strings), end(strings));
+
+			CPPUNIT_ASSERT(std::abs(distance - 5.0) < std::numeric_limits<double>::epsilon());
+		}
+
+		void shannon_entropy()
+		{
+			const std::string fnord = "if you can't see the fnord it can't eat you";
+			const double entropy = ea::diversity::shannon_entropy<std::log2>(begin(fnord), end(fnord));
+			const double rounded = static_cast<double>(static_cast<int>(entropy * 100)) / 100;
+
+			CPPUNIT_ASSERT(rounded == 3.69);
+		}
+
+		void avg_shannon_entropy()
+		{
+			const std::string fnords[5] =
+			{
+				"fnord",
+				"is",
+				"the",
+				"donut",
+				"hole"
+			};
+
+			const double entropy = ea::diversity::avg_shannon_entropy<std::log2>(begin(fnords), end(fnords));
+			const double rounded = static_cast<double>(static_cast<int>(entropy * 100)) / 100;
+
+			CPPUNIT_ASSERT(rounded == 1.84);
+		}
+
+		void substr_diversity()
+		{
+			const std::vector<char> a = { 'h', 'e', 'l', 'l', 'o' };
+			const std::vector<char> b = { 'w', 'o', 'r', 'l', 'd' };
+			const std::vector<std::vector<char>> p = { a, b };
+
+			const double diversity = ea::diversity::substr_diversity(begin(p), end(p));
+
+			CPPUNIT_ASSERT(std::abs(diversity - (50.0 / 27)) < std::numeric_limits<double>::epsilon());
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(DiversityTest);
 
 int main(int argc, char* argv[])
 {

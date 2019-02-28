@@ -39,8 +39,7 @@ namespace ea::crossover
 	/**
 	   @class CutAndSplice
 	   @tparam Chromosome chromosome sequence type
-
-	   Cuts two chromosomes and links both substrings. Two offstrings are generated.
+	   @brief Cuts two chromosomes and links both substrings. Two offstrings are generated.
 	 */
 	template<typename Chromosome>
 	class CutAndSplice

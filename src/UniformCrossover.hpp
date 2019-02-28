@@ -37,7 +37,7 @@ namespace ea::crossover
 	*/
 
 	/**
-	   @class TwoPoint
+	   @class Uniform
 	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
 	   @brief Genes are independently chosen from the two parents according to
                   a 50/50 distribution.

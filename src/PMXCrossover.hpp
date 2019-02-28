@@ -38,7 +38,7 @@ namespace ea::crossover
 	*/
 
 	/**
-	   @class PXM
+	   @class PMX
 	   @tparam Chromosome chromosome sequence type
 	   @brief Copies a swath of consecutive genes from one parent. The corresponding
 	          swath from the other parent is sprinkled about in the child.

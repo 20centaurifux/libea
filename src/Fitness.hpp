@@ -77,13 +77,11 @@ namespace ea::fitness
 	}
 
 	/**
+	   @class MemoizeFitnessByIndex
 	   @tparam PopulationIterator must meet the requirements of LegacyRandomAccessIterator
-	   @param fn a fitness function
-	   @return a functor wrapping a fitness function
-
-	   Generates a functor to get the fitness of a chromosome by index. The fitness value
-	   is cached for each index.
-	 */	
+	   @brief A functor to get the fitness of a chromosome by index. The fitness value
+	          is cached for each index.
+	 */
 	template<typename PopulationIterator>
 	class MemoizeFitnessByIndex
 	{
