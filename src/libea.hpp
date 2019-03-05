@@ -19,51 +19,50 @@
    @brief One file to rule them all.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
+#ifndef EA_LIBEA_HPP
+#define EA_LIBEA_HPP
 
-#ifndef LIBEA_H
-#define LIBEA_H
+namespace ea
+{
+	/*! Major version. */
+	const int LIBEA_MAJOR = 0;
+	/*! Minor version. */
+	const int LIBEA_MINOR = 0;
+	/*! Patch level. */
+	const int LIBEA_PATCHLEVEL = 0;
+}
 
-/**
-   @addtogroup Core
-   @{
- */
+#include "Random.hpp"
+#include "Diversity.hpp"
+#include "Fitness.hpp"
+#include "Utils.hpp"
 
-#include "AnsiRandomNumberGenerator.hpp"
-#include "TR1UniformDistribution.hpp"
-
-#include "PrimitiveGenome.hpp"
-
-#include "algorithms.hpp"
-#include "memory.hpp"
-#include "SDBMHash.hpp"
-
-#include "AFactory.hpp"
-
-#include "FittestSelection.hpp"
-#include "FitnessProportionalSelection.hpp"
-#include "TournamentSelection.hpp"
-#include "DoubleTournamentSelection.hpp"
-#include "StochasticUniversalSampling.hpp"
+#include "BitStringMutation.hpp"
+#include "DoubleSwapMutation.hpp"
+#include "InverseBitStringMutation.hpp"
+#include "SingleBitStringMutation.hpp"
+#include "SingleSwapMutation.hpp"
 
 #include "CutAndSpliceCrossover.hpp"
 #include "CycleCrossover.hpp"
-#include "EdgeRecombinationCrossover.hpp"
 #include "OnePointCrossover.hpp"
 #include "OrderedCrossover.hpp"
 #include "PMXCrossover.hpp"
 #include "TwoPointCrossover.hpp"
 #include "UniformCrossover.hpp"
 
-#include "SingleSwapMutation.hpp"
-#include "DoubleSwapMutation.hpp"
-#include "BitStringMutation.hpp"
-#include "SingleBitStringMutation.hpp"
-#include "InverseBitStringMutation.hpp"
+#include "DoubleTournamentSelection.hpp"
+#include "EdgeRecombinationCrossover.hpp"
 
-#include "Pipeline.hpp"
-#include "diversity.hpp"
+#include "FitnessProportionalSelection.hpp"
+#include "FittestSelection.hpp"
+#include "StochasticUniversalSampling.hpp"
+
+#include "Stream.hpp"
 
 /**
    @}
  */
+
 #endif
+
