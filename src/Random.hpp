@@ -43,7 +43,13 @@ namespace ea::random
 
 	   Creates and seeds an instance of the default random engine.
 	 */
-	RandomEngine default_engine();
+	RandomEngine default_engine()
+	{
+		static std::random_device rd;
+		std::mt19937 mt(rd());
+
+		return mt;
+	}
 
 	/**
 	   @tparam OutputIterator must meet the requirements of LegacyOutputIterator

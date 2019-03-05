@@ -2,8 +2,13 @@ CPP=g++
 CPPFLAGS=-std=c++17 -Wall -O0 -g
 LDFLAGS=-lcppunit
 
-all:
-	$(CPP) $(CPPFLAGS) ./src/Random.cpp ./src/test.cpp -o test $(LDFLAGS)
+.PHONY: test doc clean
+
+test:
+	$(CPP) $(CPPFLAGS) -I./src ./test/test.cpp -o  ./libea-test $(LDFLAGS)
+
+doc:
+	doxygen ./doxygen_config
 
 clean:
-	rm -f ./test
+	rm -fr ./libea-test ./doc
