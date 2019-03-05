@@ -19,7 +19,6 @@
    @brief Various algorithms to compute the diversity of a population.
    @author Sebastian Fedrau <sebastian.fedrau@gmail.com>
  */
-
 #ifndef EA_DIVERSITY_HPP
 #define EA_DIVERSITY_HPP
 

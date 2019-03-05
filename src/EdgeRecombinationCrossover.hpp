@@ -66,10 +66,10 @@ namespace ea::crossover
 			*/
 			template<typename InputIterator, typename OutputIterator>
 			size_t operator()(InputIterator first1,
-					  InputIterator last1,
-					  InputIterator first2,
-					  InputIterator last2,
-					  OutputIterator result)
+				          InputIterator last1,
+				          InputIterator first2,
+				          InputIterator last2,
+				          OutputIterator result)
 			{
 				const difference_type<InputIterator> length = std::distance(first1, last1);
 
@@ -78,45 +78,54 @@ namespace ea::crossover
 					throw std::length_error("Chromosome lengths have to be equal.");
 				}
 
-				std::uniform_int_distribution<difference_type<InputIterator>> dist(0, length - 1);
-				difference_type<InputIterator> offset = dist(eng);
+				size_t n_offsprings = 0;
 
-				NeighborMap map = build_map(first1, last1, first2, last2);
-				std::vector<Gene> offspring;
-
-				while(offspring.size() != static_cast<typename std::make_unsigned<difference_type<InputIterator>>::type>(length))
+				if(length > 0)
 				{
+					NeighborMap map = build_map(first1, last1, first2, last2);
+
+					std::uniform_int_distribution<difference_type<InputIterator>> dist(0, length - 1);
+					difference_type<InputIterator> offset = dist(eng);
+
 					Gene neighbor = *(first1 + offset);
+					std::vector<Gene> offspring { neighbor };
 
-					offspring.push_back(neighbor);
-
-					remove_neighbor<InputIterator>(map, neighbor);
-
-					GeneSequence neighbors = map[neighbor];
-
-					if(neighbors.size() == 0)
+					while(offspring.size() != static_cast<typename std::make_unsigned<difference_type<InputIterator>>::type>(length))
 					{
-						do
+						remove_neighbor<InputIterator>(map, neighbor);
+
+						GeneSequence neighbors = map[neighbor];
+
+						if(neighbors.size() == 0)
 						{
-							offset = dist(eng);
-						} while(std::find(begin(offspring), end(offspring), *(first1 + offset)) == end(offspring));
-					}
-					else
-					{
-						typename GeneSequence::iterator it = best_neighbor(map, begin(neighbors), end(neighbors));
-						InputIterator match = std::find(first1, last1, *it);
+							do
+							{
+								offset = dist(eng);
+							} while(std::find(begin(offspring), end(offspring), *(first1 + offset)) != end(offspring));
+						}
+						else
+						{
+							typename GeneSequence::iterator it = best_neighbor(map, begin(neighbors), end(neighbors));
+							InputIterator match = std::find(first1, last1, *it);
 
-						offset = std::distance(first1, match);
+							offset = std::distance(first1, match);
+						}
+
+						neighbor = *(first1 + offset);
+
+						offspring.push_back(neighbor);
 					}
+
+					Chromosome chromosome(length);
+
+					std::move(begin(offspring), end(offspring), begin(chromosome));
+
+					*result++ = chromosome;
+
+					n_offsprings = 1;
 				}
 
-				Chromosome chromosome(length);
-
-				std::move(begin(offspring), end(offspring), begin(chromosome));
-
-				*result++ = chromosome;
-
-				return 1;
+				return n_offsprings;
 			}
 
 		private:
@@ -131,9 +140,9 @@ namespace ea::crossover
 
 			template<typename InputIterator>
 			NeighborMap build_map(InputIterator first1,
-			                     InputIterator last1,
-			                     InputIterator first2,
-			                     InputIterator last2)
+			                      InputIterator last1,
+			                      InputIterator first2,
+			                      InputIterator last2)
 			{
 				NeighborMap map;
 
