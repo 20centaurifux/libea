@@ -38,11 +38,6 @@
 namespace ea::selection
 {
 	/**
-	   @addtogroup Selection
-	   @{
-	 */
-
-	/**
 	   @enum Proportionality
 	   @brief Proportionality type.
 	 */
@@ -68,13 +63,13 @@ namespace ea::selection
 
 			   Initializes the functor.
 			 */
-			FitnessProportional(Proportionality proportionality = Proportionality::direct)
+			explicit FitnessProportional(Proportionality proportionality = Proportionality::direct)
 				: proportionality(proportionality)
 			{}
 
 			/**
-			   @tparam Fitness fitness function object: double fun(InputIterator first, InputIterator last)
 			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam Fitness fitness function object: double fun(InputIterator first, InputIterator last)
 			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
 			   @param first first individual of a population
 			   @param last points to the past-the-end element in the sequence
@@ -88,7 +83,7 @@ namespace ea::selection
 			   overflow occurs.
 			 */
 			template<typename InputIterator, typename Fitness, typename OutputIterator>
-			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
+			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result) const
 			{
 				std::vector<Slice> wheel;
 
@@ -206,8 +201,6 @@ namespace ea::selection
 				}
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

@@ -35,11 +35,6 @@
 namespace ea::crossover
 {
 	/**
-	   @addtogroup Crossover
-	   @{
-	*/
-
-	/**
 	   @class OnePoint
 	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
 	   @brief Cuts two chromosomes and links both substrings.
@@ -58,7 +53,7 @@ namespace ea::crossover
 			   @param result beginning of the destination range
 			   @return number of offsprings written to \p result
 
-			   Combines two parents and generates a two offsprings.
+			   Combines two parents and generates two offsprings.
 
 			   Throws std::length_error if at least a single chromosome is empty.
 			*/
@@ -67,7 +62,7 @@ namespace ea::crossover
 					  InputIterator last1,
 					  InputIterator first2,
 					  InputIterator last2,
-					  OutputIterator result)
+					  OutputIterator result) const
 			{
 				const auto length1 = std::distance(first1, last1);
 				const auto length2 = std::distance(first2, last2);
@@ -99,8 +94,6 @@ namespace ea::crossover
 				return 2;
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

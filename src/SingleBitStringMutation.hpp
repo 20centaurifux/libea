@@ -30,11 +30,6 @@
 namespace ea::mutation
 {
 	/**
-	   @addtogroup Mutation
-	   @{
-	 */
-
-	/**
 	   @class SingleBitString
 	   @brief Flips a random gene.
 	 */
@@ -53,9 +48,7 @@ namespace ea::mutation
 			template<typename InputIterator>
 			void operator()(InputIterator first, InputIterator last) const
 			{
-				using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
-
-				const difference_type length = std::distance(first, last);
+				const auto length = std::distance(first, last);
 	
 				if(length == 0)
 				{
@@ -63,17 +56,15 @@ namespace ea::mutation
 				}
 
 				random::RandomEngine eng = random::default_engine();
-				std::uniform_int_distribution<difference_type> dist(0, length - 1);
+				std::uniform_int_distribution<decltype(length)> dist(0, length - 1);
 
-				const difference_type offset = dist(eng);
+				const auto offset = dist(eng);
 
 				std::advance(first, offset);
 
 				*first = !*first;
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

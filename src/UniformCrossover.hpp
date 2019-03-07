@@ -32,11 +32,6 @@
 namespace ea::crossover
 {
 	/**
-	   @addtogroup Crossover
-	   @{
-	*/
-
-	/**
 	   @class Uniform
 	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
 	   @brief Genes are independently chosen from the two parents according to
@@ -56,7 +51,7 @@ namespace ea::crossover
 		   @param result beginning of the destination range
 		   @return number of offsprings written to \p result
 
-		   Combines two parents and generates a two offsprings.
+		   Combines two parents and generates two offsprings.
 
 		   Throws std::length_error if length of both chromosomes isn't the same.
 		*/
@@ -65,7 +60,7 @@ namespace ea::crossover
 			InputIterator last1,
 			InputIterator first2,
 			InputIterator last2,
-			OutputIterator result)
+			OutputIterator result) const
 		{
 			const auto length = std::distance(first1, last1);
 
@@ -92,8 +87,6 @@ namespace ea::crossover
 			return 2;
 		}
 	};
-
-	/*! @} */
 }
 
 #endif

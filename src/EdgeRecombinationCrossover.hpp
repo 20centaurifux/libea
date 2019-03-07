@@ -35,11 +35,6 @@
 namespace ea::crossover
 {
 	/**
-	   @addtogroup Crossover
-	   @{
-	*/
-
-	/**
 	   @class EdgeRecombination
 	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
 	   @brief Creates a path that is similar to a set of existing paths by looking at
@@ -69,7 +64,7 @@ namespace ea::crossover
 				          InputIterator last1,
 				          InputIterator first2,
 				          InputIterator last2,
-				          OutputIterator result)
+				          OutputIterator result) const
 			{
 				const difference_type<InputIterator> length = std::distance(first1, last1);
 
@@ -84,6 +79,7 @@ namespace ea::crossover
 				{
 					NeighborMap map = build_map(first1, last1, first2, last2);
 
+					random::RandomEngine eng = random::default_engine();
 					std::uniform_int_distribution<difference_type<InputIterator>> dist(0, length - 1);
 					difference_type<InputIterator> offset = dist(eng);
 
@@ -101,11 +97,12 @@ namespace ea::crossover
 							do
 							{
 								offset = dist(eng);
-							} while(std::find(begin(offspring), end(offspring), *(first1 + offset)) != end(offspring));
+							}
+							while(std::find(begin(offspring), end(offspring), *(first1 + offset)) != end(offspring));
 						}
 						else
 						{
-							typename GeneSequence::iterator it = best_neighbor(map, begin(neighbors), end(neighbors));
+							typename GeneSequence::iterator it = best_neighbor(map, eng, begin(neighbors), end(neighbors));
 							InputIterator match = std::find(first1, last1, *it);
 
 							offset = std::distance(first1, match);
@@ -136,13 +133,11 @@ namespace ea::crossover
 			template<typename InputIterator>
 			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
-			random::RandomEngine eng = random::default_engine();
-
 			template<typename InputIterator>
-			NeighborMap build_map(InputIterator first1,
-			                      InputIterator last1,
-			                      InputIterator first2,
-			                      InputIterator last2)
+			static NeighborMap build_map(InputIterator first1,
+			                             InputIterator last1,
+			                             InputIterator first2,
+			                             InputIterator last2)
 			{
 				NeighborMap map;
 
@@ -179,7 +174,7 @@ namespace ea::crossover
 			}
 
 			template<typename InputIterator>
-			InputIterator best_neighbor(NeighborMap map, InputIterator first, InputIterator last)
+			static InputIterator best_neighbor(NeighborMap map, random::RandomEngine &eng, InputIterator first, InputIterator last)
 			{
 				std::vector<InputIterator> shuffled;
 
@@ -196,8 +191,6 @@ namespace ea::crossover
 				});
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

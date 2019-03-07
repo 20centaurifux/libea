@@ -27,7 +27,7 @@ namespace ea
 	/*! Major version. */
 	const int LIBEA_MAJOR = 0;
 	/*! Minor version. */
-	const int LIBEA_MINOR = 0;
+	const int LIBEA_MINOR = 3;
 	/*! Patch level. */
 	const int LIBEA_PATCHLEVEL = 0;
 }
@@ -59,10 +59,6 @@ namespace ea
 #include "StochasticUniversalSampling.hpp"
 
 #include "Stream.hpp"
-
-/**
-   @}
- */
 
 #endif
 

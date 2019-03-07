@@ -33,11 +33,6 @@
 namespace ea::crossover
 {
 	/**
-	   @addtogroup Crossover
-	   @{
-	 */
-
-	/**
 	   @class Ordered
 	   @tparam Chromosome chromosome sequence type
 	   @brief Copies a swath of consecutive genes from one parent and places
@@ -68,7 +63,7 @@ namespace ea::crossover
 			                  InputIterator last1,
 			                  InputIterator first2,
 			                  InputIterator last2,
-			                  OutputIterator result)
+			                  OutputIterator result) const
 			{
 				const difference_type<InputIterator> length = std::distance(first1, last1);
 
@@ -138,8 +133,6 @@ namespace ea::crossover
 				return std::make_tuple(std::min(range[0], range[1]), std::max(range[0], range[1]));
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

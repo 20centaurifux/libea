@@ -27,11 +27,6 @@
 namespace ea::utils
 {
 	/**
-	   @addtogroup Utils
-	   @{
-	 */
-
-	/**
 	   @tparam F a function object: f()
 	   @param count number of repeats
 	   @param fn function to repeat
@@ -85,8 +80,6 @@ namespace ea::utils
 	{
 		return std::prev(it == first ? last : it);
 	}
-
-	/*! @} */
 }
 
 #endif

@@ -40,11 +40,6 @@
 namespace ea::diversity
 {
 	/**
-	   @addtogroup Utils
-	   @{
-	 */
-
-	/**
 	   @tparam InputIterator must meet the requirements of LegacyInputIterator
 	   @param first1 points to the first element of the first chromosome
 	   @param last1 points to the end of the first chromosome
@@ -98,9 +93,6 @@ namespace ea::diversity
 
 	   Throws std::length_error if chromosome lengths differ and std::overflow_error if
 	   the calulcated distance value overflows.
-
-	   Throws std::length_error if chromosome lengths differ and std::overflow_error if
-	   the calculated distance value overflows.
 	 */
 	template<typename InputIterator>
 	double avg_hamming_distance(InputIterator first, InputIterator last)
@@ -286,10 +278,6 @@ namespace ea::diversity
 
 		return diversity / total;
 	}
-
-	/**
-	   @}
-	 */
 }
 
 #endif

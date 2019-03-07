@@ -32,11 +32,6 @@
 namespace ea::crossover
 {
 	/**
-	   @addtogroup Crossover
-	   @{
-	 */
-
-	/**
 	   @class CutAndSplice
 	   @tparam Chromosome chromosome sequence type
 	   @brief Cuts two chromosomes and links both substrings. Two offstrings are generated.
@@ -57,23 +52,18 @@ namespace ea::crossover
 			   
 			   Combines two parents and generates new offspring.
 
-			   Throws std::length_error if the length of at least one chromosome is below 3
-			   and std::overflow_error if an overflow occurs.
+			   Throws std::length_error if the length of at least one chromosome is less than
+			   three and std::overflow_error if an overflow occurs.
 			 */
 			template<typename InputIterator, typename OutputIterator>
 			size_t operator()(InputIterator first1,
 			                  InputIterator last1,
 			                  InputIterator first2,
 			                  InputIterator last2,
-			                  OutputIterator result)
+			                  OutputIterator result) const
 			{
-				difference_type<InputIterator> length1, sep1;
-
-				std::tie(length1, sep1) = separate(first1, last1);
-
-				difference_type<InputIterator> length2, sep2;
-
-				std::tie(length2, sep2) = separate(first2, last2);
+				const auto[length1, sep1] = separate(first1, last1);
+				const auto[length2, sep2] = separate(first2, last2);
 
 				append(first1, sep1, first2, sep2, length2, result);
 				append(first2, sep2, first1, sep1, length1, result);
@@ -85,10 +75,8 @@ namespace ea::crossover
 			template<typename InputIterator>
 			using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
-			random::RandomEngine eng = random::default_engine();
-
 			template<typename InputIterator>
-			std::tuple<difference_type<InputIterator>, difference_type<InputIterator>>
+			static std::tuple<difference_type<InputIterator>, difference_type<InputIterator>>
 			separate(InputIterator first, InputIterator last)
 			{
 				const difference_type<InputIterator> length = std::distance(first, last);
@@ -98,6 +86,7 @@ namespace ea::crossover
 					throw std::length_error("Population too small.");
 				}
 
+				random::RandomEngine eng = random::default_engine();
 				std::uniform_int_distribution<difference_type<InputIterator>> dist(1, length - 2);
 
 				return std::make_tuple(length, dist(eng));
@@ -131,8 +120,6 @@ namespace ea::crossover
 				*result++ = chromosome;
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

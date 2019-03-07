@@ -35,11 +35,6 @@
 namespace ea::fitness
 {
 	/**
-	   @addtogroup Utils
-	   @{
-	 */
-
-	/**
 	   @tparam PopulationIterator iterator type pointing to a chromosome
 
 	   Use this template to get the chromosome's iterator type.
@@ -59,7 +54,7 @@ namespace ea::fitness
 	/**
 	   @tparam PopulationIterator must meet the requirements of LegacyRandomAccessIterator
 	   @param fn a fitness function
-	   @return a new function object
+	   @return new function object
 
 	   Wraps a fitness function & returns a new function object to get the fitness
 	   of a chromosome by index.
@@ -128,7 +123,7 @@ namespace ea::fitness
 	/**
 	   @tparam PopulationIterator must meet the requirements of LegacyRandomAccessIterator
 	   @param fn a fitness function
-	   @return a new function object
+	   @return new function object
 
 	   Wraps a fitness function & returns a new function object to get the fitness
 	   of a chromosome by index. The fitness is cached for each index.
@@ -238,8 +233,6 @@ namespace ea::fitness
 
 		return fittest;
 	}
-
-	/*! @} */
 }
 
 #endif

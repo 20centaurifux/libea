@@ -39,11 +39,6 @@
 namespace ea::selection
 {
 	/**
-	   @addtogroup Selection
-	   @{
-	 */
-
-	/**
 	   @class StochasticUniversalSampling
 	   @brief Selects N individuals from a population. The probability for being selected
 	          is proportional to the fitness value of an individual.
@@ -143,8 +138,6 @@ namespace ea::selection
 				return sum;
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

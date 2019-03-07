@@ -29,11 +29,6 @@
 namespace ea::selection
 {
 	/**
-	   @addtogroup Selection
-	   @{
-	 */
-
-	/**
 	   @class Fittest
 	   @tparam Compare function to compare fitness values
 	   @brief Selects the N fittest individuals.
@@ -43,8 +38,8 @@ namespace ea::selection
 	{
 		public:
 			/**
-			   @tparam Fitness fitness function object: double fun(InputIterator first, InputIterator last)
 			   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+			   @tparam Fitness fitness function object: double fun(InputIterator first, InputIterator last)
 			   @tparam OutputIterator must meet the requirements of LegacyOutputIterator
 			   @param first first individual of a population
 			   @param last points to the past-the-end element in the sequence
@@ -58,7 +53,7 @@ namespace ea::selection
 			   if the number of individuals exceeds size_t.
 			 */
 			template<typename InputIterator, typename Fitness, typename OutputIterator>
-			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
+			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result) const
 			{
 				std::multiset<Chromosome> chromosomes;
 				size_t i = 0;
@@ -98,8 +93,6 @@ namespace ea::selection
 				}
 			};
 	};
-
-	/*! @} */
 }
 
 #endif

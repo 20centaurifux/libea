@@ -31,11 +31,6 @@
 namespace ea::crossover
 {
 	/**
-	   @addtogroup Crossover
-	   @{
-	 */
-
-	/**
 	   @class Cycle
 	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
 	   @brief Identifies cycles between parent chromosomes & copies them to two offsprings.
@@ -64,7 +59,7 @@ namespace ea::crossover
 			                  InputIterator last1,
 			                  InputIterator first2,
 			                  InputIterator last2,
-			                  OutputIterator result)
+			                  OutputIterator result) const
 			{
 				using difference_type = typename std::iterator_traits<InputIterator>::difference_type;
 
@@ -121,8 +116,6 @@ namespace ea::crossover
 				return 2;
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

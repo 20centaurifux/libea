@@ -30,11 +30,6 @@
 
 namespace ea::random
 {
-	/**
-	   @addtogroup Utils
-	   @{
-	 */
-
 	/*! Default random engine. */
 	using RandomEngine = std::mt19937;
 
@@ -45,7 +40,7 @@ namespace ea::random
 	 */
 	RandomEngine default_engine()
 	{
-		static std::random_device rd;
+		std::random_device rd;
 		std::mt19937 mt(rd());
 
 		return mt;
@@ -149,8 +144,6 @@ namespace ea::random
 			std::copy(begin(numbers), end(numbers), first);
 		}
 	};
-
-	/*! @} */
 }
 
 #endif

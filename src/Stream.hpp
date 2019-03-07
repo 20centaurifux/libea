@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <stdexcept>
 
 #include "Random.hpp"
 
@@ -31,7 +32,7 @@ namespace ea::stream
 {
 	/**
 	   @enum StateType
-	   @brief Describes how state of the stream is managed.
+	   @brief Describes how state of a stream is managed.
 	 */
 	enum class StateType
 	{
@@ -45,7 +46,7 @@ namespace ea::stream
 	   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
 	   @tparam State describes how state is managed
 	   @class Stream
-	   @brief Apply evolutionary operators on a functional-style.
+	   @brief Apply evolutionary operators in a functional-style.
 	 */
 	template<typename InputIterator, StateType State = StateType::stateless>
 	class Stream
@@ -101,10 +102,17 @@ namespace ea::stream
 			   @returns new Stream object
 
 			   Applies the given mutation operator to the stream.
+
+			   Throws std::invalid_argument if probability is out of range (0.0 <= p <= 1.0).
 			 */
 			template<typename Operator>
 			Stream mutate(Operator op, const double probability = 0.08)
 			{
+				if(probability <= 0.0 || probability >= 1.0)
+				{
+					throw std::invalid_argument("Probability out of range.");
+				}
+
 				Stream stream = dup();
 				const int dst = !stream.index;
 
@@ -238,6 +246,8 @@ namespace ea::stream
 
 	/**
 	   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+	   @param first first individual of a population
+	   @param last points to the past-the-end element in the sequence
 	   @return new Stream
 
 	   Creates a new mutable stream.
@@ -250,6 +260,8 @@ namespace ea::stream
 
 	/**
 	   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
+	   @param first first individual of a population
+	   @param last points to the past-the-end element in the sequence
 	   @return new Stream
 
 	   Creates a new immutable stream.

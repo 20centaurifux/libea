@@ -25,11 +25,6 @@
 namespace ea::mutation
 {
 	/**
-	   @addtogroup Mutation
-	   @{
-	 */
-
-	/**
 	   @class InverseBitString
 	   @brief Flips all genes.
 	 */
@@ -52,8 +47,6 @@ namespace ea::mutation
 				}
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

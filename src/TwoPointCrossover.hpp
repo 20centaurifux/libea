@@ -32,11 +32,6 @@
 namespace ea::crossover
 {
 	/**
-	   @addtogroup Crossover
-	   @{
-	*/
-
-	/**
 	   @class TwoPoint
 	   @tparam Chromosome must meet the requirements of LegacyRandomAccessIterator
 	   @brief Cuts two chromosomes into three parts and links the substrings.
@@ -55,7 +50,7 @@ namespace ea::crossover
 			   @param result beginning of the destination range
 			   @return number of offsprings written to \p result
 
-			   Combines two parents and generates a two offsprings.
+			   Combines two parents and generates two offsprings.
 
 			   Throws std::length_error if the length of at least one chromosome is less
 			   than three.
@@ -65,7 +60,7 @@ namespace ea::crossover
 			                  InputIterator last1,
 			                  InputIterator first2,
 			                  InputIterator last2,
-			                  OutputIterator result)
+			                  OutputIterator result) const
 			{
 				const auto length1 = std::distance(first1, last1);
 				const auto length2 = std::distance(first2, last2);
@@ -77,16 +72,14 @@ namespace ea::crossover
 			}
 
 		private:
-			random::RandomEngine eng = random::default_engine();
-
 			template<typename InputIterator, typename Distance, typename OutputIterator>
-			void append(InputIterator first1,
-			            InputIterator last1,
-			            const Distance length1,
-			            InputIterator first2,
-			            InputIterator last2,
-			            const Distance length2,
-			            OutputIterator result)
+			static void append(InputIterator first1,
+			                   InputIterator last1,
+			                   const Distance length1,
+			                   InputIterator first2,
+			                   InputIterator last2,
+			                   const Distance length2,
+			                   OutputIterator result)
 			{
 				const auto min = std::min(length1, length2);
 
@@ -95,6 +88,7 @@ namespace ea::crossover
 					throw std::length_error("Chromosome too short.");
 				}
 
+				random::RandomEngine eng = random::default_engine();
 				std::uniform_int_distribution<typename std::remove_const<decltype(min)>::type> dist1(0, min - 2);
 				const auto separator1 = dist1(eng);
 
@@ -120,8 +114,6 @@ namespace ea::crossover
 				return std::make_tuple(std::min(offsets[0], offsets[1]), std::max(offsets[0], offsets[1]));
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

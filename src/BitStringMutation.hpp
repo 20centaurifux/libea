@@ -31,11 +31,6 @@
 namespace ea::mutation
 {
 	/**
-	   @addtogroup Mutation
-	   @{
-	 */
-
-	/**
 	   @class BitString
 	   @brief Flips at least one gene.
 	 */
@@ -88,8 +83,6 @@ namespace ea::mutation
 		private:
 			const double probability;
 	};
-
-	/*! @} */
 }
 
 #endif

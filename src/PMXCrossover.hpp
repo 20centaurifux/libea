@@ -32,11 +32,6 @@
 
 namespace ea::crossover
 {
-	 /**
-	   @addtogroup Crossover
-	   @{
-	*/
-
 	/**
 	   @class PMX
 	   @tparam Chromosome chromosome sequence type
@@ -67,7 +62,7 @@ namespace ea::crossover
 					  InputIterator last1,
 					  InputIterator first2,
 					  InputIterator last2,
-					  OutputIterator result)
+					  OutputIterator result) const
 			{
 				const auto length = std::distance(first1, last1);
 
@@ -165,7 +160,8 @@ namespace ea::crossover
 						}
 
 						index = std::distance(first2, match);
-					} while(index >= from && index < to);
+					}
+					while(index >= from && index < to);
 
 					*(result + index) = g2;
 				}
@@ -201,8 +197,6 @@ namespace ea::crossover
 				}
 			}
 	};
-
-	/*! @} */
 }
 
 #endif

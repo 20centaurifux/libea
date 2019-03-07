@@ -31,11 +31,6 @@
 namespace ea::mutation
 {
 	/**
-	   @addtogroup Mutation
-	   @{
-	 */
-
-	/**
 	   @class DoubleSwap
 	   @brief Swaps three genes.
 	 */
@@ -74,8 +69,6 @@ namespace ea::mutation
 				*(first + indeces[2]) = chromosome;
 			}
 	};
-
-	/*! @} */
 }
 
 #endif
