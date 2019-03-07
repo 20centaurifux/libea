@@ -1,7 +1,6 @@
 #include <iostream>
 #include <functional>
 #include <algorithm>
-#include <cstdint>
 
 #include "libea.hpp"
 
