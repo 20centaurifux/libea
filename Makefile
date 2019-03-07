@@ -1,6 +1,6 @@
-CPP=clang++
-CPPFLAGS=-std=c++17 -Wall -O0 -g
-LDFLAGS=-lcppunit
+CPP=g++
+CPPFLAGS=-std=c++17 -Wall -O2
+LDFLAGS=-lcppunit -fopenmp
 
 .PHONY: test doc clean
 

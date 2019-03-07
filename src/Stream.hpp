@@ -116,22 +116,32 @@ namespace ea::stream
 				Stream stream = dup();
 				const int dst = !stream.index;
 
-				random::RandomEngine eng = random::default_engine();
-				std::uniform_real_distribution<double> dist(0.0, 1.0);
-
 				stream.state[dst].clear();
 
-				std::for_each(std::begin(stream.state[stream.index]), std::end(stream.state[stream.index]), [&](auto &chromosome)
-				{
-					decltype(chromosome) mutant = chromosome;
+				const auto length = std::distance(std::begin(stream.state[index]), std::end(stream.state[index]));
 
-					if(dist(eng) <= probability)
+				#pragma omp parallel
+				{
+					random::RandomEngine eng = random::default_engine();
+					std::uniform_real_distribution<double> dist(0.0, 1.0);
+					std::vector<typename InputIterator::value_type> mutants;
+
+					#pragma omp for
+					for(typename std::remove_const<decltype(length)>::type i = 0; i < length - 1; ++i)
 					{
-						op(std::begin(mutant), std::end(mutant));
+						auto mutant = stream.state[index][i];
+
+						if(dist(eng) <= probability)
+						{
+							op(std::begin(mutant), std::end(mutant));
+						}
+
+						mutants.push_back(mutant);
 					}
 
-					stream.state[dst].push_back(mutant);
-				});
+					#pragma omp critical
+					std::move(std::begin(mutants), std::end(mutants), std::back_inserter(stream.state[dst]));
+				}
 
 				stream.index = dst;
 
@@ -153,23 +163,27 @@ namespace ea::stream
 
 				stream.state[dst].clear();
 
-				auto result = std::back_inserter(stream.state[dst]);
-
 				const auto length = std::distance(std::begin(stream.state[index]), std::end(stream.state[index]));
 
-				if(length > 1)
+				#pragma omp parallel
 				{
+					std::vector<typename InputIterator::value_type> offsprings;
+
+					#pragma omp for
 					for(typename std::remove_const<decltype(length)>::type i = 0; i < length - 1; ++i)
 					{
 						for(auto j = i + 1; j < length; ++j)
 						{
 							op(std::begin(stream.state[index][i]),
-							        std::end(stream.state[index][i]),
-							        std::begin(stream.state[index][j]),
-							        std::end(stream.state[index][j]),
-							        result);
+							   std::end(stream.state[index][i]),
+							   std::begin(stream.state[index][j]),
+							   std::end(stream.state[index][j]),
+							   std::back_inserter(offsprings));
 						}
 					}
+
+					#pragma omp critical
+					std::move(std::begin(offsprings), std::end(offsprings), std::back_inserter(stream.state[dst]));
 				}
 
 				stream.index = dst;

@@ -9,11 +9,11 @@ for writing evolutionary algorithms.
 ## Usage
 
 ***libea*** is a header-only library. Copy the files from the *src*
-folder into your project and include the header "libea.hpp".
+folder into your project and include the header file "libea.hpp".
 
 If you want to generate the source code documentation please ensure
 Doxygen is installed on your system and type in the following command:
 
 	# make doc
 
-An example can be fouere [here]().
+An example can be found in the *examples* folder.
