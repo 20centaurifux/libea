@@ -88,28 +88,35 @@ namespace ea::selection
 					throw std::length_error("N exceeds population size.");
 				}
 
-				auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
-
 				std::vector<Score<InputIterator>> indeces;
-				difference_type<InputIterator> i = 0;
 
-				for(auto chromosome = first; chromosome != last; ++chromosome, ++i)
+				#pragma omp parallel
 				{
-					Score<InputIterator> score = { i, 0 };
+					std::vector<Score<InputIterator>> subset;
+					auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
 
-					std::vector<difference_type<InputIterator>> opponents(Q);
-
-					random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type<InputIterator>>(0), length - 1);
-
-					std::for_each(begin(opponents), end(opponents), [&](difference_type<InputIterator> j)
+					#pragma omp for
+					for(difference_type<InputIterator> i = 0; i < length; ++i)
 					{
-						if(Compare()(fitness_by_index(first, i), fitness_by_index(first, j)))
-						{
-							++score.value;
-						}
-					});
+						Score<InputIterator> score = { i, 0 };
 
-					indeces.push_back(score);
+						std::vector<difference_type<InputIterator>> opponents(Q);
+
+						random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type<InputIterator>>(0), length - 1);
+
+						std::for_each(begin(opponents), end(opponents), [&](difference_type<InputIterator> j)
+						{
+							if(Compare()(fitness_by_index(first, i), fitness_by_index(first, j)))
+							{
+								++score.value;
+							}
+						});
+
+						subset.push_back(score);
+					}
+
+					#pragma omp critical
+					std::move(begin(subset), end(subset), std::back_inserter(indeces));
 				}
 
 				std::sort(begin(indeces), end(indeces));
