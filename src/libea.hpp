@@ -43,6 +43,7 @@ namespace ea
 #include "SingleBitStringMutation.hpp"
 #include "SingleSwapMutation.hpp"
 
+#include "EdgeRecombinationCrossover.hpp"
 #include "CutAndSpliceCrossover.hpp"
 #include "CycleCrossover.hpp"
 #include "OnePointCrossover.hpp"
@@ -52,11 +53,10 @@ namespace ea
 #include "UniformCrossover.hpp"
 
 #include "DoubleTournamentSelection.hpp"
-#include "EdgeRecombinationCrossover.hpp"
-
 #include "FitnessProportionalSelection.hpp"
 #include "FittestSelection.hpp"
 #include "StochasticUniversalSampling.hpp"
+#include "TournamentSelection.hpp"
 
 #include "Stream.hpp"
 
