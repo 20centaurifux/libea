@@ -71,8 +71,8 @@ namespace ea::crossover
 					throw std::length_error("Chromosome lengths have to be equal.");
 				}
 
-				append<InputIterator>({ first1, last1 }, { first2, last2 }, length, result);
-				append<InputIterator>({ first2, last2 }, { first1, last1 }, length, result);
+				append<InputIterator>(first1, { first2, last2 }, length, result);
+				append<InputIterator>(first2, { first1, last1 }, length, result);
 
 				return 2;
 			}
@@ -82,12 +82,11 @@ namespace ea::crossover
 			using Range = typename std::tuple<T, T>;
 
 			template<typename InputIterator, typename Difference, typename OutputIterator>
-			static void append(Range<InputIterator> parent1,
+			static void append(InputIterator first1,
 			                   Range<InputIterator> parent2,
 			                   const Difference length,
 			                   OutputIterator result)
 			{
-				const auto &[first1, last1] = parent1;
 				const auto &[first2, last2] = parent2;
 				const auto[from, to] = generate_swath(length);
 
@@ -99,7 +98,7 @@ namespace ea::crossover
 
 				for(auto offset = from; offset < to; ++offset)
 				{
-					const auto index = copy_from_swath<InputIterator>({ first1, last1 },
+					const auto index = copy_from_swath<InputIterator>(first1,
 					                                                  { from, to },
 					                                                  { first2, last2 },
 					                                                  offset,
@@ -131,13 +130,12 @@ namespace ea::crossover
 			}
 
 			template<typename InputIterator, typename Difference, typename OutputIterator>
-			static Difference copy_from_swath(Range<InputIterator> parent1,
+			static Difference copy_from_swath(InputIterator first1,
 			                                  const Range<Difference> swath,
 			                                  Range<InputIterator> parent2,
 			                                  const Difference offset2,
 			                                  OutputIterator result)
 			{
-				const auto &[first1, last1] = parent1;
 				const auto [from, to] = swath;
 				const auto &[first2, last2] = parent2;
 				const auto &g2 = *(first2 + offset2);

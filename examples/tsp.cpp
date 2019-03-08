@@ -88,7 +88,7 @@ auto main() -> int
 
 	auto stream = ea::stream::make_mutable(begin(routes), end(routes));
 
-	for(int i = 1; i <= 50; ++i)
+	for(int i = 1; i <= 100; ++i)
 	{
 		stream = stream.select(ea::selection::DoubleTournament<std::less<double>>(), 1000, fitness)
 		               .crossover(ea::crossover::PMX<Route>())
