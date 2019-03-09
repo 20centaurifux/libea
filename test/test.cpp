@@ -364,18 +364,20 @@ class FitnessUtilitiesTest : public CPPUNIT_NS::TestFixture
 				return DefaultTestGenome(--length);
 			});
 
-			auto fittest = ea::fitness::fittest(begin(population), end(population), std::distance<DefaultTestGenome::iterator>);
+			auto [fittest, fitness] = ea::fitness::fittest(begin(population), end(population), std::distance<DefaultTestGenome::iterator>);
 
 			CPPUNIT_ASSERT(fittest->size() == 100);
+			CPPUNIT_ASSERT(fitness == 100.0);
 		}
 
 		void fittest_empty()
 		{
 			DefaultTestPopulation population;
 
-			auto pos = ea::fitness::fittest(begin(population), end(population), std::distance<DefaultTestGenome::iterator>);
+			auto [pos, fitness] = ea::fitness::fittest(begin(population), end(population), std::distance<DefaultTestGenome::iterator>);
 
 			CPPUNIT_ASSERT(pos == end(population));
+			CPPUNIT_ASSERT(fitness == 0.0);
 		}
 
 	private:

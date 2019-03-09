@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <iterator>
 #include <map>
+#include <tuple>
 #include <vector>
 #include <limits>
 #include <cfenv>
@@ -202,15 +203,15 @@ namespace ea::fitness
 	   @param first iterator pointing to the first chromosome of a population
 	   @param last iterator pointing to the end (element after the last element) of a population
 	   @param fn a fitness function
-	   @return iterator to the fittest chromosome
+	   @return iterator to the fittest chromosome & the related fitness value
 
 	   Finds the fittest chromosome by applying the function \p fn to all chromosomes
 	   of the range \p first to \p last.
 	 */	
 	template<typename PopulationIterator, typename Compare = std::greater<double>>
-	PopulationIterator fittest(PopulationIterator first, PopulationIterator last, FitnessFunction<PopulationIterator> fn)
+	std::tuple<PopulationIterator, double> fittest(PopulationIterator first, PopulationIterator last, FitnessFunction<PopulationIterator> fn)
 	{
-		auto fittest = first;
+		PopulationIterator fittest = first;
 		double fitness = 0.0;
 
 		if(fittest != last)
@@ -231,7 +232,7 @@ namespace ea::fitness
 			}
 		}
 
-		return fittest;
+		return std::make_tuple(fittest, fitness);
 	}
 }
 
