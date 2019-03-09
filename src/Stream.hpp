@@ -52,6 +52,9 @@ namespace ea::stream
 	class Stream
 	{
 		public:
+			/*! Stream iterator type.*/
+			using iterator = typename std::vector<typename InputIterator::value_type>::const_iterator;
+
 			/**
 			   @param first first individual of a population
 			   @param last points to the past-the-end element in the sequence
@@ -208,7 +211,7 @@ namespace ea::stream
 
 			   Returns the first element of the stream.
 			 */
-			auto begin() const
+			iterator begin() const
 			{
 				return std::begin(state[index]);
 			}
@@ -218,7 +221,7 @@ namespace ea::stream
 
 			   Returns the past-the-end element of the stream.
 			 */
-			auto end() const
+			iterator end() const
 			{
 				return std::end(state[index]);
 			}

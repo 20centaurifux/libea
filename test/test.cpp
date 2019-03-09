@@ -156,7 +156,7 @@ class RandomTest : public CPPUNIT_NS::TestFixture
 			std::vector<int> a(MAX_DISTINCT_NUMBERS);
 
 			ea::random::fill_distinct_n_int(begin(a), MAX_DISTINCT_NUMBERS, 1, MAX_DISTINCT_NUMBERS);
-			return;
+
 			std::vector<int> b(MAX_NUMBERS);
 
 			ea::random::fill_distinct_n_int(begin(b), MAX_DISTINCT_NUMBERS, 1, MAX_DISTINCT_NUMBERS);
@@ -1213,6 +1213,43 @@ CPPUNIT_TEST_SUITE_REGISTRATION(DiversityTest);
 
 #include "Stream.hpp"
 
+typedef uint8_t City;
+
+struct Point
+{
+	uint16_t x;
+	uint16_t y;
+};
+
+using Route = std::vector<City>;
+using Routes = std::vector<Route>;
+
+std::map<City, Point> Cities =
+{
+	{ 0, { 31, 9 } },
+	{ 1, { 17, 82 } },
+	{ 2, { 56, 47 } },
+	{ 3, { 70,  3 } },
+	{ 4, { 11,  7 } },
+	{ 5, { 93, 83 } },
+	{ 6, { 96, 22 } },
+	{ 7, { 26, 97 } },
+	{ 8, { 52, 58 } },
+	{ 9, { 68, 6 } }
+};
+
+auto euclidean_distance = [](auto first, auto last)
+{
+	double f = 0.0;
+
+	for(auto it = first; std::distance(it, last) > 2; it += 2)
+	{
+		f += sqrt(pow(Cities[*(it + 1)].x - Cities[*it].x, 2) + pow(Cities[*(it + 1)].y - Cities[*it].y, 2));
+	}
+
+	return f;
+};
+
 class StreamTest : public CPPUNIT_NS::TestFixture
 {
 	CPPUNIT_TEST_SUITE(StreamTest);
@@ -1233,25 +1270,12 @@ class StreamTest : public CPPUNIT_NS::TestFixture
 				return route;
 			});
 
-			std::function<double(Route::iterator, Route::iterator)>
-			fitness = [&](Route::iterator first, Route::iterator last)
-			{
-			    double f = 0.0;
-
-			    for (auto it = first; std::distance(it, last) > 2; it += 2)
-			    {
-				f += sqrt(pow(Cities[*(it + 1)].x - Cities[*it].x, 2) + pow(Cities[*(it + 1)].y - Cities[*it].y, 2));
-			    }
-
-			    return f;
-			};
-
-			auto stream = ea::stream::make_mutable(begin(routes1), end(routes1));
-			const double mean1 = ea::fitness::mean(begin(stream), end(stream), fitness);
+			auto stream = ea::stream::make_immutable(begin(routes1), end(routes1));
+			const double mean1 = ea::fitness::mean(begin(stream), end(stream), euclidean_distance);
 
 			for(int i = 1; i <= 10; ++i)
 			{
-				stream = stream.select(ea::selection::DoubleTournament<std::less<double>>(), 50, fitness)
+				stream = stream.select(ea::selection::DoubleTournament<std::less<double>>(), 50, euclidean_distance)
 				               .crossover(ea::crossover::EdgeRecombination<Route>())
 				               .mutate(ea::mutation::SingleSwap());
 			}
@@ -1260,42 +1284,15 @@ class StreamTest : public CPPUNIT_NS::TestFixture
 
 			stream.take(std::back_inserter(routes2));
 
-			const double mean2 = ea::fitness::mean(begin(routes2), end(routes2), fitness);
+			const double mean2 = ea::fitness::mean(begin(routes2), end(routes2), euclidean_distance);
 
 			CPPUNIT_ASSERT(mean1 > mean2);
 		}
-
-	private:
-		typedef uint8_t City;
-
-		struct Point
-		{
-		    uint16_t x;
-		    uint16_t y;
-		};
-
-		using Route = std::vector<City>;
-		using Routes = std::vector<Route>;
-
-		std::map<City, Point> Cities =
-		{
-		    { 0, { 31, 9 } },
-		    { 1, { 17, 82 } },
-		    { 2, { 56, 47 } },
-		    { 3, { 70,  3 } },
-		    { 4, { 11,  7 } },
-		    { 5, { 93, 83 } },
-		    { 6, { 96, 22 } },
-		    { 7, { 26, 97 } },
-		    { 8, { 52, 58 } },
-		    { 9, { 68, 6 } }
-		};
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(StreamTest);
 
-CPPUNIT_TEST_SUITE_REGISTRATION(DiversityTest);
-int main(int argc, char* argv[])
+auto main(int argc, char* argv[]) -> int
 {
 	CPPUNIT_NS::TestResult testresult;
 
