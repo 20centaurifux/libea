@@ -84,7 +84,7 @@ namespace ea::diversity
 	}
 
 	/**
-	   @tparam InputIterator must meet the requirements of LegacyInputIterator
+	   @tparam InputIterator must meet the requirements of LegacyRandomAccessIterator
 	   @param first first individual of a population
 	   @param last points to the past-the-end element in the sequence
 	   @return average hamming distance of a population
@@ -100,15 +100,16 @@ namespace ea::diversity
 		const auto length = std::distance(first, last);
 		double avg = 0.0;
 
-		if(length > 0)
+		if(length >= 2)
 		{
-		    size_t total = 0;
+			size_t total = 0;
 
-			for(InputIterator it1 = first; it1 != last; ++it1)
+			#pragma omp parallel for reduction(+:total)
+			for(typename std::remove_const<decltype(length)>::type i = 0; i < length - 1; ++i)
 			{
-				for(InputIterator it2 = it1 + 1; it2 != last; ++it2)
+				for(auto j = i + 1; j < length; ++j)
 				{
-					size_t d = hamming_distance(begin(*it1), end(*it1), begin(*it2), end(*it2));
+					size_t d = hamming_distance(begin(*(first + i)), end(*(first + i)), begin(*(first + j)), end(*(first + j)));
 
 					if(std::numeric_limits<size_t>::max() - total < d)
 					{
@@ -239,23 +240,25 @@ namespace ea::diversity
 		using Substr = std::vector<Char>;
 		using Set = std::set<Substr>;
 
+		const auto n_population = std::distance(first, last);
 		Set all;
+		typename Set::size_type total = 0;
 
-		const auto total = std::accumulate(first, last, 0, [&all](const typename Set::size_type total, auto &chromosome)
+		#pragma omp parallel for reduction(+:total)
+		for(typename std::remove_const<decltype(n_population)>::type i = 0; i < n_population; ++i)
 		{
-			const auto length = std::distance(begin(chromosome), end(chromosome));
+			auto &chromosome = *(first + i);
+			const auto n_chromosome = std::distance(begin(chromosome), end(chromosome));
 			Set substrs;
 
-			for(typename std::remove_const<decltype(length)>::type sublen = 1; sublen < length; ++sublen)
+			for(typename std::remove_const<decltype(n_chromosome)>::type sublen = 1; sublen < n_chromosome; ++sublen)
 			{
 				Substr substr(sublen);
 
-				for(typename std::remove_const<decltype(length)>::type start = 0; start <= length - sublen; ++start)
+				for(typename std::remove_const<decltype(n_chromosome)>::type start = 0; start <= n_chromosome - sublen; ++start)
 				{
 					std::copy_n(begin(chromosome) + start, sublen, begin(substr));
-
 					substrs.insert(substr);
-					all.insert(substr);
 				}
 			}
 
@@ -264,8 +267,11 @@ namespace ea::diversity
 				throw std::overflow_error("Arithmetic overflow.");
 			}
 
-			return total + substrs.size();
-		});
+			total += substrs.size();
+
+			#pragma omp critical
+			std::move(begin(substrs), end(substrs), std::inserter(all, end(all)));
+		}
 
 		std::feclearexcept(FE_OVERFLOW);
 
@@ -273,7 +279,7 @@ namespace ea::diversity
 
 		if(std::fetestexcept(FE_OVERFLOW))
 		{
-		    throw std::overflow_error("Arithmetic overflow.");
+			throw std::overflow_error("Arithmetic overflow.");
 		}
 
 		return diversity / total;

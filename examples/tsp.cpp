@@ -56,6 +56,25 @@ fitness = [](Route::iterator first, Route::iterator last)
 };
 
 template<typename InputIterator, typename Fitness>
+static void statistic(InputIterator first, InputIterator last, Fitness fitness)
+{
+	std::cout << "mean fitness: " << ea::fitness::mean(first, last, fitness) << '\n';
+	std::cout << "median fitness: " << ea::fitness::median(first, last, fitness) << '\n';
+
+	std::cout << "top 100..." << std::endl;
+
+	Routes top;
+	auto stream = ea::stream::make_mutable(first, last);
+
+	stream.select(ea::selection::Fittest<std::less<double>>(), 100, fitness)
+	      .take(std::back_inserter(top));
+
+	std::cout << "...average hamming distance: " << ea::diversity::avg_hamming_distance(begin(top), end(top)) << '\n';
+	std::cout << "...entropy: " << ea::diversity::avg_shannon_entropy(begin(top), end(top)) << '\n';
+	std::cout << "...substring diversity: " << ea::diversity::substr_diversity(begin(top), end(top)) << std::endl;
+}
+
+template<typename InputIterator, typename Fitness>
 static void debug(InputIterator first, InputIterator last, Fitness fitness)
 {
 	std::cout << "[ ";
@@ -82,10 +101,9 @@ auto main() -> int
 		return route;
 	});
 
-	// run operators:
-	std::cout << "mean fitness: " << ea::fitness::mean(begin(routes), end(routes), fitness) << std::endl;
-	std::cout << "median fitness: " << ea::fitness::median(begin(routes), end(routes), fitness) << std::endl;
+	statistic(begin(routes), end(routes), fitness);
 
+	// run operators:
 	auto stream = ea::stream::make_mutable(begin(routes), end(routes));
 
 	for(int i = 1; i <= 100; ++i)
@@ -101,8 +119,7 @@ auto main() -> int
 		}
 		else
 		{
-			std::cout << i << "\t mean fitness: " << ea::fitness::mean(begin(stream), end(stream), fitness) << std::endl;
-			std::cout << "\t median fitness: " << ea::fitness::median(begin(stream), end(stream), fitness) << std::endl;
+			statistic(begin(stream), end(stream), fitness);
 		}
 	}
 

@@ -6,6 +6,8 @@
 of this software is to provide an extensible and reliable framework
 for writing evolutionary algorithms.
 
+This library supports OpenMP.
+
 ## Usage
 
 ***libea*** is a header-only library. Copy the files from the *src*
