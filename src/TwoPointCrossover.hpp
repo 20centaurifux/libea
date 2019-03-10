@@ -103,16 +103,6 @@ namespace ea::crossover
 
 				*result++ = offspring;
 			}
-
-			template<typename Difference>
-			static std::tuple<Difference, Difference> generate_points(const Difference max)
-			{
-				Difference offsets[2];
-
-				random::fill_distinct_n_int(offsets, 2, static_cast<Difference>(1), max - 1);
-
-				return std::make_tuple(std::min(offsets[0], offsets[1]), std::max(offsets[0], offsets[1]));
-			}
 	};
 }
 

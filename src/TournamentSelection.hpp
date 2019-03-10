@@ -85,13 +85,13 @@ namespace ea::selection
 				random::RandomEngine engine = random::default_engine();
 				std::uniform_int_distribution<difference_type<InputIterator>> index_dist(0, length - 1);
 
+				auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
+
 				utils::repeat(N, [&]()
 				{
 					std::vector<difference_type<InputIterator>> opponents(Q);
 
 					random::fill_distinct_n_int(begin(opponents), Q, static_cast<difference_type<InputIterator>>(0), length - 1);
-
-					auto fitness_by_index = fitness::memoize_fitness_by_index<InputIterator>(fitness);
 					difference_type<InputIterator> index = index_dist(engine);
 
 					while(std::find(begin(opponents), end(opponents), index) != end(opponents))

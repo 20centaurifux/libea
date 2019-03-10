@@ -62,7 +62,7 @@ namespace ea::selection
 			   overflow occurs.
 			 */
 			template<typename InputIterator, typename Fitness, typename OutputIterator>
-			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result)
+			void operator()(InputIterator first, InputIterator last, const size_t N, Fitness fitness, OutputIterator result) const
 			{
 				std::vector<double> sums;
 

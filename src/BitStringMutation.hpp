@@ -23,7 +23,6 @@
 #define EA_BITSTRING_MUTATION_HPP
 
 #include <iterator>
-#include <vector>
 #include <stdexcept>
 
 #include "Random.hpp"
@@ -61,19 +60,16 @@ namespace ea::mutation
 			{
 				bool flipped = false;
 				const auto length = std::distance(first, last);
-				std::vector<double> probabilities(length);
+				random::RandomEngine engine = random::default_engine();
+				std::uniform_real_distribution<double> dist(0.0, 1.0);
 
 				while(!flipped && length > 0)
 				{
-					random::fill_n_real(begin(probabilities), length, 0.0, 1.0);
-
-					auto n = begin(probabilities);
-
-					for(auto c = first; c != last; ++c, ++n)
+					for(auto g = first; g != last; ++g)
 					{
-						if(*n <= probability)
+						if(dist(engine) <= probability)
 						{
-							*c = !*c;
+							*g = !*g;
 							flipped = true;
 						}
 					}
