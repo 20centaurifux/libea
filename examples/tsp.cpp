@@ -4,7 +4,7 @@
 
 #include "libea.hpp"
 
-typedef int City;
+using City = int;
 
 struct Point
 {
@@ -12,6 +12,8 @@ struct Point
 	int y;
 };
 
+// describes 59 cities in West Germany
+// https://people.sc.fsu.edu/~jburkardt/datasets/cities/cities.html
 static const int N_CITIES = 59;
 
 static Point Cities[N_CITIES] =
@@ -36,14 +38,15 @@ static Point Cities[N_CITIES] =
 using Route = std::vector<City>;
 using Routes = std::vector<Route>;
 
+// euclidean distance between two cities
 static double
 distance(const City a, const City b)
 {
 	return sqrt(pow(Cities[b].x - Cities[a].x, 2) + pow(Cities[b].y - Cities[a].y, 2));
 }
 
-static std::function<double(Route::iterator, Route::iterator)>
-fitness = [](Route::iterator first, Route::iterator last)
+// accumulate euclidean distances
+static auto fitness = [](auto first, auto last)
 {
 	double f = 0.0;
 
@@ -55,6 +58,7 @@ fitness = [](Route::iterator first, Route::iterator last)
 	return f;
 };
 
+// print some details of the current population
 template<typename InputIterator, typename Fitness>
 static void statistic(InputIterator first, InputIterator last, Fitness fitness)
 {
@@ -70,12 +74,13 @@ static void statistic(InputIterator first, InputIterator last, Fitness fitness)
 	      .take(std::back_inserter(top));
 
 	std::cout << "...average hamming distance: " << ea::diversity::avg_hamming_distance(begin(top), end(top)) << '\n';
-	std::cout << "...entropy: " << ea::diversity::avg_shannon_entropy(begin(top), end(top)) << '\n';
+	std::cout << "...shannon entropy: " << ea::diversity::avg_shannon_entropy(begin(top), end(top)) << '\n';
 	std::cout << "...substring diversity: " << ea::diversity::substr_diversity(begin(top), end(top)) << std::endl;
 }
 
+// print a route
 template<typename InputIterator, typename Fitness>
-static void debug(InputIterator first, InputIterator last, Fitness fitness)
+static void print_route(InputIterator first, InputIterator last, Fitness fitness)
 {
 	std::cout << "[ ";
 
@@ -110,7 +115,6 @@ auto main() -> int
 	{
 		stream = stream.select(ea::selection::DoubleTournament<std::less<double>>(), 1000, fitness)
 		               .crossover(ea::crossover::PMX<Route>())
-		               .mutate(ea::mutation::SingleSwap())
 		               .mutate(ea::mutation::DoubleSwap());
 
 		if(i % 5)
@@ -123,7 +127,7 @@ auto main() -> int
 		}
 	}
 
-	// show best route(s):
+	// show best three route(s):
 	routes.clear();
 
 	stream.select(ea::selection::Fittest<std::less<double>>(), 3, fitness)
@@ -131,7 +135,7 @@ auto main() -> int
 
 	std::for_each(begin(routes), end(routes), [&](Route &route)
 	{
-		debug(begin(route), end(route), fitness);
+		print_route(begin(route), end(route), fitness);
 	});
 
 	// show best route & distances:
