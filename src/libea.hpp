@@ -39,6 +39,7 @@ namespace ea
 
 #include "BitStringMutation.hpp"
 #include "DoubleSwapMutation.hpp"
+#include "GaussianMutation.hpp"
 #include "InverseBitStringMutation.hpp"
 #include "SingleBitStringMutation.hpp"
 #include "SingleSwapMutation.hpp"

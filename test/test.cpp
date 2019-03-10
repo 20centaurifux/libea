@@ -784,7 +784,41 @@ class DoubleSwapMutationTest : public CPPUNIT_NS::TestFixture
 		}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(DoubleSwapMutationTest);
+#include "GaussianMutation.hpp"
+
+class GaussianMutationTest : public CPPUNIT_NS::TestFixture
+{
+	CPPUNIT_TEST_SUITE(GaussianMutationTest);
+	CPPUNIT_TEST(mutate);
+	CPPUNIT_TEST(invalid_args);
+	CPPUNIT_TEST_SUITE_END();
+
+	protected:
+		void mutate()
+		{
+			std::vector<float> a;
+
+			ea::mutation::Gaussian(-10.0, 10.0)(begin(a), end(a));
+
+			ea::random::fill_n_real(std::back_inserter(a), 100, 0.0, 10.0);
+
+			std::vector<float> b;
+
+			std::copy(begin(a), end(a), std::back_inserter(b));
+
+			ea::mutation::Gaussian(-10.0, 10.0)(begin(a), end(a));
+
+			CPPUNIT_ASSERT(std::equal(begin(a), end(a), begin(b)) == false);
+		}
+
+		void invalid_args()
+		{
+			CPPUNIT_ASSERT_THROW(ea::mutation::Gaussian(1, 10, -0.1), std::invalid_argument);
+			CPPUNIT_ASSERT_THROW(ea::mutation::Gaussian(1, 10, 1.1), std::invalid_argument);
+		}
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(GaussianMutationTest);
 
 #include "InverseBitStringMutation.hpp"
 
