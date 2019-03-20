@@ -1,11 +1,11 @@
-CPP=g++
-CPPFLAGS=-std=c++17 -Wall -O2
+CXX?=g++
+override CXXFLAGS+=-std=c++17 -Wall -O2
 LDFLAGS=-lcppunit -fopenmp
 
 .PHONY: test doc clean
 
 test:
-	$(CPP) $(CPPFLAGS) -I./src ./test/test.cpp -o  ./libea-test $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -I./src ./test/test.cpp -o  ./libea-test $(LDFLAGS)
 
 doc:
 	doxygen ./doxygen_config
